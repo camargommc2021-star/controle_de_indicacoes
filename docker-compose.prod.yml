@@ -1,0 +1,21 @@
+services:
+  controle-indicacoes:
+    build: .
+    container_name: controle-indicacoes
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+    environment:
+      - TZ=America/Sao_Paulo
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.controle-indicacoes.rule=Host(`controle-indicacoes.mmendol.com`)"
+      - "traefik.http.routers.controle-indicacoes.entrypoints=websecure"
+      - "traefik.http.routers.controle-indicacoes.tls.certresolver=letsencrypt"
+      - "traefik.http.services.controle-indicacoes.loadbalancer.server.port=8501"
+
+networks:
+  proxy:
+    external: true

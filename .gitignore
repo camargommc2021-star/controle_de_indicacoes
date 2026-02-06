@@ -39,9 +39,8 @@ venv/
 # Streamlit
 .streamlit/
 
-# Data files (opcional - descomente se quiser ignorar dados no git)
-# data/
-# *.xlsx
+# Data files
+data/
 
 # OS
 .DS_Store
