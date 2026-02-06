@@ -9,7 +9,8 @@ colunas = [
     'Curso', 'Turma', 'Vagas', 'Autorizados pelas escalantes', 'Prioridade',
     'Recebimento do SIGAD com as vagas', 'Numero do SIGAD', 'Estado',
     'DATA DA CONCLUSÃO', 'Numero do SIGAD  encaminhando pra chefia',
-    'Prazo dado pela chefia', 'Fim da indicação da SIAT', 'Notas'
+    'Prazo dado pela chefia', 'Fim da indicação da SIAT', 'Notas',
+    'OM_Executora'  # NOVO CAMPO para TCA 37-1
 ]
 
 df = pd.DataFrame(columns=colunas)

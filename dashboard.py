@@ -13,23 +13,26 @@ class Dashboard:
             st.info("Nenhum dado disponível para o dashboard.")
             return
         
-        col1, col2 = st.columns(2)
+        # Mostrar apenas resumo sem gráficos
+        resumo = self.gerar_resumo(df)
+        
+        st.subheader("📊 Resumo Geral")
+        
+        col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            self._grafico_por_estado(df)
+            st.metric("Total de Cursos", resumo.get('total_cursos', 0))
         
         with col2:
-            self._grafico_por_prioridade(df)
-        
-        st.markdown("---")
-        
-        col3, col4 = st.columns(2)
+            st.metric("Prazos Atrasados", resumo.get('prazos_atrasados', 0))
         
         with col3:
-            self._grafico_prazos_proximos(df)
+            st.metric("Prazos Urgentes (≤5 dias)", resumo.get('prazos_urgentes', 0))
         
         with col4:
-            self._grafico_vagas_turma(df)
+            total_vagas = df['Vagas'].sum() if 'Vagas' in df.columns else 0
+            st.metric("Total de Vagas", int(total_vagas))
+
     
     def _grafico_por_estado(self, df):
         try:

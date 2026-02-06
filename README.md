@@ -5,7 +5,7 @@ Sistema web para gestão de cursos e indicações, com persistência via Excel e
 ## 🚀 Funcionalidades
 
 - ✅ **CRUD Completo**: Cadastrar, editar e excluir cursos
-- ✅ **Importação de PDF**: Extrai cursos automaticamente de arquivos PDF
+- ✅ **Importação de PDF**: Extrai cursos automaticamente de arquivos PDF (incluindo TCA 37-1)
 - ✅ **Dashboard Interativo**: Visualização de prazos e estatísticas
 - ✅ **Alertas Visuais**: Cores automáticas nos prazos (verde/amarelo/vermelho)
 - ✅ **Persistência**: Dados salvos em Excel no GitHub
@@ -13,6 +13,7 @@ Sistema web para gestão de cursos e indicações, com persistência via Excel e
 
 ## 📋 Campos do Sistema
 
+### Campos Base (14 campos):
 1. Curso
 2. Turma
 3. Vagas
@@ -26,6 +27,14 @@ Sistema web para gestão de cursos e indicações, com persistência via Excel e
 11. Prazo dado pela chefia
 12. Fim da indicação da SIAT
 13. Notas
+14. **OM_Executora** (NOVO - para TCA 37-1)
+
+### Campos Dinâmicos por OM:
+O sistema detecta automaticamente OMs do PDF TCA 37-1 e cria campos como:
+- OM_GCC
+- OM_CINDACTA_I, OM_CINDACTA_II, OM_CINDACTA_III, OM_CINDACTA_IV
+- OM_CISCEA, OM_CRCEA_SE, OM_DECEA, OM_GEIV, OM_PAME_RJ
+- E outras OMs encontradas automaticamente
 
 ## 🎨 Sistema de Cores nos Prazos
 
@@ -35,7 +44,24 @@ Sistema web para gestão de cursos e indicações, com persistência via Excel e
 
 ## 🚀 Como Usar
 
-### 1. Instalação Local (Desenvolvimento)
+### Opção 1: Deploy no Streamlit Cloud (Recomendado)
+
+1. **Faça upload do código para o GitHub:**
+   ```bash
+   git add .
+   git commit -m "Sistema Controle de Cursos v1.0 - Campos opcionais"
+   git push origin main
+   ```
+
+2. **Configure o GitHub Token:**
+   - Veja o guia completo em: [GITHUB_SETUP.md](GITHUB_SETUP.md)
+   - Crie um token em: https://github.com/settings/tokens
+   - Adicione no Streamlit Cloud: Settings → Secrets → GITHUB_TOKEN
+
+3. **Acesse seu app:**
+   - URL: https://share.streamlit.io/camargommc2021-star/controledeindica-es
+
+### Opção 2: Instalação Local (Testes)
 
 ```bash
 # Clone o repositório
@@ -49,12 +75,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-### 2. Deploy no Streamlit Cloud
-
-1. Faça push deste código para o repositório GitHub
-2. Acesse [Streamlit Cloud](https://streamlit.io/cloud)
-3. Conecte seu repositório GitHub
-4. Deploy automático!
+Acesse: http://localhost:8501
 
 ## 📄 Importação de PDF
 

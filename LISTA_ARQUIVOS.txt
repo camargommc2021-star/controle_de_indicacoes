@@ -1,0 +1,60 @@
+ARQUIVOS QUE SERÃO SUBIDOS NO GITHUB
+=====================================
+
+📁 PASTA: controledeindica-es
+│
+├── 📄 app.py                          (Interface principal Streamlit)
+├── 📄 data_manager.py                 (Gerenciamento Excel)
+├── 📄 json_import.py                  (Importador JSON - NOVO)
+├── 📄 dashboard.py                    (Dashboard visualizacoes)
+├── 📄 github_manager.py               (Persistencia GitHub)
+├── 📄 pdf_extractor.py                (Extrator PDF - mantido)
+├── 📄 init_data.py                    (Inicializacao dados)
+├── 📄 backup_manager.py               (Gerenciamento backups)
+│
+├── 📄 requirements.txt                (Dependencias)
+├── 📄 README.md                       (Documentacao)
+├── 📄 GITHUB_SETUP.md                 (Guia configuracao)
+├── 📄 .gitignore                      (Arquivos ignorados)
+├── 📄 .env.example                    (Exemplo variaveis)
+│
+├── 📄 COMANDOS_GITHUB.txt             (Instrucoes GitHub)
+├── 📄 COMANDOS_GIT.txt                (Comandos Git)
+│
+├── 📄 teste_rapido.py                 (Teste sistema)
+├── 📄 teste_sistema.py                (Teste importacao)
+│
+├── 📁 .streamlit/
+│   └── secrets.toml                   (Configuracoes Streamlit)
+│
+├── 📁 data/
+│   └── cursos.xlsx                    (Banco de dados - 59 cursos)
+│
+└── 📁 backups/                        (Backups automaticos)
+    └── cursos_20260204_141845.xlsx
+
+
+❌ ARQUIVOS IGNORADOS (nao serao enviados):
+-----------------------------------------
+• .venv/              (Ambiente virtual - 500+ MB)
+• __pycache__/        (Cache Python)
+• *.pyc               (Arquivos compilados)
+• app.py.corrupted    (Arquivo corrompido)
+• fix_app.py          (Script de reparo)
+• teste_import.json   (Arquivo de teste)
+
+
+TOTAL: 18 arquivos principais
+TAMANHO ESTIMADO: ~100 KB (sem .venv)
+
+
+COMO EXECUTAR:
+--------------
+1. Duplo-clique em: SUBIR_GITHUB.bat
+2. Aguarde o processo completar
+3. Acesse o link mostrado no final
+
+Ou execute manualmente:
+  git add .
+  git commit -m "Sistema v3.0"
+  git push origin main
