@@ -17,7 +17,7 @@ curso_teste = {
     'Recebimento do SIGAD com as vagas': '15/01/2026',
     'Numero do SIGAD': '12345/2026',
     'Estado': 'solicitar voluntarios',
-    'DATA DA CONCLUSÃO': '',
+    'DATA_DA_CONCLUSAO': '',
     'Numero do SIGAD  encaminhando pra chefia': '',
     'Prazo dado pela chefia': '20/02/2026',
     'Fim da indicação da SIAT': '25/02/2026',
