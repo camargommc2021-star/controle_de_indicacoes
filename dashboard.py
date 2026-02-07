@@ -172,7 +172,11 @@ class Dashboard:
         try:
             resumo = {}
             
+            # Filtrar cursos não concluídos para os alertas
+            df_ativos = df[df['Estado'] != 'Concluído'].copy() if 'Estado' in df.columns else df.copy()
+            
             resumo['total_cursos'] = len(df)
+            resumo['total_ativos'] = len(df_ativos)
             
             if 'Estado' in df.columns:
                 resumo['por_estado'] = df['Estado'].value_counts().to_dict()
@@ -180,12 +184,13 @@ class Dashboard:
             if 'Prioridade' in df.columns:
                 resumo['por_prioridade'] = df['Prioridade'].value_counts().to_dict()
             
-            if 'Fim indicação da SIAT' in df.columns:
+            # Calcular prazos apenas para cursos ativos (não concluídos)
+            if 'Fim indicação da SIAT' in df_ativos.columns:
                 hoje = date.today()
                 atrasados = 0
                 urgentes = 0
                 
-                for data_str in df['Fim indicação da SIAT'].dropna():
+                for data_str in df_ativos['Fim indicação da SIAT'].dropna():
                     try:
                         if isinstance(data_str, str):
                             data = datetime.strptime(data_str, "%d/%m/%Y").date()

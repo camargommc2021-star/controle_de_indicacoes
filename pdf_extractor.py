@@ -234,7 +234,7 @@ class PDFExtractor:
             'Recebimento do SIGAD com as vagas': '',
             'Numero do SIGAD': '',
             'Estado': '',
-            'DATA DA CONCLUSÃO': '',
+            'DATA_DA_CONCLUSAO': '',
             'Numero do SIGAD  encaminhando pra chefia': '',
             'Prazo dado pela chefia': '',
             'Fim da indicação da SIAT': curso.get('Fim da indicação da SIAT', ''),

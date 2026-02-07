@@ -269,6 +269,33 @@ def get_status_prazo(data_str):
     except:
         return "Data inválida"
 
+def get_cor_prazo_chefia(data_str):
+    """
+    Retorna a cor para prazo da chefia:
+    - Roxo: 0-7 dias (próximo)
+    - Cinza: > 7 dias ou vazio
+    """
+    try:
+        if not data_str:
+            return "#95a5a6"  # Cinza para data vazia
+        
+        if isinstance(data_str, str):
+            data = datetime.strptime(data_str, "%d/%m/%Y").date()
+        else:
+            data = data_str
+        
+        hoje = date.today()
+        dias_restantes = (data - hoje).days
+        
+        if dias_restantes <= 7 and dias_restantes >= 0:
+            return "#9b59b6"  # Roxo - Prazo chefia próximo
+        elif dias_restantes < 0:
+            return "#e74c3c"  # Vermelho - Atrasado
+        else:
+            return "#95a5a6"  # Cinza - tranquilo
+    except:
+        return "#95a5a6"  # Cinza para erro
+
 # ============================================
 # HEADER
 # ============================================
@@ -333,69 +360,128 @@ with tab_lista:
     if df.empty:
         st.info("📋 Nenhum curso encontrado.")
     else:
-        # Organizar por estado
-        estados_ordenados = ['solicitar voluntários', 'fazer indicação', 'ver vagas escalantes', 'Concluído', 'Sem estado']
-        cores_estado = {
-            'solicitar voluntários': '#e74c3c',
-            'fazer indicação': '#f1c40f',
-            'ver vagas escalantes': '#3498db',
-            'Concluído': '#2ecc71',
-            'Sem estado': '#95a5a6'
-        }
+        # Separar cursos concluídos dos demais
+        df_ativos = df[df['Estado'] != 'Concluído'].copy() if 'Estado' in df.columns else df.copy()
+        df_concluidos = df[df['Estado'] == 'Concluído'].copy() if 'Estado' in df.columns else pd.DataFrame()
         
-        # Verificar se existe coluna Estado
-        if 'Estado' not in df.columns:
-            df['Estado'] = 'Sem estado'
-        
-        # Preencher estados vazios/NaN
-        df['Estado'] = df['Estado'].fillna('Sem estado')
-        df['Estado'] = df['Estado'].replace('', 'Sem estado')
-        
-        for estado in estados_ordenados:
-            df_estado = df[df['Estado'] == estado]
+        # Mostrar cursos ativos (não concluídos)
+        if not df_ativos.empty:
+            st.subheader("📚 Cursos em Andamento")
             
-            if not df_estado.empty:
-                cor = cores_estado.get(estado, '#95a5a6')
+            estados_ordenados = ['solicitar voluntários', 'fazer indicação', 'ver vagas escalantes', 'Sem estado']
+            cores_estado = {
+                'solicitar voluntários': '#e74c3c',
+                'fazer indicação': '#f1c40f',
+                'ver vagas escalantes': '#3498db',
+                'Sem estado': '#95a5a6'
+            }
+            
+            # Verificar se existe coluna Estado
+            if 'Estado' not in df_ativos.columns:
+                df_ativos['Estado'] = 'Sem estado'
+            
+            # Preencher estados vazios/NaN
+            df_ativos['Estado'] = df_ativos['Estado'].fillna('Sem estado')
+            df_ativos['Estado'] = df_ativos['Estado'].replace('', 'Sem estado')
+            
+            for estado in estados_ordenados:
+                df_estado = df_ativos[df_ativos['Estado'] == estado]
                 
-                with st.expander(f"{estado.upper()} ({len(df_estado)} cursos)", expanded=True):
-                    st.markdown(f"""
-                    <div style="border-left: 4px solid {cor}; padding-left: 10px; margin-bottom: 10px;">
-                        <h4 style="color: {cor};">{estado}</h4>
-                    </div>
-                    """, unsafe_allow_html=True)
+                if not df_estado.empty:
+                    cor = cores_estado.get(estado, '#95a5a6')
                     
-                    for idx, row in df_estado.iterrows():
-                        curso_nome = row.get('Curso', 'Sem nome')
-                        turma = row.get('Turma', 'N/A')
-                        vagas = row.get('Vagas', 0)
-                        data_siat = row.get('Fim da indicação da SIAT', '')
+                    with st.expander(f"{estado.upper()} ({len(df_estado)} cursos)", expanded=True):
+                        st.markdown(f"""
+                        <div style="border-left: 4px solid {cor}; padding-left: 10px; margin-bottom: 10px;">
+                            <h4 style="color: {cor};">{estado}</h4>
+                        </div>
+                        """, unsafe_allow_html=True)
                         
-                        cor_prazo = get_cor_prazo(data_siat)
-                        status_prazo = get_status_prazo(data_siat)
-                        
-                        col1, col2, col3, col4 = st.columns([3, 1, 2, 1])
-                        
-                        with col1:
-                            st.write(f"**{curso_nome}**")
-                            st.caption(f"Turma: {turma}")
-                        
-                        with col2:
-                            st.write(f"👥 {vagas} vagas")
-                        
-                        with col3:
-                            st.markdown(f"<span style='color: {cor_prazo};'>⏰ {status_prazo}</span>", 
-                                      unsafe_allow_html=True)
-                        
-                        with col4:
-                            if st.button("🗑️", key=f"del_{idx}"):
-                                sucesso, msg = st.session_state.data_manager.excluir_curso(idx)
-                                if sucesso:
-                                    st.success(msg)
-                                    st.rerun()
-                                else:
-                                    st.error(msg)
-                        
-                        st.markdown("---")
+                        for idx, row in df_estado.iterrows():
+                            curso_nome = row.get('Curso', 'Sem nome')
+                            turma = row.get('Turma', 'N/A')
+                            vagas = row.get('Vagas', 0)
+                            data_siat = row.get('Fim da indicação da SIAT', '')
+                            prazo_chefia = row.get('Prazo dado pela chefia', '')
+                            
+                            # Verificar prazo da chefia
+                            cor_chefia = get_cor_prazo_chefia(prazo_chefia) if prazo_chefia else None
+                            
+                            col1, col2, col3, col4 = st.columns([3, 1, 2, 1])
+                            
+                            with col1:
+                                st.write(f"**{curso_nome}**")
+                                st.caption(f"Turma: {turma}")
+                                # Mostrar prioridade
+                                prioridade = row.get('Prioridade', '')
+                                if prioridade == 'Alta':
+                                    st.markdown("<span style='color: #e74c3c; font-size: 0.8em;'>🔴 Prioridade Alta</span>", unsafe_allow_html=True)
+                                elif prioridade == 'Média':
+                                    st.markdown("<span style='color: #f1c40f; font-size: 0.8em;'>🟡 Prioridade Média</span>", unsafe_allow_html=True)
+                                elif prioridade == 'Baixa':
+                                    st.markdown("<span style='color: #2ecc71; font-size: 0.8em;'>🟢 Prioridade Baixa</span>", unsafe_allow_html=True)
+                            
+                            with col2:
+                                st.write(f"👥 {vagas} vagas")
+                            
+                            with col3:
+                                # Alerta de prazo SIAT
+                                if data_siat:
+                                    cor_prazo = get_cor_prazo(data_siat)
+                                    dias_restantes = get_status_prazo(data_siat)
+                                    st.markdown(f"<span style='color: {cor_prazo};'>⏰ {dias_restantes}</span>", unsafe_allow_html=True)
+                                
+                                # Alerta de prazo Chefia (roxo quando próximo)
+                                if prazo_chefia and cor_chefia == "#9b59b6":
+                                    st.markdown(f"<span style='color: #9b59b6; font-weight: bold;'>🟣 Prazo Chefia: {prazo_chefia}</span>", unsafe_allow_html=True)
+                                elif prazo_chefia:
+                                    st.caption(f"Chefia: {prazo_chefia}")
+                            
+                            with col4:
+                                if st.button("🗑️", key=f"del_{idx}"):
+                                    sucesso, msg = st.session_state.data_manager.excluir_curso(idx)
+                                    if sucesso:
+                                        st.success(msg)
+                                        st.rerun()
+                                    else:
+                                        st.error(msg)
+                            
+                            st.markdown("---")
+        
+        # Mostrar cursos concluídos em seção separada
+        if not df_concluidos.empty:
+            st.markdown("---")
+            st.subheader("✅ Cursos Concluídos")
+            
+            with st.expander(f"VER CURSOS CONCLUÍDOS ({len(df_concluidos)})", expanded=False):
+                for idx, row in df_concluidos.iterrows():
+                    curso_nome = row.get('Curso', 'Sem nome')
+                    turma = row.get('Turma', 'N/A')
+                    vagas = row.get('Vagas', 0)
+                    data_conclusao = row.get('DATA_DA_CONCLUSAO', '')
+                    
+                    col1, col2, col3 = st.columns([4, 2, 1])
+                    
+                    with col1:
+                        st.write(f"**{curso_nome}**")
+                        st.caption(f"Turma: {turma}")
+                    
+                    with col2:
+                        st.write(f"👥 {vagas} vagas")
+                        conclusao_str = str(data_conclusao).strip()
+                        if conclusao_str and conclusao_str.lower() != 'nan':
+                            st.success(f"✅ Concluído em: {data_conclusao}")
+                    
+                    with col3:
+                        if st.button("🗑️", key=f"del_conc_{idx}"):
+                            sucesso, msg = st.session_state.data_manager.excluir_curso(idx)
+                            if sucesso:
+                                st.success(msg)
+                                st.rerun()
+                            else:
+                                st.error(msg)
+                    
+                    st.markdown("---")
 
 # ============================================
 # ABA 3: NOVO CURSO
@@ -495,16 +581,27 @@ with tab_editar:
                                          index=['solicitar voluntários', 'fazer indicação', 'ver vagas escalantes', 'Concluído'].index(curso_atual.get('Estado', 'solicitar voluntários')) if curso_atual.get('Estado') in ['solicitar voluntários', 'fazer indicação', 'ver vagas escalantes', 'Concluído'] else 0)
                     prioridade = st.selectbox("Prioridade", ['Alta', 'Média', 'Baixa'],
                                              index=['Alta', 'Média', 'Baixa'].index(curso_atual.get('Prioridade', 'Média')) if curso_atual.get('Prioridade') in ['Alta', 'Média', 'Baixa'] else 1)
-                
-                with col2:
                     data_siat = st.text_input("Fim da indicação SIAT (DD/MM/AAAA)", 
                                              value=str(curso_atual.get('Fim da indicação da SIAT', '')))
+                
+                with col2:
                     num_sigad = st.text_input("Número do SIGAD", 
                                              value=str(curso_atual.get('Numero do SIGAD', '')))
                     om_executora = st.text_input("OM Executora", 
                                                 value=str(curso_atual.get('OM_Executora', '')))
+                    # Novos campos
+                    prazo_chefia = st.text_input("Prazo dado pela chefia (DD/MM/AAAA)", 
+                                                value=str(curso_atual.get('Prazo dado pela chefia', '')))
+                    sigad_origem = st.text_input("SIGAD que originou (opcional)", 
+                                                value=str(curso_atual.get('SIGAD que originou', '')))
                     notas = st.text_area("Notas", 
                                         value=str(curso_atual.get('Notas', '')))
+                    
+                    # Mostrar data de conclusão (se existir)
+                    data_conclusao = curso_atual.get('DATA_DA_CONCLUSAO', '')
+                    conclusao_str = str(data_conclusao).strip()
+                    if conclusao_str and conclusao_str.lower() != 'nan':
+                        st.info(f"📅 Data de Conclusão: {data_conclusao}")
                 
                 submitted = st.form_submit_button("💾 Atualizar Curso")
                 
@@ -519,8 +616,18 @@ with tab_editar:
                         'Fim da indicação da SIAT': data_siat,
                         'Numero do SIGAD': num_sigad,
                         'OM_Executora': om_executora,
+                        'Prazo dado pela chefia': prazo_chefia,
+                        'SIGAD que originou': sigad_origem,
                         'Notas': notas
                     }
+                    
+                    # Se o estado for "Concluído" e não tiver data de conclusão, salvar data atual
+                    if estado == 'Concluído':
+                        conclusao_str = str(data_conclusao).strip()
+                        if not conclusao_str or conclusao_str.lower() == 'nan':
+                            curso_atualizado['DATA_DA_CONCLUSAO'] = datetime.now().strftime('%d/%m/%Y')
+                        else:
+                            curso_atualizado['DATA_DA_CONCLUSAO'] = data_conclusao
                     
                     # Manter valores de OM existentes
                     for col in df.columns:
