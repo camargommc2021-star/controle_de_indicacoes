@@ -1,0 +1,32 @@
+name: Test SSH Connection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-ssh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test SSH Connection
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || '22' }}
+          debug: true
+          script: |
+            echo "✅ Conexão SSH funcionando!"
+            echo "Usuário: $(whoami)"
+            echo "Hostname: $(hostname)"
+            echo "Diretório atual: $(pwd)"
+            echo ""
+            echo "Verificando Docker:"
+            docker --version || echo "❌ Docker não instalado"
+            docker compose version || echo "❌ Docker Compose não instalado"
+            echo ""
+            echo "Verificando diretório do projeto:"
+            ls -la /srv/docker/controle-indicacoes 2>/dev/null || echo "⚠️ Diretório não existe (será criado no deploy)"
+            echo ""
+            echo "Verificando rede proxy:"
+            docker network ls | grep proxy || echo "⚠️ Rede 'proxy' não existe (será criada no deploy)"
