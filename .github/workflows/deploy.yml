@@ -43,7 +43,9 @@ jobs:
               sudo git clone "$REPO_URL" .
             else
               echo "🔄 Atualizando repositório..."
-              sudo git pull origin main
+              sudo git fetch origin main
+              sudo git reset --hard origin/main
+              sudo git clean -fd
             fi
             echo ""
             
