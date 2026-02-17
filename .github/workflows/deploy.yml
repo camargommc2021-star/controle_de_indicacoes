@@ -28,7 +28,14 @@ jobs:
             cd "$PROJECT_DIR"
             git pull origin main
 
-            # Build e restart
+            # Parar container antigo
+            docker compose -f docker-compose.prod.yml down
+
+            # Build nova imagem
             docker compose -f docker-compose.prod.yml build --no-cache
-            docker compose -f docker-compose.prod.yml up -d
+
+            # Subir com novo container
+            docker compose -f docker-compose.prod.yml up -d --force-recreate
+
+            # Limpar imagens antigas
             docker image prune -f
