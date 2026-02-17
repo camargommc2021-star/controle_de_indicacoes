@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./data:/app/data
+      - ./.streamlit/secrets.toml:/app/.streamlit/secrets.toml:ro
     environment:
       - TZ=America/Sao_Paulo
     networks:
