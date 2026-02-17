@@ -1,0 +1,459 @@
+/* ============================================
+   CONTROLE DE CURSOS - TEMA SUAVE E HARMONIOSO
+   Paleta: Azul Petróleo / Slate / Cinza Suave
+   ============================================ */
+
+/* ============================================
+   CONFIGURAÇÕES GLOBAIS
+   ============================================ */
+.stApp {
+    background: #f8fafc;
+    color: #475569;
+}
+
+/* ============================================
+   TIPOGRAFIA
+   ============================================ */
+h1 {
+    color: #334155 !important;
+    font-weight: 600 !important;
+    font-size: 1.6rem !important;
+    letter-spacing: -0.01em !important;
+}
+
+h2 {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 1.3rem !important;
+}
+
+h3 {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+}
+
+p, span {
+    color: #64748b !important;
+}
+
+label {
+    color: #475569 !important;
+    font-weight: 500 !important;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+[data-testid="stSidebar"] {
+    background: #ffffff !important;
+    border-right: 1px solid #e2e8f0;
+}
+
+[data-testid="stSidebar"] .stMarkdown h1,
+[data-testid="stSidebar"] .stMarkdown h2,
+[data-testid="stSidebar"] .stMarkdown h3 {
+    color: #475569 !important;
+}
+
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] span,
+[data-testid="stSidebar"] label {
+    color: #64748b !important;
+}
+
+/* ============================================
+   BOTÕES - PALETA SUAVE
+   ============================================ */
+.stButton > button {
+    background: #0d9488 !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.stButton > button:hover {
+    background: #0f766e !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+}
+
+/* Forçar texto branco em todos os botões */
+.stButton > button p,
+.stButton > button span,
+.stButton > button div {
+    color: #ffffff !important;
+}
+
+/* Botão secundário */
+.stButton > button[kind="secondary"] {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+.stButton > button[kind="secondary"]:hover {
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+}
+
+.stButton > button[kind="secondary"] p,
+.stButton > button[kind="secondary"] span,
+.stButton > button[kind="secondary"] div {
+    color: #475569 !important;
+}
+
+/* Botão primário (type="primary") - para Streamlit novas versões */
+button[kind="primary"] {
+    background: #0d9488 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+button[kind="primary"] p,
+button[kind="primary"] span,
+button[kind="primary"] div {
+    color: #ffffff !important;
+}
+
+/* Submit buttons em formulários */
+[data-testid="stFormSubmitButton"] > button {
+    background: #0d9488 !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+[data-testid="stFormSubmitButton"] > button p,
+[data-testid="stFormSubmitButton"] > button span,
+[data-testid="stFormSubmitButton"] > button div {
+    color: #ffffff !important;
+}
+
+[data-testid="stFormSubmitButton"] > button:hover {
+    background: #0f766e !important;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
+}
+
+/* ============================================
+   INPUTS
+   ============================================ */
+.stTextInput > div > div > input,
+.stSelectbox > div > div > select,
+.stDateInput > div > div > input,
+.stTextArea > div > div > textarea {
+    background: #ffffff !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 0.75rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.stTextInput > div > div > input:focus,
+.stSelectbox > div > div > select:focus,
+.stDateInput > div > div > input:focus {
+    border-color: #0d9488 !important;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1) !important;
+}
+
+/* Labels */
+.stTextInput label,
+.stSelectbox label,
+.stDateInput label,
+.stTextArea label {
+    color: #475569 !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+}
+
+/* ============================================
+   CARDS E MÉTRICAS
+   ============================================ */
+[data-testid="stMetric"] {
+    background: #ffffff !important;
+    border-radius: 12px !important;
+    padding: 1.25rem !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.2s ease !important;
+}
+
+[data-testid="stMetric"]:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+    transform: translateY(-2px);
+}
+
+[data-testid="stMetric"] label {
+    color: #94a3b8 !important;
+    font-weight: 500 !important;
+    font-size: 0.85rem !important;
+}
+
+[data-testid="stMetric"] [data-testid="stMetricValue"] {
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 1.6rem !important;
+}
+
+/* ============================================
+   ABAS
+   ============================================ */
+.stTabs [data-baseweb="tab-list"] {
+    background: #f1f5f9 !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
+    gap: 2px !important;
+    border: none !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+    color: #64748b !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    padding: 0.5rem 0.875rem !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    color: #0d9488 !important;
+    background: rgba(13, 148, 136, 0.06) !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: #ffffff !important;
+    color: #0d9488 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ============================================
+   ALERTAS - PALETA SUAVE
+   ============================================ */
+.stAlert {
+    border-radius: 10px !important;
+    border: none !important;
+    padding: 0.875rem 1rem !important;
+}
+
+/* Sucesso - verde suave */
+[data-testid="stAlert"][data-kind="success"] {
+    background: #f0fdf4 !important;
+    color: #15803d !important;
+    border-left: 3px solid #22c55e !important;
+}
+
+/* Erro - vermelho suave */
+[data-testid="stAlert"][data-kind="error"] {
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+    border-left: 3px solid #ef4444 !important;
+}
+
+/* Aviso - âmbar suave */
+[data-testid="stAlert"][data-kind="warning"] {
+    background: #fffbeb !important;
+    color: #b45309 !important;
+    border-left: 3px solid #f59e0b !important;
+}
+
+/* Info - azul petróleo suave */
+[data-testid="stAlert"][data-kind="info"] {
+    background: #f0fdfa !important;
+    color: #0f766e !important;
+    border-left: 3px solid #0d9488 !important;
+}
+
+/* ============================================
+   TABELAS
+   ============================================ */
+.stDataFrame {
+    background: #ffffff !important;
+    border-radius: 10px !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.stDataFrame th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.stDataFrame td {
+    color: #64748b !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.stDataFrame tr:hover td {
+    background: #f8fafc !important;
+}
+
+/* ============================================
+   EXPANDER
+   ============================================ */
+.streamlit-expander {
+    background: white !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.streamlit-expanderHeader {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    padding: 0.875rem 1rem !important;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+/* ============================================
+   DIVISÓRIAS
+   ============================================ */
+hr {
+    border: none !important;
+    border-top: 1px solid #e2e8f0 !important;
+    margin: 1.5rem 0 !important;
+}
+
+/* ============================================
+   FILE UPLOADER
+   ============================================ */
+.stFileUploader > div > div {
+    background: #f8fafc !important;
+    color: #64748b !important;
+    border: 2px dashed #d1d5db !important;
+    border-radius: 10px !important;
+}
+
+.stFileUploader > div > div:hover {
+    border-color: #0d9488 !important;
+    background: #f0fdfa !important;
+}
+
+/* ============================================
+   LOGIN PAGE - DESIGN MODERNO GRADIENTE
+   ============================================ */
+
+/* Container principal full screen */
+.login-page-container {
+    min-height: 100vh !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+}
+
+/* Card de login */
+.login-card {
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    padding: 40px !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Remover bordas do form dentro do login card */
+.login-card [data-testid="stForm"] {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Inputs do login */
+.login-card [data-testid="stTextInput"] {
+    margin-bottom: 15px !important;
+}
+
+.login-card [data-testid="stTextInput"] > div > div > input {
+    background: #fafafa !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    padding: 14px 16px !important;
+    font-size: 0.95rem !important;
+    min-height: 50px !important;
+    height: 50px !important;
+    transition: all 0.3s ease !important;
+}
+
+.login-card [data-testid="stTextInput"] > div > div > input:focus {
+    border-color: #667eea !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
+}
+
+/* Botão do login */
+.login-card [data-testid="stFormSubmitButton"] {
+    margin-top: 10px !important;
+}
+
+.login-card [data-testid="stFormSubmitButton"] > button {
+    width: 100% !important;
+    padding: 14px !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+.login-card [data-testid="stFormSubmitButton"] > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* ============================================
+   BADGES E TAGS - PALETA SUAVE
+   ============================================ */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+}
+
+.badge-success {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge-warning {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.badge-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.badge-info {
+    background: #ccfbf1;
+    color: #0f766e;
+}
+
+/* ============================================
+   RESPONSIVIDADE
+   ============================================ */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.4rem !important;
+    }
+    
+    [data-testid="stMetric"] {
+        padding: 1rem !important;
+    }
+}

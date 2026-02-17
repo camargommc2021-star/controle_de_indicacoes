@@ -1,0 +1,893 @@
+[
+  {
+    "codigo_curso": "SEC001E",
+    "nome_curso": "AGENTE AVSEC",
+    "comando": "AVSEC",
+    "setor_responsavel": "COP",
+    "nome_chefe": "LEONARDO REZENDE ALVES",
+    "posto_chefe": "Maj Av",
+    "funcao_chefe": "Chefe do COP"
+  },
+  {
+    "codigo_curso": "SEC002E",
+    "nome_curso": "ATC AVSEC",
+    "comando": "AVSEC",
+    "setor_responsavel": "DA",
+    "nome_chefe": "RODRIGO GENTIL RODRIGUES",
+    "posto_chefe": "Maj Av",
+    "funcao_chefe": "Chefe da DA"
+  },
+  {
+    "codigo_curso": "SEC003E",
+    "nome_curso": "SEGURANÇA CIBERNÉTICA AVSEC",
+    "comando": "AVSEC",
+    "setor_responsavel": "DO",
+    "nome_chefe": "MARCELO MOREIRA DE ANDRADE",
+    "posto_chefe": "Ten Cel QOECTA",
+    "funcao_chefe": "Chefe da DO"
+  },
+  {
+    "codigo_curso": "SEC004E",
+    "nome_curso": "OEA AVSEC",
+    "comando": "AVSEC",
+    "setor_responsavel": "DT",
+    "nome_chefe": "JOSÉ ANTÔNIO GAMA JÚNIOR",
+    "posto_chefe": "Ten Cel QOECOM",
+    "funcao_chefe": "Chefe da DT"
+  },
+  {
+    "codigo_curso": "CATF",
+    "nome_curso": "CURSO PARA APLICAÇÃO DO TESTE DE CONDICIONAMENTO FÍSICO",
+    "comando": "CSD",
+    "setor_responsavel": "SIPACEA",
+    "nome_chefe": "GUSTAVO HENRIQUE SANNINO VISSENTINI",
+    "posto_chefe": "Ten Cel QOAV",
+    "funcao_chefe": "Chefe da SIPACEA"
+  },
+  {
+    "codigo_curso": "COTF",
+    "nome_curso": "CURSO PARA ORIENTAÇÃO DO TREINAMENTO FÍSICO PROFISSIONAL",
+    "comando": "CSD",
+    "setor_responsavel": "SIAT",
+    "nome_chefe": "NATÁLIA DE CASTRO GUERREIRO",
+    "posto_chefe": "Cv DACTA 1301",
+    "funcao_chefe": "Chefe da Seção de Idiomas"
+  },
+  {
+    "codigo_curso": "CST",
+    "nome_curso": "CURSO DE SEGURANÇA DO TRABALHO",
+    "comando": "CST",
+    "setor_responsavel": "CSD",
+    "nome_chefe": "CARLOS RENAN DE SOUZA",
+    "posto_chefe": "Cap QOECOM",
+    "funcao_chefe": "Chefe da CSD"
+  },
+  {
+    "codigo_curso": "APH001E",
+    "nome_curso": "BÁSICO DE PREVENÇÃO DE ACIDENTES DO TRABALHO",
+    "comando": "CST",
+    "setor_responsavel": "AVSEC",
+    "nome_chefe": "DIOGO VIEIRA BEZERRA",
+    "posto_chefe": "Maj Inf",
+    "funcao_chefe": "Gerente AVSEC do CRCEA-SE"
+  },
+  {
+    "codigo_curso": "APH007",
+    "nome_curso": "CAPACITAÇÃO PARA TRABALHO EM ALTURA",
+    "comando": "CST",
+    "setor_responsavel": "CST",
+    "nome_chefe": "?????",
+    "posto_chefe": "???",
+    "funcao_chefe": "Chefe da CST"
+  },
+  {
+    "codigo_curso": "CFACC-MB",
+    "nome_curso": "CURSO DE FISCALIZAÇÃO, ACOMPANHAMENTO E CONTROLE DE CONTRATOS - MB",
+    "comando": "DA",
+    "setor_responsavel": "CMT",
+    "nome_chefe": "FÁBIO LOURENÇO CARNEIRO BARBOSA",
+    "posto_chefe": "Ten Cel QOAV",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CFCA",
+    "nome_curso": "CURSO DE FISCALIZAÇÃO DE CONTRATOS ADMINISTRATIVOS",
+    "comando": "DA",
+    "setor_responsavel": "SUBCMT",
+    "nome_chefe": "ROBSON LAUBE ROQUE MOREIRA",
+    "posto_chefe": "Ten Cel QOAV",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CNDAL",
+    "nome_curso": "CURSO DE NOÇÕES DE DIREITO ADMINISTRATIVO E LEGISLAÇÃO",
+    "comando": "DA",
+    "setor_responsavel": "",
+    "nome_chefe": "NATÁLIA DE CASTRO GUERREIRO",
+    "posto_chefe": "Cv DACTA 1301",
+    "funcao_chefe": "Chefe da Seção de Idiomas"
+  },
+  {
+    "codigo_curso": "AGA001E",
+    "nome_curso": "INTRODUÇÃO À ATIVIDADE AGA NO ÂMBITO DO SISCEAB",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "ALESSANDRO GERONIMO BONANI",
+    "posto_chefe": "Cap Esp CTA R/1",
+    "funcao_chefe": "Chefe da SIAT"
+  },
+  {
+    "codigo_curso": "AGA002",
+    "nome_curso": "ANÁLISE TÉCNICA DE PLANOS DE ZONA DE PROTEÇÃO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "AGA003",
+    "nome_curso": "ANÁLISE DOCUMENTAL DE PROCESSOS DA ÁREA AGA",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "AGA004",
+    "nome_curso": "ANÁLISE TÉCNICA DE PROCESSOS DA ÁREA AGA NO ÂMBITO DO COMAER",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "AGA006",
+    "nome_curso": "CONFECÇÃO DAS ZONAS DE PROTEÇÃO DOS AERÓDROMOS E HELIPONTOS.",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "AGA007",
+    "nome_curso": "ELABORAÇÃO DE ESTUDOS AERONÁUTICOS DA ÁREA AGA E CONTROLE DE OBSTÁCULOS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ANS001",
+    "nome_curso": "INSPEÇÃO DE SEGURANÇA OPERACIONAL DO CONTROLE DO ESPAÇO AÉREO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM002",
+    "nome_curso": "BÁSICO DE VIGILÂNCIA ATS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM006",
+    "nome_curso": "CAPACITAÇÃO CONVENCIONAL PARA ACC E APP (RECICLAGEM OPERACIONAL PARA CONTROLE NÃO CONVENCIONAL)",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM011S",
+    "nome_curso": "SUPERVISOR DE ÓRGÃOS ATC",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM015",
+    "nome_curso": "TÉCNICAS DO SERVIÇO DE VIGILÂNCIA ATS EM ROTA E ÁREA TERMINAL",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM021E",
+    "nome_curso": "SISTEMA ANTICOLISÃO DE BORDO (ACAS II)",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM027",
+    "nome_curso": "TÉCNICAS DE OPERAÇÃO EM CONTROLE DE HELICÓPTEROS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM034",
+    "nome_curso": "PROCEDIMENTOS APV / BARO - VNAV",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM035",
+    "nome_curso": "PROCEDIMENTOS PARA HELICÓPTEROS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM036",
+    "nome_curso": "PROCEDIMENTO RNP AR APCH",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM037",
+    "nome_curso": "PRÁTICA DE ELABORAÇÃO DE PROCEDIMENTOS PANS-OPS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM042",
+    "nome_curso": "COMUNICAÇÃO DATA LINK ENTRE CONTROLADOR E PILOTO - CPDLC",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM043A",
+    "nome_curso": "BÁSICO DE PLANEJAMENTO DO ESPAÇO AÉREO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM045",
+    "nome_curso": "CAPACITAÇÃO EM CÁLCULO DE CAPACIDADE DE PISTA",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM046",
+    "nome_curso": "CURSO DE CHEFE DE EQUIPE DE ÓRGÃO ATC",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM047",
+    "nome_curso": "INDICADORES DE DESEMPENHO ATM",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CGN001S",
+    "nome_curso": "CAPACITAÇÃO EM GERÊNCIA REGIONAL",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CGN004E",
+    "nome_curso": "GERENCIAMENTO NACIONAL DE FLUXO DE TRÁFEGO AÉREO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CGN005",
+    "nome_curso": "GERENCIAMENTO DE FLUXO DE TRÁFEGO AÉREO PARA SUPERVISORES DE ÓRGÃO ATC",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CNS014S",
+    "nome_curso": "RADIOPERAÇÃO EM PLATAFORMA MARÍTIMA - EPTA CAT \"M\"",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CNS019",
+    "nome_curso": "SUPERVISÃO DO AMHS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CNS021",
+    "nome_curso": "SERVIÇO DE INFORMAÇÃO DE VOO NA FIR",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CNS101",
+    "nome_curso": "BÁSICO DE INSPEÇÃO EM VOO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CNS102",
+    "nome_curso": "ESPECIALIZAÇÃO EM INSPEÇÃO EM VOO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CNS103",
+    "nome_curso": "INSPEÇÃO EM VÔO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP006",
+    "nome_curso": "CAPACITAÇÃO PARA INSTRUÇÃO PRÁTICA",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM001",
+    "nome_curso": "TEÓRICO E SIMULADO DE CONTROLE DE TRÁFEGO AÉREO MILITAR",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM002",
+    "nome_curso": "PRÁTICA REAL DE CONTROLE DE TRÁFEGO AÉREO MILITAR",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM003",
+    "nome_curso": "TEÓRICO E SIMULADO DE INTERCEPTAÇÃO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM004",
+    "nome_curso": "PRATICO REAL DE INTERCEPTAÇÃO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM005",
+    "nome_curso": "GERENCIAMENTO DE OCOAM",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM006",
+    "nome_curso": "OPERAÇÃO DE GUERRA ELETRÔNICA RADAR",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM007",
+    "nome_curso": "OPERAÇÃO DE SALA DE DISPONIBILIDADE DE MEIOS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM009",
+    "nome_curso": "SIMULADOR DE OPERAÇÕES AÉREAS MILITARES",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM011",
+    "nome_curso": "GERENCIAMENTO DE OCOAM PARA OFICIAIS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM012",
+    "nome_curso": "LIGAÇÃO DE ANTIAÉREA",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM013",
+    "nome_curso": "TÉCNICAS DE INTERCEPTAÇÃO PARA MILITARES DA ATIVA DE NAÇÕES AMIGAS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM014",
+    "nome_curso": "GERENCIAMENTO DE ÓRGÃO DE CONTROLE DE TRÁFEGO AÉREO MILITAR PARA MILITARES DA ATIVA DE NAÇÕES AMIGAS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "OPM015",
+    "nome_curso": "OPERAÇÃO RADAR DE APROXIMAÇÃO DE PRECISÃO (PAR)",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "SAR001",
+    "nome_curso": "COORDENAÇÃO SAR",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "SAR003",
+    "nome_curso": "COMUNICAÇÕES SAR",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "SAR005",
+    "nome_curso": "BÁSICO DE BUSCA E SALVAMENTO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "SAR007",
+    "nome_curso": "COORDENAÇÃO SAR PARA ESTRANGEIROS",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "SGI001E",
+    "nome_curso": "GESTÃO DA QUALIDADE DO SISCEAB",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "TOP001E",
+    "nome_curso": "INTRODUÇÃO A T.I. OPERACIONAL",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "TOP003",
+    "nome_curso": "SUPERVISÃO TÉCNICA STVD DA/COM",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "TOP004",
+    "nome_curso": "SUPERVISÃO TÉCNICA DO SAGITÁRIO - APP",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "TOP006",
+    "nome_curso": "FERRAMENTAS DE TI OPERACIONAL PARA SENSORES DE VIGILÂNCIA",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "TOP013",
+    "nome_curso": "GERENCIAMENTO DE BASE DE DADOS STVD DA/COM",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "TOP014",
+    "nome_curso": "SUPERVISÃO TÉCNICA DO SAGITÁRIO - ACC",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "TOP023",
+    "nome_curso": "GERENCIAMENTO DE BASE DE DADOS DO SAGITTARIO - ACC",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "TOP024",
+    "nome_curso": "GERENCIAMENTO E MANUTENÇÃO DAS BASES DE DADOS DO SAGITARIO NOS APP",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP004A",
+    "nome_curso": "FRASEOLOGIA EM LÍNGUA INGLESA PARA COMUNICAÇÕES RADIOTELEFÔNICAS",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP010",
+    "nome_curso": "INGLÊS AERONÁUTICO",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP011",
+    "nome_curso": "PRÁTICA PEDAGÓGICA PARA INSTRUTORES DE INGLÊS AERONÁUTICO",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP016E",
+    "nome_curso": "INGLÊS AERONÁUTICO ACC",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP017E",
+    "nome_curso": "INGLÊS AERONÁUTICO APP",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP018E",
+    "nome_curso": "INGLÊS AERONÁUTICO TWR",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP019",
+    "nome_curso": "EXAMINADORES EPLIS",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CILE - MÓD I",
+    "nome_curso": "CURSO INTENSIVO DE LÍNGUA ESPANHOLA - MÓDULO I",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CILE - MÓD II",
+    "nome_curso": "CURSO INTENSIVO DE LÍNGUA ESPANHOLA - MÓDULO II",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CILI - MÓD I",
+    "nome_curso": "CURSO INTENSIVO DE LÍNGUA INGLESA - MÓDULO I",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CILI - MÓD II",
+    "nome_curso": "CURSO INTENSIVO DE LÍNGUA INGLESA - MÓDULO II",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CPE",
+    "nome_curso": "CURSO DE PRÁTICA DE ENSINO",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CPT",
+    "nome_curso": "CURSO DE PREPARAÇÃO DE TUTORES",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ASE001",
+    "nome_curso": "GERENCIAMENTO DE RECURSOS DE EQUIPE - TRM",
+    "comando": "SIPACEA",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ASE009S",
+    "nome_curso": "GERENCIAMENTO DO RISCO A SEGURANÇA OPERACIONAL NO SISCEAB",
+    "comando": "SIPACEA",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ASE009S",
+    "nome_curso": "GERENCIAMENTO DO RISCO A SEGURANÇA OPERACIONAL NO SISCEAB",
+    "comando": "SIPACEA",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ASE010S",
+    "nome_curso": "SISTEMA DE GERENCIAMENTO DA SEGURANÇA OPERACIONAL (SGSO) NAS ORGANIZAÇÕES E ENTIDADES PROVEDORAS DO ANS",
+    "comando": "SIPACEA",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ASE012",
+    "nome_curso": "CAPACITAÇÃO PARA FORMAÇÃO DE FACILITADORES DO TREINAMENTO EM TRM",
+    "comando": "SIPACEA",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM001AICE",
+    "nome_curso": "TREINAMENTO BDS PLATAO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "PCI-27",
+    "nome_curso": "INSTRUÇÃO DE INGLÊS DE AVIAÇÃO",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CTP001",
+    "nome_curso": "CAPACITAÇÃO PARA INSTRUTORES",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "SEC008",
+    "nome_curso": "TREINAMENTO PARA A REVALIDAÇÃO DAS CERTIFICAÇÕES DOS CURSOS SEC001E, SEC002E E SEC004E",
+    "comando": "AVSEC",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "ATM030",
+    "nome_curso": "CRITÉRIOS GERAIS (PANS/OPS)",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "PCI-I",
+    "nome_curso": "INGLES EEAR",
+    "comando": "SIAT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "DTN001",
+    "nome_curso": "DOUTRINA OPERACIONAL",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CI-CEA",
+    "nome_curso": "CURSO DE INVESTIGAÇÃO - CONTROLE DO ESPAÇO AÉREO",
+    "comando": "SIPACEA",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CGN006E",
+    "nome_curso": "GERENCIAMENTO DE FLUXO DE TRÁFEGO AÉREO",
+    "comando": "DO",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CGPAA",
+    "nome_curso": "CURSO DE GESTÃO DA PREVENÇÃO DE ACIDENTES AERONÁUTICOS",
+    "comando": "SIPACEA",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  },
+  {
+    "codigo_curso": "CT 185/23",
+    "nome_curso": "Treinamento de Técnico e de Integração do SAGITARIO",
+    "comando": "DT",
+    "setor_responsavel": "",
+    "nome_chefe": "",
+    "posto_chefe": "",
+    "funcao_chefe": ""
+  }
+]
