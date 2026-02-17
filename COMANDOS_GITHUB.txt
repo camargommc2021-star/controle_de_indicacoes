@@ -1,0 +1,91 @@
+COMANDOS PARA SUBIR NO GITHUB
+============================
+
+PASSO 1: Abrir Terminal
+------------------------
+Abra o Prompt de Comando (CMD) ou PowerShell na pasta do projeto:
+
+Caminho: C:\Users\mauri\OneDrive\Área de Trabalho\controle de cursos
+
+
+PASSO 2: Configurar Git (se primeira vez)
+-----------------------------------------
+git config --global user.name "Seu Nome"
+git config --global user.email "seu-email@exemplo.com"
+
+
+PASSO 3: Inicializar Repositório (se necessário)
+-----------------------------------------------
+git init
+
+
+PASSO 4: Adicionar Repositório Remoto
+-------------------------------------
+git remote add origin https://github.com/camargommc2021-star/controledeindica-es.git
+
+
+PASSO 5: Verificar Status
+-------------------------
+git status
+
+(Isto mostra todos os arquivos modificados/novos)
+
+
+PASSO 6: Adicionar Todos os Arquivos
+------------------------------------
+git add .
+
+(Isto prepara todos os arquivos para o commit)
+
+
+PASSO 7: Criar Commit
+---------------------
+git commit -m "Sistema Controle de Cursos v3.0 - JSON, Cards Editáveis, Filtro CRCEA-SE/APP-SP"
+
+(Isto salva as alterações localmente)
+
+
+PASSO 8: Enviar para GitHub
+---------------------------
+git push -u origin main
+
+(Isto envia tudo para o repositório online)
+
+
+PASSO 9: Verificar
+-----------------
+Acesse: https://github.com/camargommc2021-star/controledeindica-es
+
+
+ERROS COMUNS:
+-------------
+
+1. "fatal: not a git repository"
+   → Execute: git init
+
+2. "failed to push some refs"
+   → Execute: git pull origin main --rebase
+   → Depois: git push origin main
+
+3. "Permission denied"
+   → Verifique se tem acesso ao repositório
+   → Ou use: git remote set-url origin https://USERNAME:TOKEN@github.com/camargommc2021-star/controledeindica-es.git
+
+
+USANDO GITHUB DESKTOP (Alternativa):
+-----------------------------------
+1. Abra GitHub Desktop
+2. File → Add local repository
+3. Selecione a pasta: C:\Users\mauri\OneDrive\Área de Trabalho\controle de cursos
+4. Veja as alterações listadas
+5. Escreva mensagem: "Sistema v3.0"
+6. Clique em "Commit to main"
+7. Clique em "Push origin"
+
+
+UPLOAD MANUAL VIA NAVEGADOR (Último recurso):
+--------------------------------------------
+1. Acesse: https://github.com/camargommc2021-star/controledeindica-es
+2. Clique em "Add file" → "Upload files"
+3. Arraste todos os arquivos da pasta "controle de cursos"
+4. Clique em "Commit changes"

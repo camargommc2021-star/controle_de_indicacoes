@@ -1,0 +1,13 @@
+.git/
+__pycache__/
+*.pyc
+.env
+data/
+.github/
+README.md
+GITHUB_SETUP.md
+venv/
+.venv/
+.claude/
+.DS_Store
+*.log

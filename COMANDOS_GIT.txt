@@ -1,0 +1,39 @@
+COMANDOS PARA SUBIR NO GITHUB
+============================
+
+Passo 1: Abrir Terminal
+-----------------------
+Abra o Prompt de Comando (CMD) ou PowerShell na pasta do projeto:
+
+Caminho: C:\Users\mauri\OneDrive\Área de Trabalho\controle de cursos
+
+
+Passo 2: Verificar Status
+-------------------------
+git status
+
+(Isto mostra todos os arquivos modificados)
+
+
+Passo 3: Adicionar Arquivos
+---------------------------
+git add .
+
+(Isto prepara todos os arquivos para o commit)
+
+
+Passo 4: Fazer Commit
+---------------------
+git commit -m "Sistema Controle de Cursos v1.0 - Todos os campos opcionais"
+
+(Isto salva as alterações localmente)
+
+
+Passo 5: Enviar para GitHub
+---------------------------
+git push origin main
+
+(Isto envia tudo para o repositório online)
+
+
+Pronto! Agora é só aguardar o deploy automático no Streamlit Cloud.
