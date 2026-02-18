@@ -28,9 +28,10 @@ jobs:
             cd "$PROJECT_DIR"
             git pull origin main
 
-            # Garantir que .streamlit/secrets.toml exista (está no .gitignore)
+            # Garantir que .streamlit/secrets.toml exista como ARQUIVO
             mkdir -p .streamlit
-            touch .streamlit/secrets.toml
+            [ -d .streamlit/secrets.toml ] && rm -rf .streamlit/secrets.toml
+            [ ! -f .streamlit/secrets.toml ] && touch .streamlit/secrets.toml
 
             # Parar e remover container antigo
             docker compose -f docker-compose.prod.yml down
