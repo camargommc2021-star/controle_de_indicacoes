@@ -15,74 +15,23 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT || '22' }}
-          debug: true
           script: |
-            set -e  # Para execução se houver erro
-            
             PROJECT_DIR="/srv/docker/controle-indicacoes"
             REPO_URL="https://github.com/camargommc2021-star/controle_de_indicacoes.git"
-            
-            echo "🔍 === DEBUG INFO ==="
-            echo "Diretório do projeto: $PROJECT_DIR"
-            echo "Usuário: $(whoami)"
-            echo "Docker versão: $(docker --version || echo 'DOCKER NÃO ENCONTRADO')"
-            echo "Docker Compose: $(docker compose version || echo 'DOCKER COMPOSE NÃO ENCONTRADO')"
-            echo ""
-            
-            # Criar diretório se não existir
-            echo "📁 Criando diretório se necessário..."
-            sudo mkdir -p "$PROJECT_DIR"
-            cd "$PROJECT_DIR"
-            echo "Diretório atual: $(pwd)"
-            echo ""
-            
-            # Clone ou pull
-            if [ ! -d ".git" ]; then
-              echo "🔄 Clonando repositório..."
-              sudo git clone "$REPO_URL" .
-            else
-              echo "🔄 Atualizando repositório..."
-              sudo git fetch origin main
-              sudo git reset --hard origin/main
-              sudo git clean -fd
+
+            # Primeiro deploy: clona o repo
+            if [ ! -d "$PROJECT_DIR/.git" ]; then
+              mkdir -p "$PROJECT_DIR"
+              git clone "$REPO_URL" "$PROJECT_DIR"
             fi
-            echo ""
-            
-            # Verificar se arquivos existem
-            echo "📋 Verificando arquivos essenciais:"
-            ls -la docker-compose.prod.yml Dockerfile requirements.txt app.py
-            echo ""
-            
-            # Verificar rede proxy
-            echo "🌐 Verificando rede 'proxy':"
-            docker network ls | grep proxy || echo "⚠️ REDE 'proxy' NÃO ENCONTRADA! Criando..."
-            docker network inspect proxy 2>/dev/null || docker network create proxy
-            echo ""
-            
-            # Build e deploy
-            echo "🐳 Iniciando build..."
-            sudo docker compose -f docker-compose.prod.yml down 2>/dev/null || true
-            sudo docker compose -f docker-compose.prod.yml build --no-cache 2>&1
-            echo ""
-            
-            echo "🚀 Iniciando containers..."
-            sudo docker compose -f docker-compose.prod.yml up -d --force-recreate 2>&1
-            echo ""
-            
-            # Verificar status
-            echo "📊 Status dos containers:"
-            sudo docker compose -f docker-compose.prod.yml ps
-            echo ""
-            
-            # Verificar logs (últimas 20 linhas)
-            echo "📝 Últimos logs:"
-            sudo docker compose -f docker-compose.prod.yml logs --tail=20 2>&1 || echo "Não foi possível obter logs"
-            echo ""
-            
-            # Limpeza
-            echo "🧹 Limpando imagens antigas..."
-            sudo docker image prune -f
-            
-            echo ""
-            echo "✅ Deploy concluído!"
+
+            cd "$PROJECT_DIR"
+            git pull origin main
+
+            # Parar e remover container antigo
+            docker compose -f docker-compose.prod.yml down
+
+            # Build e restart
+            docker compose -f docker-compose.prod.yml build --no-cache
+            docker compose -f docker-compose.prod.yml up -d --force-recreate
+            docker image prune -f
