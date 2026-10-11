@@ -7,7 +7,7 @@ Sistema web para gestão de cursos, com persistência via Excel e deploy no Stre
 - ✅ **CRUD Completo**: Cadastrar, editar e excluir cursos
 - ✅ **Dashboard Interativo**: Visualização de prazos e estatísticas
 - ✅ **Alertas Visuais**: Cores automáticas nos prazos (verde/amarelo/vermelho)
-- ✅ **Persistência**: Dados salvos em Excel com sincronização GitHub opcional
+- ✅ **Persistência**: Dados salvos em Excel
 - ✅ **Acesso Web**: Funciona em qualquer lugar via Streamlit Cloud
 - 🔐 **Sistema de Login**: Autenticação com níveis de acesso (Admin/Editor/Viewer)
 - 📅 **Calendário de Prazos**: Visualização mensal/semanal dos prazos dos cursos
@@ -94,16 +94,6 @@ streamlit run app.py
 
 Acesse: http://localhost:8501
 
-## 🔧 Configuração do GitHub (Persistência Opcional)
-
-Para salvar dados automaticamente no GitHub:
-
-1. Gere um token no GitHub: Settings → Developer settings → Personal access tokens
-2. No Streamlit Cloud, adicione como secret: `GITHUB_TOKEN`
-3. Dados serão commitados automaticamente a cada alteração
-
-Veja o guia em: [GITHUB_SETUP.md](GITHUB_SETUP.md)
-
 ## 📦 Dependências
 
 - streamlit >= 1.28.0
@@ -111,8 +101,6 @@ Veja o guia em: [GITHUB_SETUP.md](GITHUB_SETUP.md)
 - openpyxl >= 3.1.0
 - plotly >= 5.15.0
 - python-dateutil >= 2.8.0
-- PyGithub >= 2.1.0
-- requests >= 2.31.0
 
 ## 📝 Estrutura de Arquivos
 
@@ -120,7 +108,6 @@ Veja o guia em: [GITHUB_SETUP.md](GITHUB_SETUP.md)
 controledeindica-es/
 ├── app.py                    # Aplicativo principal
 ├── data_manager.py           # Gerenciamento de dados dos cursos
-├── github_manager.py         # Persistência no GitHub
 ├── dashboard.py              # Visualizações
 ├── backup_manager.py         # Gerenciamento de backups
 ├── json_import.py            # Importação JSON
@@ -139,8 +126,7 @@ controledeindica-es/
 │   ├── usuarios.xlsx         # Usuários do sistema
 │   └── sessoes.xlsx          # Logs de acesso
 ├── requirements.txt          # Dependências
-├── README.md                 # Este arquivo
-└── GITHUB_SETUP.md           # Guia de configuração do GitHub
+└── README.md                 # Este arquivo
 ```
 
 ---

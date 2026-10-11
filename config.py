@@ -45,10 +45,7 @@ class Settings:
     # Limites do sistema
     MAX_UPLOAD_SIZE_MB: int = 10
     MAX_ROWS_DISPLAY: int = 1000
-    
-    # Configurações de exportação
-    EXPORT_DECIMAL_SEPARATOR: str = ","
-    EXPORT_ENCODING: str = "utf-8-sig"
+
 
 
 # =============================================================================
@@ -275,7 +272,6 @@ class Messages:
     # Mensagens de sucesso
     SUCCESS_SAVE: str = "✅ Dados salvos com sucesso!"
     SUCCESS_DELETE: str = "✅ Registro excluído com sucesso!"
-    SUCCESS_EXPORT: str = "✅ Arquivo exportado com sucesso!"
     SUCCESS_IMPORT: str = "✅ Dados importados com sucesso!"
     SUCCESS_BACKUP: str = "✅ Backup realizado com sucesso!"
     
@@ -301,32 +297,6 @@ class Messages:
 
 
 # =============================================================================
-# CONFIGURAÇÕES DE EXPORTAÇÃO
-# =============================================================================
-
-@dataclass(frozen=True)
-class ExportConfig:
-    """Configurações para exportação de dados."""
-    
-    # Configurações CSV
-    CSV_SEPARATOR: str = ";"
-    CSV_DECIMAL: str = ","
-    CSV_ENCODING: str = "utf-8-sig"
-    
-    # Configurações Excel
-    EXCEL_ENGINE: str = "openpyxl"
-    EXCEL_SHEET_NAME: str = "Dados"
-    
-    # Configurações PDF
-    PDF_PAGE_SIZE: str = "A4"
-    PDF_ORIENTATION: str = "portrait"
-    PDF_MARGIN_TOP: float = 2.0
-    PDF_MARGIN_BOTTOM: float = 2.0
-    PDF_MARGIN_LEFT: float = 2.0
-    PDF_MARGIN_RIGHT: float = 2.0
-
-
-# =============================================================================
 # INSTÂNCIAS GLOBAIS (para importação direta)
 # =============================================================================
 
@@ -338,7 +308,6 @@ columns = Columns()
 choices = Choices()
 logging_config = LoggingConfig()
 messages = Messages()
-export_config = ExportConfig()
 
 
 # =============================================================================

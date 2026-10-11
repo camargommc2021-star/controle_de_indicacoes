@@ -15,15 +15,6 @@
   - **URL:** escolha o subdomínio desejado
 - Clique em **"Deploy!"**
 
-### Passo 3: Configurar Secrets (Opcional - Sincronização GitHub)
-1. Nos **Settings** do app, acesse a aba **"Secrets"**
-2. Se desejar sincronização com o GitHub, configure:
-   ```toml
-   GITHUB_TOKEN = "seu_token_aqui"
-   GITHUB_REPO = "camargommc2021-star/controle_de_indicacoes"
-   ```
-3. Clique em **"Save"**
-
 ---
 
 ## 🆘 Solução de Problemas

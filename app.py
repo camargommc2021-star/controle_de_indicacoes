@@ -584,34 +584,18 @@ def render_tab_backup() -> None:
         return
     
     try:
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader(f"{ICONS['backup']} Criar Backup")
-            if verificar_permissao('fazer_backup'):
-                if st.button(f"{ICONS['backup']} Criar Backup Agora", key="btn_backup"):
-                    with st.spinner("Criando backup..."):
-                        sucesso, msg = st.session_state.backup_manager.criar_backup()
-                        if sucesso:
-                            show_success(msg)
-                            st.rerun()
-                        else:
-                            show_error(msg)
-            else:
-                st.info("Apenas admins podem criar backups")
-        
-        with col2:
-            st.subheader(f"{ICONS['backup']} Exportar Excel")
-            excel_bytes = st.session_state.data_manager.exportar_excel_bytes()
-            if excel_bytes:
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                st.download_button(
-                    label=f"{ICONS['backup']} Baixar Excel",
-                    data=excel_bytes,
-                    file_name=f"cursos_{timestamp}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    key="btn_download_excel"
-                )
+        st.subheader(f"{ICONS['backup']} Criar Backup")
+        if verificar_permissao('fazer_backup'):
+            if st.button(f"{ICONS['backup']} Criar Backup Agora", key="btn_backup"):
+                with st.spinner("Criando backup..."):
+                    sucesso, msg = st.session_state.backup_manager.criar_backup()
+                    if sucesso:
+                        show_success(msg)
+                        st.rerun()
+                    else:
+                        show_error(msg)
+        else:
+            st.info("Apenas admins podem criar backups")
         
         st.subheader(f"{ICONS['lista']} Backups Disponíveis")
         backups = st.session_state.backup_manager.listar_backups()

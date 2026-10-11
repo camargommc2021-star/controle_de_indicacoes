@@ -5,7 +5,6 @@ __pycache__/
 data/
 .github/
 README.md
-GITHUB_SETUP.md
 venv/
 .venv/
 .claude/
