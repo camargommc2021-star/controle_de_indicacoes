@@ -1,459 +1,1307 @@
-/* ============================================
-   CONTROLE DE CURSOS - TEMA SUAVE E HARMONIOSO
-   Paleta: Azul Petróleo / Slate / Cinza Suave
-   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap');
 
-/* ============================================
-   CONFIGURAÇÕES GLOBAIS
-   ============================================ */
+/* ==========================================================================
+   DESIGN TOKENS - CONTROLE DE CURSOS ("FICHAS DE PROGRESSO")
+   ========================================================================== */
+
+:root {
+  --paper: #EDF1F5;
+  --surface: #FFFFFF;
+  --ink: #1A2633;
+  --ink-soft: #5A6878;
+  --line: #D5DCE4;
+  --blue: #1F4E8C;
+  --blue-tint: #E3ECF7;
+  --late: #C0392B;
+  --late-tint: #FBE9E7;
+  --soon: #D99A0B;
+  --soon-tint: #FDF3DC;
+  --ok: #2E7D5B;
+  --ok-tint: #E4F2EB;
+  --none: #9AA6B2;
+
+  --font-body: 'Barlow', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-condensed: 'Barlow Condensed', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ==========================================================================
+   GLOBAL BASE & TYPOGRAPHY
+   ========================================================================== */
+
+html, body, .stApp {
+  font-family: var(--font-body);
+  font-size: 15px !important;
+  color: var(--ink);
+}
+
+p, [data-testid="stMarkdownContainer"] p, [data-testid="stText"] {
+  font-size: 15px !important;
+}
+
+label,
+[data-testid="stWidgetLabel"] label,
+[data-testid="stWidgetLabel"] p,
+[data-testid="stWidgetLabel"] {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--ink) !important;
+}
+
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p,
+.page-helper,
+.login-helper,
+.sidebar-brand-subtitle,
+.sidebar-user-role,
+.strip-turma,
+.total-label,
+small {
+  font-size: 13px !important;
+}
+
+/* Protect Material Icon Fonts */
+[data-testid="stIconMaterial"],
+[class*="stIconMaterial"],
+[class*="material-symbols"],
+[class*="material-icons"] {
+  font-family: 'Material Symbols Rounded', 'Material Symbols Outlined', 'Material Icons' !important;
+}
+
+.tabular-nums,
+.course-code,
+.stat-num,
+.big-number,
+.strip-prazo-date,
+.strip-vagas-num,
+[data-testid="stMetricValue"] {
+  font-variant-numeric: tabular-nums;
+}
+
 .stApp {
-    background: #f8fafc;
-    color: #475569;
+  background-color: var(--paper) !important;
+  color: var(--ink);
 }
 
-/* ============================================
-   TIPOGRAFIA
-   ============================================ */
-h1 {
-    color: #334155 !important;
-    font-weight: 600 !important;
-    font-size: 1.6rem !important;
-    letter-spacing: -0.01em !important;
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--blue) !important;
+  outline-offset: 1px !important;
 }
 
-h2 {
-    color: #475569 !important;
-    font-weight: 600 !important;
-    font-size: 1.3rem !important;
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-h3 {
-    color: #475569 !important;
-    font-weight: 600 !important;
-    font-size: 1.1rem !important;
+/* Streamlit Header / Toolbar cleanup */
+[data-testid="stHeader"] {
+  background-color: transparent !important;
 }
 
-p, span {
-    color: #64748b !important;
+/* Hide default streamlit decoration */
+[data-testid="stDecoration"] {
+  display: none !important;
 }
 
-label {
-    color: #475569 !important;
-    font-weight: 500 !important;
+/* ==========================================================================
+   LAYOUT CONTAINERS (FULL WIDTH PROPORTIONAL LAYOUT)
+   ========================================================================== */
+
+.main .block-container,
+.block-container,
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewBlockContainer"] {
+  max-width: none !important;
+  width: 100% !important;
+  padding-left: 32px !important;
+  padding-right: 32px !important;
+  padding-top: 2rem !important;
+  padding-bottom: 3rem !important;
+  box-sizing: border-box !important;
 }
 
-/* ============================================
-   SIDEBAR
-   ============================================ */
-[data-testid="stSidebar"] {
-    background: #ffffff !important;
-    border-right: 1px solid #e2e8f0;
-}
-
-[data-testid="stSidebar"] .stMarkdown h1,
-[data-testid="stSidebar"] .stMarkdown h2,
-[data-testid="stSidebar"] .stMarkdown h3 {
-    color: #475569 !important;
-}
-
-[data-testid="stSidebar"] p,
-[data-testid="stSidebar"] span,
-[data-testid="stSidebar"] label {
-    color: #64748b !important;
-}
-
-/* ============================================
-   BOTÕES - PALETA SUAVE
-   ============================================ */
-.stButton > button {
-    background: #0d9488 !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 0.5rem 1rem !important;
-    font-weight: 500 !important;
-    font-size: 0.9rem !important;
-    transition: all 0.2s ease !important;
-}
-
-.stButton > button:hover {
-    background: #0f766e !important;
-    color: #ffffff !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
-}
-
-/* Forçar texto branco em todos os botões */
-.stButton > button p,
-.stButton > button span,
-.stButton > button div {
-    color: #ffffff !important;
-}
-
-/* Botão secundário */
-.stButton > button[kind="secondary"] {
-    background: #f1f5f9 !important;
-    color: #475569 !important;
-    border: 1px solid #cbd5e1 !important;
-}
-
-.stButton > button[kind="secondary"]:hover {
-    background: #e2e8f0 !important;
-    color: #334155 !important;
-}
-
-.stButton > button[kind="secondary"] p,
-.stButton > button[kind="secondary"] span,
-.stButton > button[kind="secondary"] div {
-    color: #475569 !important;
-}
-
-/* Botão primário (type="primary") - para Streamlit novas versões */
-button[kind="primary"] {
-    background: #0d9488 !important;
-    color: #ffffff !important;
-    border: none !important;
-}
-
-button[kind="primary"] p,
-button[kind="primary"] span,
-button[kind="primary"] div {
-    color: #ffffff !important;
-}
-
-/* Submit buttons em formulários */
-[data-testid="stFormSubmitButton"] > button {
-    background: #0d9488 !important;
-    color: #ffffff !important;
-    border: none !important;
-}
-
-[data-testid="stFormSubmitButton"] > button p,
-[data-testid="stFormSubmitButton"] > button span,
-[data-testid="stFormSubmitButton"] > button div {
-    color: #ffffff !important;
-}
-
-[data-testid="stFormSubmitButton"] > button:hover {
-    background: #0f766e !important;
-    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25) !important;
-}
-
-/* ============================================
-   INPUTS
-   ============================================ */
-.stTextInput > div > div > input,
-.stSelectbox > div > div > select,
-.stDateInput > div > div > input,
-.stTextArea > div > div > textarea {
-    background: #ffffff !important;
-    color: #334155 !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    padding: 0.5rem 0.75rem !important;
-    transition: all 0.2s ease !important;
-}
-
-.stTextInput > div > div > input:focus,
-.stSelectbox > div > div > select:focus,
-.stDateInput > div > div > input:focus {
-    border-color: #0d9488 !important;
-    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1) !important;
-}
-
-/* Labels */
-.stTextInput label,
-.stSelectbox label,
-.stDateInput label,
-.stTextArea label {
-    color: #475569 !important;
-    font-weight: 500 !important;
-    font-size: 0.9rem !important;
-}
-
-/* ============================================
-   CARDS E MÉTRICAS
-   ============================================ */
-[data-testid="stMetric"] {
-    background: #ffffff !important;
-    border-radius: 12px !important;
-    padding: 1.25rem !important;
-    border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
-    transition: all 0.2s ease !important;
-}
-
-[data-testid="stMetric"]:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
-    transform: translateY(-2px);
-}
-
-[data-testid="stMetric"] label {
-    color: #94a3b8 !important;
-    font-weight: 500 !important;
-    font-size: 0.85rem !important;
-}
-
-[data-testid="stMetric"] [data-testid="stMetricValue"] {
-    color: #475569 !important;
-    font-weight: 600 !important;
-    font-size: 1.6rem !important;
-}
-
-/* ============================================
-   ABAS
-   ============================================ */
-.stTabs [data-baseweb="tab-list"] {
-    background: #f1f5f9 !important;
-    border-radius: 10px !important;
-    padding: 4px !important;
-    gap: 2px !important;
-    border: none !important;
-}
-
-.stTabs [data-baseweb="tab"] {
-    color: #64748b !important;
-    font-weight: 500 !important;
-    font-size: 0.9rem !important;
-    padding: 0.5rem 0.875rem !important;
-    border-radius: 8px !important;
-    transition: all 0.2s ease !important;
-}
-
-.stTabs [data-baseweb="tab"]:hover {
-    color: #0d9488 !important;
-    background: rgba(13, 148, 136, 0.06) !important;
-}
-
-.stTabs [aria-selected="true"] {
-    background: #ffffff !important;
-    color: #0d9488 !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
-}
-
-/* ============================================
-   ALERTAS - PALETA SUAVE
-   ============================================ */
-.stAlert {
-    border-radius: 10px !important;
-    border: none !important;
-    padding: 0.875rem 1rem !important;
-}
-
-/* Sucesso - verde suave */
-[data-testid="stAlert"][data-kind="success"] {
-    background: #f0fdf4 !important;
-    color: #15803d !important;
-    border-left: 3px solid #22c55e !important;
-}
-
-/* Erro - vermelho suave */
-[data-testid="stAlert"][data-kind="error"] {
-    background: #fef2f2 !important;
-    color: #b91c1c !important;
-    border-left: 3px solid #ef4444 !important;
-}
-
-/* Aviso - âmbar suave */
-[data-testid="stAlert"][data-kind="warning"] {
-    background: #fffbeb !important;
-    color: #b45309 !important;
-    border-left: 3px solid #f59e0b !important;
-}
-
-/* Info - azul petróleo suave */
-[data-testid="stAlert"][data-kind="info"] {
-    background: #f0fdfa !important;
-    color: #0f766e !important;
-    border-left: 3px solid #0d9488 !important;
-}
-
-/* ============================================
-   TABELAS
-   ============================================ */
-.stDataFrame {
-    background: #ffffff !important;
-    border-radius: 10px !important;
-    border: 1px solid #e2e8f0 !important;
-}
-
-.stDataFrame th {
-    background: #f8fafc !important;
-    color: #475569 !important;
-    font-weight: 600 !important;
-    padding: 0.75rem 1rem !important;
-    border-bottom: 1px solid #e2e8f0 !important;
-}
-
-.stDataFrame td {
-    color: #64748b !important;
-    padding: 0.75rem 1rem !important;
-    border-bottom: 1px solid #f1f5f9 !important;
-}
-
-.stDataFrame tr:hover td {
-    background: #f8fafc !important;
-}
-
-/* ============================================
-   EXPANDER
-   ============================================ */
-.streamlit-expander {
-    background: white !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 10px !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
-}
-
-.streamlit-expanderHeader {
-    background: #f8fafc !important;
-    color: #475569 !important;
-    font-weight: 600 !important;
-    padding: 0.875rem 1rem !important;
-    border-radius: 10px 10px 0 0 !important;
-}
-
-/* ============================================
-   DIVISÓRIAS
-   ============================================ */
-hr {
-    border: none !important;
-    border-top: 1px solid #e2e8f0 !important;
-    margin: 1.5rem 0 !important;
-}
-
-/* ============================================
-   FILE UPLOADER
-   ============================================ */
-.stFileUploader > div > div {
-    background: #f8fafc !important;
-    color: #64748b !important;
-    border: 2px dashed #d1d5db !important;
-    border-radius: 10px !important;
-}
-
-.stFileUploader > div > div:hover {
-    border-color: #0d9488 !important;
-    background: #f0fdfa !important;
-}
-
-/* ============================================
-   LOGIN PAGE - DESIGN MODERNO GRADIENTE
-   ============================================ */
-
-/* Container principal full screen */
-.login-page-container {
-    min-height: 100vh !important;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 20px !important;
-}
-
-/* Card de login */
-.login-card {
-    background: #ffffff !important;
-    border-radius: 20px !important;
-    padding: 40px !important;
-    width: 100% !important;
-    max-width: 400px !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Remover bordas do form dentro do login card */
-.login-card [data-testid="stForm"] {
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-/* Inputs do login */
-.login-card [data-testid="stTextInput"] {
-    margin-bottom: 15px !important;
-}
-
-.login-card [data-testid="stTextInput"] > div > div > input {
-    background: #fafafa !important;
-    border: 2px solid #e5e7eb !important;
-    border-radius: 12px !important;
-    padding: 14px 16px !important;
-    font-size: 0.95rem !important;
-    min-height: 50px !important;
-    height: 50px !important;
-    transition: all 0.3s ease !important;
-}
-
-.login-card [data-testid="stTextInput"] > div > div > input:focus {
-    border-color: #667eea !important;
-    background: #ffffff !important;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1) !important;
-}
-
-/* Botão do login */
-.login-card [data-testid="stFormSubmitButton"] {
-    margin-top: 10px !important;
-}
-
-.login-card [data-testid="stFormSubmitButton"] > button {
-    width: 100% !important;
-    padding: 14px !important;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-size: 1rem !important;
-    font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-}
-
-.login-card [data-testid="stFormSubmitButton"] > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4) !important;
-}
-
-/* ============================================
-   BADGES E TAGS - PALETA SUAVE
-   ============================================ */
-.badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border-radius: 9999px;
-}
-
-.badge-success {
-    background: #dcfce7;
-    color: #15803d;
-}
-
-.badge-warning {
-    background: #fef3c7;
-    color: #b45309;
-}
-
-.badge-danger {
-    background: #fee2e2;
-    color: #b91c1c;
-}
-
-.badge-info {
-    background: #ccfbf1;
-    color: #0f766e;
-}
-
-/* ============================================
-   RESPONSIVIDADE
-   ============================================ */
 @media (max-width: 768px) {
-    h1 {
-        font-size: 1.4rem !important;
-    }
-    
-    [data-testid="stMetric"] {
-        padding: 1rem !important;
-    }
+  .main .block-container,
+  .block-container,
+  [data-testid="stMainBlockContainer"],
+  [data-testid="stAppViewBlockContainer"] {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    padding-top: 1rem !important;
+    padding-bottom: 2rem !important;
+  }
+}
+
+/* ==========================================================================
+   PAGE HEADINGS
+   ========================================================================== */
+
+.page-header {
+  margin-bottom: 1.25rem;
+}
+
+.page-title {
+  font-family: var(--font-condensed) !important;
+  font-size: 32px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  color: var(--ink) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.page-helper {
+  font-family: var(--font-body) !important;
+  font-size: 15px !important;
+  color: var(--ink-soft) !important;
+  margin: 4px 0 0 0 !important;
+  padding: 0 !important;
+}
+
+.section-title {
+  font-family: var(--font-body) !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  margin: 0.75rem 0 0.5rem 0 !important;
+}
+
+/* ==========================================================================
+   SIDEBAR & PERSISTENT NAVIGATION
+   ========================================================================== */
+
+[data-testid="stSidebar"] {
+  background-color: var(--surface) !important;
+  border-right: 1px solid var(--line) !important;
+}
+
+[data-testid="stSidebar"] > div:first-child {
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
+}
+
+.sidebar-brand {
+  padding: 0 0.25rem 1rem 0.25rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.25rem;
+}
+
+.sidebar-brand-title {
+  font-family: var(--font-condensed) !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  line-height: 1.2;
+}
+
+.sidebar-brand-subtitle {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  color: var(--ink-soft) !important;
+  margin-top: 2px;
+}
+
+.nav-group-label {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--ink-soft) !important;
+  margin: 1rem 0 0.4rem 0.25rem;
+}
+
+/* Sidebar Nav Buttons */
+[data-testid="stSidebar"] button,
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {
+  width: 100% !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  box-shadow: none !important;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease !important;
+}
+
+[data-testid="stSidebar"] button > div,
+[data-testid="stSidebar"] button [data-testid="stMarkdownContainer"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  width: 100% !important;
+  flex: 1 1 auto !important;
+}
+
+[data-testid="stSidebar"] button p,
+[data-testid="stSidebar"] button [data-testid="stMarkdownContainer"] p {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  width: 100% !important;
+  margin: 0 !important;
+  gap: 8px !important;
+}
+
+[data-testid="stSidebar"] button [data-testid="stIconMaterial"] {
+  margin-right: 8px !important;
+  margin-left: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Right-aligned small red badge in sidebar nav (both active and inactive) */
+[data-testid="stSidebar"] button p span,
+[data-testid="stSidebar"] button p span[style*="color"],
+[data-testid="stSidebar"] button [data-testid="stMarkdownContainer"] p span {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  flex-shrink: 0 !important;
+  background-color: var(--late-tint) !important;
+  color: var(--late) !important;
+  font-family: var(--font-condensed) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 1px 7px !important;
+  border-radius: 999px !important;
+  line-height: 1.2 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+/* Active Nav Button */
+[data-testid="stSidebar"] button[kind="primary"],
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {
+  background-color: var(--blue) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--blue) !important;
+}
+
+[data-testid="stSidebar"] button[kind="primary"] *,
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"] *,
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] * {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+/* On the active (blue) item the badge must be white background with --late text */
+[data-testid="stSidebar"] button[kind="primary"] p span,
+[data-testid="stSidebar"] button[kind="primary"] p span[style*="color"],
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"] p span,
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"] p span[style*="color"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] p span,
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] p span[style*="color"] {
+  background-color: #FFFFFF !important;
+  color: var(--late) !important;
+  margin-left: auto !important;
+}
+
+[data-testid="stSidebar"] button[kind="primary"]:hover,
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"]:hover,
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover {
+  background-color: #183F72 !important;
+  border-color: #183F72 !important;
+}
+
+[data-testid="stSidebar"] button[kind="primary"]:hover *,
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"]:hover *,
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover * {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+[data-testid="stSidebar"] button[kind="primary"]:hover p span,
+[data-testid="stSidebar"] button[kind="primary"]:hover p span[style*="color"],
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"]:hover p span,
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"]:hover p span[style*="color"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover p span,
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover p span[style*="color"] {
+  background-color: #FFFFFF !important;
+  color: var(--late) !important;
+  margin-left: auto !important;
+}
+
+/* Inactive Nav Button */
+[data-testid="stSidebar"] button[kind="secondary"],
+[data-testid="stSidebar"] button[data-testid="baseButton-secondary"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] {
+  background-color: transparent !important;
+  color: var(--ink) !important;
+  border: 1px solid transparent !important;
+}
+
+[data-testid="stSidebar"] button[kind="secondary"] *,
+[data-testid="stSidebar"] button[data-testid="baseButton-secondary"] *,
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] * {
+  color: var(--ink) !important;
+}
+
+[data-testid="stSidebar"] button[kind="secondary"] p span,
+[data-testid="stSidebar"] button[kind="secondary"] p span[style*="color"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] p span,
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] p span[style*="color"] {
+  background-color: var(--late-tint) !important;
+  color: var(--late) !important;
+  margin-left: auto !important;
+}
+
+[data-testid="stSidebar"] button[kind="secondary"]:hover,
+[data-testid="stSidebar"] button[data-testid="baseButton-secondary"]:hover,
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover {
+  background-color: var(--blue-tint) !important;
+  color: var(--blue) !important;
+  border-color: transparent !important;
+}
+
+[data-testid="stSidebar"] button[kind="secondary"]:hover *,
+[data-testid="stSidebar"] button[data-testid="baseButton-secondary"]:hover *,
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover * {
+  color: var(--blue) !important;
+}
+
+[data-testid="stSidebar"] button[kind="secondary"]:hover p span,
+[data-testid="stSidebar"] button[kind="secondary"]:hover p span[style*="color"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover p span,
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover p span[style*="color"] {
+  background-color: var(--late-tint) !important;
+  color: var(--late) !important;
+  margin-left: auto !important;
+}
+
+/* Sidebar Footer User Info */
+.sidebar-user-block {
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  margin-top: 1.5rem;
+}
+
+.sidebar-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.sidebar-user-role {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 0.75rem;
+}
+
+/* ==========================================================================
+   BUTTONS (APP MAIN AREA)
+   ========================================================================== */
+
+button {
+  border-radius: 6px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  transition: background-color 120ms ease, border-color 120ms ease !important;
+}
+
+button[kind="primary"],
+[data-testid="baseButton-primary"],
+[data-testid="stBaseButton-primary"],
+[data-testid="stBaseButton-primaryFormSubmit"],
+[data-testid="stFormSubmitButton"] > button,
+[data-testid="stFormSubmitButton"] button {
+  background-color: var(--blue) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--blue) !important;
+}
+
+button[kind="primary"] *,
+[data-testid="baseButton-primary"] *,
+[data-testid="stBaseButton-primary"] *,
+[data-testid="stBaseButton-primaryFormSubmit"] *,
+[data-testid="stFormSubmitButton"] > button *,
+[data-testid="stFormSubmitButton"] button *,
+button[kind="primary"] p,
+[data-testid="baseButton-primary"] p,
+[data-testid="stBaseButton-primary"] p,
+[data-testid="stBaseButton-primaryFormSubmit"] p,
+[data-testid="stFormSubmitButton"] button p,
+button[kind="primary"] [data-testid="stIconMaterial"],
+[data-testid="baseButton-primary"] [data-testid="stIconMaterial"],
+[data-testid="stBaseButton-primary"] [data-testid="stIconMaterial"],
+[data-testid="stBaseButton-primaryFormSubmit"] [data-testid="stIconMaterial"],
+[data-testid="stFormSubmitButton"] button [data-testid="stIconMaterial"] {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+button[kind="primary"]:hover,
+[data-testid="baseButton-primary"]:hover,
+[data-testid="stBaseButton-primary"]:hover,
+[data-testid="stBaseButton-primaryFormSubmit"]:hover,
+[data-testid="stFormSubmitButton"] > button:hover,
+[data-testid="stFormSubmitButton"] button:hover {
+  background-color: #183F72 !important;
+  border-color: #183F72 !important;
+}
+
+button[kind="primary"]:hover *,
+[data-testid="baseButton-primary"]:hover *,
+[data-testid="stBaseButton-primary"]:hover *,
+[data-testid="stBaseButton-primaryFormSubmit"]:hover *,
+[data-testid="stFormSubmitButton"] > button:hover *,
+[data-testid="stFormSubmitButton"] button:hover * {
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}
+
+button[kind="secondary"],
+[data-testid="baseButton-secondary"],
+[data-testid="stBaseButton-secondary"] {
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+
+button[kind="secondary"]:hover,
+[data-testid="baseButton-secondary"]:hover,
+[data-testid="stBaseButton-secondary"]:hover {
+  background-color: var(--paper) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+button[kind="tertiary"],
+[data-testid="baseButton-tertiary"],
+[data-testid="stBaseButton-tertiary"] {
+  background-color: transparent !important;
+  color: var(--ink-soft) !important;
+  border: 1px solid transparent !important;
+}
+
+button[kind="tertiary"]:hover,
+[data-testid="baseButton-tertiary"]:hover,
+[data-testid="stBaseButton-tertiary"]:hover {
+  background-color: var(--late-tint) !important;
+  color: var(--late) !important;
+}
+
+button[kind="tertiary"]:hover *,
+[data-testid="baseButton-tertiary"]:hover *,
+[data-testid="stBaseButton-tertiary"]:hover * {
+  color: var(--late) !important;
+}
+
+/* ==========================================================================
+   INPUTS & FORMS
+   ========================================================================== */
+
+/* Every input wrapper */
+[data-baseweb="input"],
+[data-baseweb="textarea"],
+[data-baseweb="select"] > div,
+[data-testid="stNumberInputContainer"],
+div[data-baseweb="input"] {
+  border: 1px solid var(--line) !important;
+  border-radius: 6px !important;
+  background-color: var(--surface) !important;
+  box-shadow: none !important;
+  transition: border-color 120ms ease, box-shadow 120ms ease !important;
+}
+
+/* focus-within: border-color var(--blue) + 2px ring rgba(31,78,140,.25) */
+[data-baseweb="input"]:focus-within,
+[data-baseweb="textarea"]:focus-within,
+[data-baseweb="select"] > div:focus-within,
+[data-testid="stNumberInputContainer"]:focus-within,
+div[data-baseweb="input"]:focus-within {
+  border-color: var(--blue) !important;
+  box-shadow: 0 0 0 2px rgba(31, 78, 140, 0.25) !important;
+  outline: none !important;
+}
+
+/* Don't double borders on inner elements */
+[data-baseweb="input"] input,
+[data-baseweb="textarea"] textarea,
+[data-baseweb="base-input"],
+[data-baseweb="base-input"] input,
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-testid="stTextArea"] textarea {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+  border-radius: 6px !important;
+  font-size: 15px !important;
+  color: var(--ink) !important;
+}
+
+[data-testid="stTextInput"] input:focus,
+[data-testid="stNumberInput"] input:focus,
+[data-testid="stTextArea"] textarea:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+[data-testid="stForm"] {
+  border: 1px solid var(--line) !important;
+  border-radius: 6px !important;
+  background-color: var(--surface) !important;
+  padding: 1.5rem !important;
+}
+
+/* ==========================================================================
+   STATUS PILLS (999px radius)
+   ========================================================================== */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pill-late {
+  background-color: var(--late-tint);
+  color: var(--late);
+}
+
+.pill-soon {
+  background-color: var(--soon-tint);
+  color: var(--soon);
+}
+
+.pill-ok {
+  background-color: var(--ok-tint);
+  color: var(--ok);
+}
+
+.pill-none {
+  background-color: var(--paper);
+  color: var(--none);
+}
+
+.pill-muted {
+  background-color: var(--paper);
+  color: var(--ink-soft);
+}
+
+.pill-blue {
+  background-color: var(--blue-tint);
+  color: var(--blue);
+}
+
+/* ==========================================================================
+   FICHAS DE PROGRESSO (FLIGHT PROGRESS STRIPS)
+   ========================================================================== */
+
+/* Table header for cursos */
+[class*="st-key-cursos_table_header"] {
+  padding: 0 14px 6px 20px !important;
+  margin-bottom: 2px !important;
+  width: 100% !important;
+}
+
+[class*="st-key-cursos_table_header"] [data-testid="stHorizontalBlock"] {
+  align-items: center !important;
+}
+
+.table-header-col {
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--ink-soft) !important;
+  line-height: 1.2 !important;
+  text-transform: none !important;
+}
+
+/* Container styled as strip (st.container with key=faixa_{status}_{idx}) */
+[class*="st-key-faixa_"] {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-left-width: 6px !important;
+  border-left-style: solid !important;
+  border-left-color: var(--none) !important;
+  border-radius: 6px !important;
+  margin-bottom: 8px !important;
+  width: 100% !important;
+}
+
+[class*="st-key-faixa_"] [data-testid="stVerticalBlockBorderWrapper"] {
+  border: none !important;
+  padding: 0 !important;
+}
+
+[class*="st-key-faixa_"] > div {
+  padding: 8px 14px !important;
+}
+
+[class*="st-key-faixa_"] [data-testid="stHorizontalBlock"] {
+  align-items: center !important;
+}
+
+[class*="st-key-faixa_atrasado"] { border-left-color: var(--late) !important; }
+[class*="st-key-faixa_urgente"]  { border-left-color: var(--soon) !important; }
+[class*="st-key-faixa_no_prazo"] { border-left-color: var(--ok) !important; }
+[class*="st-key-faixa_sem_prazo"]{ border-left-color: var(--none) !important; }
+[class*="st-key-faixa_concluido"]{ border-left-color: #488E6E !important; }
+
+/* Left edge status color (auxiliar) */
+.strip-edge-late { border-left: 6px solid var(--late) !important; }
+.strip-edge-soon { border-left: 6px solid var(--soon) !important; }
+.strip-edge-ok   { border-left: 6px solid var(--ok) !important; }
+.strip-edge-none { border-left: 6px solid var(--none) !important; }
+.strip-edge-concluido { border-left: 6px solid #488E6E !important; }
+
+/* Strip column content */
+.strip-col-code {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.strip-course-code {
+  font-family: var(--font-condensed) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: var(--ink);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+
+.strip-turma {
+  font-size: 13px !important;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.strip-col-prazo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.strip-prazo-date {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.strip-prazo-rel {
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.strip-prazo-rel.late { color: var(--late); }
+.strip-prazo-rel.soon { color: var(--soon); }
+.strip-prazo-rel.ok   { color: var(--ok); }
+.strip-prazo-rel.none { color: var(--none); }
+
+.strip-col-vagas {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  min-width: 0;
+}
+
+.strip-col-etapa {
+  min-width: 0;
+}
+
+.strip-col-om {
+  font-size: 13px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* Actions in strip - right aligned */
+[class*="st-key-faixa_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+[class*="st-key-faixa_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child [data-testid="stHorizontalBlock"] {
+  justify-content: flex-end !important;
+  width: 100% !important;
+}
+
+/* Compact strip for Painel */
+.strip-compact {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-left-width: 6px !important;
+  border-left-style: solid !important;
+  border-left-color: var(--none);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.strip-compact.strip-edge-late { border-left-color: var(--late) !important; }
+.strip-compact.strip-edge-soon { border-left-color: var(--soon) !important; }
+.strip-compact.strip-edge-ok   { border-left-color: var(--ok) !important; }
+.strip-compact.strip-edge-none { border-left-color: var(--none) !important; }
+.strip-compact.strip-edge-concluido { border-left-color: #488E6E !important; }
+
+.strip-compact-left {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.strip-compact-code {
+  font-family: var(--font-condensed);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.strip-compact-turma {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.strip-compact-right {
+  text-align: right;
+}
+
+/* ==========================================================================
+   PAINEL (DASHBOARD) - FILA DE PRAZOS & ANDAMENTO
+   ========================================================================== */
+
+/* Fila columns: equal visual height across the three columns and baseline aligned buttons */
+[data-testid="stHorizontalBlock"]:has([class*="st-key-fila_card_"]) {
+  align-items: stretch !important;
+}
+
+[data-testid="stHorizontalBlock"]:has([class*="st-key-fila_card_"]) > [data-testid="stColumn"] {
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+}
+
+[data-testid="stHorizontalBlock"]:has([class*="st-key-fila_card_"]) > [data-testid="stColumn"] > div {
+  flex: 1 1 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+[class*="st-key-fila_card_"] {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 6px !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 100% !important;
+}
+
+[class*="st-key-fila_card_"] [data-testid="stVerticalBlockBorderWrapper"],
+[class*="st-key-fila_card_"] [data-testid="stVerticalBlock"] {
+  border: none !important;
+  padding: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 100% !important;
+}
+
+[class*="st-key-fila_card_"] > div {
+  padding: 16px !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 100% !important;
+}
+
+.fila-header {
+  margin-bottom: 12px;
+}
+
+.fila-title {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.big-number {
+  font-family: var(--font-condensed);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.big-number.late { color: var(--late); }
+.big-number.soon { color: var(--soon); }
+.big-number.ok   { color: var(--ok); }
+
+/* Fixed height on list area across all 3 columns for baseline alignment (fits 5 compact strips + gaps) */
+[class*="st-key-fila_lista_"] {
+  height: 332px !important;
+  min-height: 332px !important;
+  max-height: 332px !important;
+  flex: 0 0 332px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: visible !important;
+}
+
+[class*="st-key-fila_lista_"] > [data-testid="stVerticalBlock"] {
+  height: 100% !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+}
+
+/* Ver todos button wrapper baseline aligned at the bottom on the same line */
+[class*="st-key-fila_card_"] [data-testid="stButton"] {
+  margin-top: auto !important;
+  width: 100% !important;
+}
+
+[class*="st-key-fila_card_"] [data-testid="stButton"] > button,
+[class*="st-key-fila_card_"] button,
+[class*="st-key-fila_card_"] [data-testid="stBaseButton-secondary"] {
+  margin-top: auto !important;
+  width: 100% !important;
+}
+
+.empty-strip-msg {
+  font-size: 13px;
+  color: var(--ink-soft);
+  padding: 12px 0;
+  font-style: italic;
+}
+
+/* Andamento das Indicações (full width, 5 equal columns, right-aligned totals in footer) */
+.andamento-container {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 18px 20px;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.andamento-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+}
+
+.andamento-col {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background-color: rgba(237, 241, 245, 0.45);
+}
+
+.andamento-col-sem-estado {
+  background-color: transparent;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  padding-left: 16px;
+}
+
+.step-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background-color: var(--blue-tint);
+  color: var(--blue);
+  font-family: var(--font-condensed);
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-badge-muted {
+  background-color: var(--paper);
+  color: var(--none);
+}
+
+.step-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.step-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-count {
+  font-family: var(--font-condensed);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.step-count.text-muted {
+  color: var(--ink-soft);
+}
+
+.andamento-footer {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 32px;
+}
+
+/* Totais fallback */
+.totals-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 14px 4px 4px 4px;
+}
+
+.total-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.total-label {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.total-num {
+  font-family: var(--font-condensed);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE (<768px / max-width 767px)
+   ========================================================================== */
+
+@media (max-width: 767px), (max-width: 768px) {
+  /* Hide table header row on mobile */
+  [class*="st-key-cursos_table_header"] {
+    display: none !important;
+  }
+
+  /* Cursos strips on mobile (<768px):
+     Row 1: código (left) + turma under it (col 1: 100%)
+     Row 2: 2-column grid:
+            Prazo SIAT (date + relative) (col 2: 50%) | Vagas (col 3: 50%)
+            Etapa pill (col 4: 50%)                   | OM executora (col 5: 50%)
+     Row 3: actions in ONE row, right-aligned (col 6: 100%):
+            "Editar" button (auto width) + delete icon button (auto width)
+  */
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"]:not([data-testid="stColumn"] [data-testid="stHorizontalBlock"]),
+  [class*="st-key-faixa_"] .stHorizontalBlock:not(.stColumn .stHorizontalBlock) {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    row-gap: 8px !important;
+    column-gap: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Row 1: Code column (100%) - código (left) + turma under it */
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"]:not([data-testid="stColumn"] [data-testid="stHorizontalBlock"]) > [data-testid="stColumn"]:nth-child(1),
+  [class*="st-key-faixa_"] .stHorizontalBlock:not(.stColumn .stHorizontalBlock) > .stColumn:nth-child(1) {
+    order: 1 !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  /* Row 2 - Col 1: Prazo SIAT (50%) */
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"]:not([data-testid="stColumn"] [data-testid="stHorizontalBlock"]) > [data-testid="stColumn"]:nth-child(2),
+  [class*="st-key-faixa_"] .stHorizontalBlock:not(.stColumn .stHorizontalBlock) > .stColumn:nth-child(2) {
+    order: 2 !important;
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+  }
+
+  /* Row 2 - Col 2: Vagas (50%) */
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"]:not([data-testid="stColumn"] [data-testid="stHorizontalBlock"]) > [data-testid="stColumn"]:nth-child(3),
+  [class*="st-key-faixa_"] .stHorizontalBlock:not(.stColumn .stHorizontalBlock) > .stColumn:nth-child(3) {
+    order: 3 !important;
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+  }
+
+  /* Row 2 - Col 3: Etapa pill (50%) */
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"]:not([data-testid="stColumn"] [data-testid="stHorizontalBlock"]) > [data-testid="stColumn"]:nth-child(4),
+  [class*="st-key-faixa_"] .stHorizontalBlock:not(.stColumn .stHorizontalBlock) > .stColumn:nth-child(4) {
+    order: 4 !important;
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+  }
+
+  /* Row 2 - Col 4: OM executora (50%) */
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"]:not([data-testid="stColumn"] [data-testid="stHorizontalBlock"]) > [data-testid="stColumn"]:nth-child(5),
+  [class*="st-key-faixa_"] .stHorizontalBlock:not(.stColumn .stHorizontalBlock) > .stColumn:nth-child(5) {
+    order: 5 !important;
+    flex: 0 0 50% !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    min-width: 0 !important;
+  }
+
+  /* Row 3: Actions column (100%) - right-aligned */
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"]:not([data-testid="stColumn"] [data-testid="stHorizontalBlock"]) > [data-testid="stColumn"]:nth-child(6),
+  [class*="st-key-faixa_"] .stHorizontalBlock:not(.stColumn .stHorizontalBlock) > .stColumn:nth-child(6) {
+    order: 6 !important;
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    margin-top: 4px !important;
+  }
+
+  /* Inner actions container inside Column 6: ONE row, right-aligned */
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(6) [data-testid="stHorizontalBlock"],
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child [data-testid="stHorizontalBlock"],
+  [class*="st-key-faixa_"] .stHorizontalBlock > .stColumn:nth-child(6) .stHorizontalBlock,
+  [class*="st-key-faixa_"] .stHorizontalBlock > .stColumn:last-child .stHorizontalBlock {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    width: auto !important;
+    gap: 8px !important;
+  }
+
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:nth-child(6) [data-testid="stColumn"],
+  [class*="st-key-faixa_"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child [data-testid="stColumn"],
+  [class*="st-key-faixa_"] .stHorizontalBlock > .stColumn:nth-child(6) .stColumn,
+  [class*="st-key-faixa_"] .stHorizontalBlock > .stColumn:last-child .stColumn {
+    width: auto !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Stretch buttons must not stretch on mobile: width: auto, display inline */
+  [class*="st-key-faixa_"] button,
+  [class*="st-key-faixa_"] [data-testid="stButton"],
+  [class*="st-key-faixa_"] [data-testid="stButton"] > button,
+  [class*="st-key-faixa_"] [data-testid*="stBaseButton"] {
+    width: auto !important;
+    min-width: auto !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Mobile Painel: the 3 Fila de prazos boxes stack full-width */
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-fila_card_"]) {
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+  }
+
+  [data-testid="stHorizontalBlock"]:has([class*="st-key-fila_card_"]) > [data-testid="stColumn"] {
+    width: 100% !important;
+    min-width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  /* Mobile Painel: Andamento steps become a 2-column grid */
+  .andamento-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .andamento-col-sem-estado {
+    grid-column: 1 / -1 !important;
+    border-left: none !important;
+    padding-left: 10px !important;
+    background-color: rgba(237, 241, 245, 0.45) !important;
+  }
+
+  .andamento-footer {
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+  }
+}
+
+/* ==========================================================================
+   LOGIN PAGE
+   ========================================================================== */
+
+[class*="st-key-login_wrapper"] {
+  width: 100% !important;
+  max-width: 400px !important;
+  margin: 0 auto !important;
+}
+
+.login-header {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 1.25rem auto;
+  text-align: left;
+}
+
+.login-title {
+  font-family: var(--font-condensed) !important;
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  color: var(--ink) !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+
+.login-helper {
+  font-size: 15px !important;
+  color: var(--ink-soft) !important;
+  margin-top: 6px !important;
+  margin-bottom: 0 !important;
+  line-height: 1.3 !important;
+}
+
+[class*="st-key-login_wrapper"] [data-testid="stForm"] {
+  width: 100% !important;
+  max-width: 400px !important;
+  margin: 0 auto !important;
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 6px !important;
+  padding: 24px !important;
+}
+
+/* ==========================================================================
+   CALENDAR
+   ========================================================================== */
+
+.cal-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.cal-weekday {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  padding: 6px 0;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-cell {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-height: 90px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cal-cell-out {
+  background-color: var(--paper);
+  border-color: transparent;
+  color: var(--none);
+}
+
+.cal-cell-today {
+  border: 2px solid var(--blue) !important;
+  box-shadow: inset 0 0 0 1px var(--blue);
+}
+
+.cal-day-num {
+  font-family: var(--font-condensed);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.cal-chip {
+  font-family: var(--font-condensed);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.cal-chip.late { background-color: var(--late-tint); color: var(--late); }
+.cal-chip.soon { background-color: var(--soon-tint); color: var(--soon); }
+.cal-chip.ok   { background-color: var(--ok-tint); color: var(--ok); }
+.cal-chip.none { background-color: var(--paper); color: var(--none); }
+
+/* ==========================================================================
+   DIVIDERS & ALERTS
+   ========================================================================== */
+
+hr {
+  border: none !important;
+  border-top: 1px solid var(--line) !important;
+  margin: 1.5rem 0 !important;
+}
+
+[data-testid="stAlert"] {
+  border-radius: 6px !important;
+  border: 1px solid var(--line) !important;
+  font-size: 14px !important;
 }

@@ -10,12 +10,20 @@ COPY . .
 RUN mkdir -p data .streamlit
 
 RUN cat > .streamlit/config.toml <<'EOF'
+[theme]
+base = "light"
+primaryColor = "#1F4E8C"
+backgroundColor = "#EDF1F5"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1A2633"
+
+[client]
+toolbarMode = "minimal"
+
 [server]
 headless = true
 address = "0.0.0.0"
 port = 8501
-enableCORS = false
-enableXsrfProtection = false
 
 [browser]
 gatherUsageStats = false

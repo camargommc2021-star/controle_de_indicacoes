@@ -32,7 +32,7 @@ class Settings:
     
     # Configurações de página Streamlit
     PAGE_TITLE: str = "Controle de Cursos"
-    PAGE_ICON: str = "📚"
+    PAGE_ICON: str = ":material/school:"
     PAGE_LAYOUT: str = "wide"
     
     # Configurações de dados
@@ -210,30 +210,30 @@ class Messages:
     """Mensagens padrão utilizadas no sistema."""
     
     # Mensagens de sucesso
-    SUCCESS_SAVE: str = "✅ Dados salvos com sucesso!"
-    SUCCESS_DELETE: str = "✅ Registro excluído com sucesso!"
-    SUCCESS_IMPORT: str = "✅ Dados importados com sucesso!"
-    SUCCESS_BACKUP: str = "✅ Backup realizado com sucesso!"
+    SUCCESS_SAVE: str = "Dados salvos com sucesso."
+    SUCCESS_DELETE: str = "Registro excluído com sucesso."
+    SUCCESS_IMPORT: str = "Dados importados com sucesso."
+    SUCCESS_BACKUP: str = "Backup realizado com sucesso."
     
     # Mensagens de erro
-    ERROR_GENERIC: str = "❌ Ocorreu um erro. Tente novamente."
-    ERROR_SAVE: str = "❌ Erro ao salvar dados."
-    ERROR_LOAD: str = "❌ Erro ao carregar dados."
-    ERROR_VALIDATION: str = "❌ Erro de validação nos dados."
-    ERROR_FILE_NOT_FOUND: str = "❌ Arquivo não encontrado."
-    ERROR_INVALID_FORMAT: str = "❌ Formato de arquivo inválido."
-    ERROR_REQUIRED_FIELD: str = "❌ Campo obrigatório não preenchido."
-    ERROR_DUPLICATE: str = "❌ Registro duplicado."
+    ERROR_GENERIC: str = "Ocorreu um erro. Tente novamente."
+    ERROR_SAVE: str = "Erro ao salvar dados."
+    ERROR_LOAD: str = "Erro ao carregar dados."
+    ERROR_VALIDATION: str = "Erro de validação nos dados."
+    ERROR_FILE_NOT_FOUND: str = "Arquivo não encontrado."
+    ERROR_INVALID_FORMAT: str = "Formato de arquivo inválido."
+    ERROR_REQUIRED_FIELD: str = "Campo obrigatório não preenchido."
+    ERROR_DUPLICATE: str = "Registro duplicado."
     
     # Mensagens de aviso
-    WARNING_NO_DATA: str = "⚠️ Nenhum dado encontrado."
-    WARNING_CONFIRM_DELETE: str = "⚠️ Tem certeza que deseja excluir?"
-    WARNING_UNSAVED_CHANGES: str = "⚠️ Existem alterações não salvas."
+    WARNING_NO_DATA: str = "Nenhum dado encontrado."
+    WARNING_CONFIRM_DELETE: str = "Tem certeza que deseja excluir?"
+    WARNING_UNSAVED_CHANGES: str = "Existem alterações não salvas."
     
     # Mensagens de informação
-    INFO_LOADING: str = "⏳ Carregando..."
-    INFO_PROCESSING: str = "⏳ Processando..."
-    INFO_NO_RECORDS: str = "ℹ️ Nenhum registro encontrado."
+    INFO_LOADING: str = "Carregando..."
+    INFO_PROCESSING: str = "Processando..."
+    INFO_NO_RECORDS: str = "Nenhum registro encontrado."
 
 
 # =============================================================================

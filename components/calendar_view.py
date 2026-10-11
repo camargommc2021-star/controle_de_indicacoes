@@ -1,35 +1,33 @@
 """
-Componente de Visualização em Calendário.
+Componente de visualização em calendário.
 
-Este módulo fornece uma visualização de calendário para os prazos
-de cursos, com navegação mensal/semanal e indicadores visuais.
-
-Usage:
-    from components.calendar_view import CalendarView
-    
-    cal = CalendarView()
-    cal.render(dados_cursos)
+Exibe prazos e eventos de cursos em formato de calendário mensal,
+utilizando o sistema de design sem emojis decorativos.
 """
 
 import calendar
-from datetime import datetime, date
-from typing import Dict, List, Optional, Tuple, Any
+import html
+from datetime import date
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
 import streamlit as st
 import pandas as pd
 
-from config import colors
 from utils.logger import get_logger
-from utils.validators import parse_data
+from utils.validators import parse_data, limpar_valor, curso_concluido
+from components.ui import plural
 
 logger = get_logger(__name__)
 
+MESES_PT = [
+    '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+]
 
-# ============================================================================
-# DATACLASSES E ENUMS
-# ============================================================================
+DIAS_SEMANA_PT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+
 
 class TipoEvento(Enum):
     """Tipos de eventos no calendário."""
@@ -43,249 +41,171 @@ class TipoEvento(Enum):
 class EventoCalendario:
     """Representa um evento no calendário."""
     data: date
-    titulo: str
+    codigo: str
+    turma: str
     tipo: TipoEvento
     descricao: str = ""
-    cor: str = "#4CAF50"
+    status_prazo: str = "ok"  # 'late', 'soon', 'ok', 'none'
     id_referencia: Optional[str] = None
-    
-    def to_dict(self) -> Dict:
-        """Converte para dicionário."""
-        return {
-            'data': self.data,
-            'titulo': self.titulo,
-            'tipo': self.tipo.value,
-            'descricao': self.descricao,
-            'cor': self.cor,
-            'id_referencia': self.id_referencia
-        }
 
-
-# ============================================================================
-# CLASSE PRINCIPAL
-# ============================================================================
 
 class CalendarView:
-    """
-    Componente de visualização em calendário.
-    
-    Exibe prazos de cursos em formato de calendário mensal,
-    com indicadores visuais de status e navegação intuitiva.
-    
-    Attributes:
-        mes_atual: Mês sendo exibido
-        ano_atual: Ano sendo exibido
-    """
-    
-    # Cores para cada tipo de evento
-    CORES_EVENTO = {
-        TipoEvento.CURSO_PRAZO_SIAT: "#FF9800",      # Laranja
-        TipoEvento.CURSO_PRAZO_CHEFIA: "#2196F3",    # Azul
-        TipoEvento.CURSO_CONCLUSAO: "#4CAF50",       # Verde
-        TipoEvento.CURSO_RECEBIMENTO: "#607D8B",     # Cinza azulado
-    }
-    
-    # Cores para status de prazo
-    CORES_STATUS = {
-        'ok': "#4CAF50",        # Verde
-        'atencao': "#FFC107",   # Amarelo
-        'urgente': "#F44336",   # Vermelho
-        'vencido': "#9E9E9E",   # Cinza
-    }
-    
+    """Componente de visualização em calendário dos prazos."""
+
     def __init__(self):
-        """Inicializa o calendário."""
+        """Inicializa o calendário e o estado de navegação."""
         self.data_atual = date.today()
-        
-        # Inicializar estado da sessão para navegação
+
         if 'cal_mes' not in st.session_state:
             st.session_state.cal_mes = self.data_atual.month
         if 'cal_ano' not in st.session_state:
             st.session_state.cal_ano = self.data_atual.year
-        
+
         self.mes_atual = st.session_state.cal_mes
         self.ano_atual = st.session_state.cal_ano
-        
-        logger.debug("CalendarView inicializado")
-    
-    # ====================================================================
-    # MÉTODOS DE CONVERSÃO DE DADOS
-    # ====================================================================
-    
-    def converter_cursos_para_eventos(self, df_cursos: pd.DataFrame) -> List[EventoCalendario]:
-        """
-        Converte DataFrame de cursos em lista de eventos.
-        
-        Args:
-            df_cursos: DataFrame com dados dos cursos
-            
-        Returns:
-            Lista de EventoCalendario
-        """
-        eventos = []
-        
-        if df_cursos.empty:
-            return eventos
-        
-        for idx, row in df_cursos.iterrows():
-            curso_nome = row.get('Curso', f'Curso {idx}')
-            
-            # Prazo da SIAT
-            data = parse_data(row.get('Fim da indicação da SIAT'))
-            if data:
-                cor = self._calcular_cor_prazo(data)
-                eventos.append(EventoCalendario(
-                    data=data,
-                    titulo=f"📋 {curso_nome}",
-                    tipo=TipoEvento.CURSO_PRAZO_SIAT,
-                    descricao=f"Fim da indicação da SIAT: {curso_nome}",
-                    cor=cor,
-                    id_referencia=str(idx)
-                ))
-            
-            # Prazo da Chefia
-            data = parse_data(row.get('Prazo dado pela chefia'))
-            if data:
-                cor = self._calcular_cor_prazo(data)
-                eventos.append(EventoCalendario(
-                    data=data,
-                    titulo=f"👔 {curso_nome}",
-                    tipo=TipoEvento.CURSO_PRAZO_CHEFIA,
-                    descricao=f"Prazo da Chefia: {curso_nome}",
-                    cor=cor,
-                    id_referencia=str(idx)
-                ))
-            
-            # Data de conclusão
-            data = parse_data(row.get('DATA_DA_CONCLUSAO'))
-            if data:
-                eventos.append(EventoCalendario(
-                    data=data,
-                    titulo=f"✅ {curso_nome}",
-                    tipo=TipoEvento.CURSO_CONCLUSAO,
-                    descricao=f"Conclusão: {curso_nome}",
-                    cor=self.CORES_EVENTO[TipoEvento.CURSO_CONCLUSAO],
-                    id_referencia=str(idx)
-                ))
-            
-            # Recebimento SIGAD
-            data = parse_data(row.get('Recebimento do SIGAD com as vagas'))
-            if data:
-                eventos.append(EventoCalendario(
-                    data=data,
-                    titulo=f"📨 {curso_nome}",
-                    tipo=TipoEvento.CURSO_RECEBIMENTO,
-                    descricao=f"Recebimento SIGAD: {curso_nome}",
-                    cor=self.CORES_EVENTO[TipoEvento.CURSO_RECEBIMENTO],
-                    id_referencia=str(idx)
-                ))
-        
-        return eventos
-    
 
-    def _parse_data(self, valor: Any) -> Optional[date]:
-        """
-        Tenta converter qualquer valor em date usando o helper centralizado parse_data.
-        
-        Args:
-            valor: Valor a ser convertido
-            
-        Returns:
-            date ou None
-        """
-        return parse_data(valor)
-    
-    def _calcular_cor_prazo(self, data_prazo: date) -> str:
-        """
-        Calcula a cor baseada na proximidade do prazo.
-        
-        Args:
-            data_prazo: Data do prazo
-            
-        Returns:
-            Código hexadecimal da cor
-        """
+    def converter_cursos_para_eventos(self, df_cursos: pd.DataFrame) -> List[EventoCalendario]:
+        """Converte DataFrame de cursos em lista de eventos."""
+        eventos = []
+
+        if df_cursos is None or df_cursos.empty:
+            return eventos
+
         hoje = date.today()
-        dias_restantes = (data_prazo - hoje).days
-        
-        if dias_restantes < 0:
-            return self.CORES_STATUS['vencido']
-        elif dias_restantes <= 2:
-            return self.CORES_STATUS['urgente']
-        elif dias_restantes <= 5:
-            return self.CORES_STATUS['atencao']
-        else:
-            return self.CORES_STATUS['ok']
-    
-    # ====================================================================
-    # RENDERIZAÇÃO
-    # ====================================================================
-    
-    def render(self, df_cursos: pd.DataFrame):
-        """
-        Renderiza o calendário completo.
-        
-        Args:
-            df_cursos: DataFrame com cursos
-        """
-        # Converter dados em eventos
+
+        for idx, row in df_cursos.iterrows():
+            codigo = limpar_valor(row.get('Curso')) or f'Curso {idx}'
+            turma = limpar_valor(row.get('Turma')) or ''
+            concluido = curso_concluido(row)
+
+            # Prazo SIAT
+            data_siat = parse_data(row.get('Fim da indicação da SIAT'))
+            if data_siat:
+                if concluido:
+                    status_prazo = "ok"
+                else:
+                    dias = (data_siat - hoje).days
+                    if dias < 0:
+                        status_prazo = "late"
+                    elif dias <= 5:
+                        status_prazo = "soon"
+                    else:
+                        status_prazo = "ok"
+
+                eventos.append(EventoCalendario(
+                    data=data_siat,
+                    codigo=codigo,
+                    turma=turma,
+                    tipo=TipoEvento.CURSO_PRAZO_SIAT,
+                    descricao=f"Prazo SIAT: {codigo} (Turma {turma})",
+                    status_prazo=status_prazo,
+                    id_referencia=str(idx)
+                ))
+
+            # Prazo Chefia
+            data_chefia = parse_data(row.get('Prazo dado pela chefia'))
+            if data_chefia:
+                if concluido:
+                    status_prazo = "ok"
+                else:
+                    dias = (data_chefia - hoje).days
+                    if dias < 0:
+                        status_prazo = "late"
+                    elif dias <= 5:
+                        status_prazo = "soon"
+                    else:
+                        status_prazo = "ok"
+
+                eventos.append(EventoCalendario(
+                    data=data_chefia,
+                    codigo=codigo,
+                    turma=turma,
+                    tipo=TipoEvento.CURSO_PRAZO_CHEFIA,
+                    descricao=f"Prazo da chefia: {codigo} (Turma {turma})",
+                    status_prazo=status_prazo,
+                    id_referencia=str(idx)
+                ))
+
+            # Data de conclusão
+            data_conc = parse_data(row.get('DATA_DA_CONCLUSAO'))
+            if data_conc:
+                eventos.append(EventoCalendario(
+                    data=data_conc,
+                    codigo=codigo,
+                    turma=turma,
+                    tipo=TipoEvento.CURSO_CONCLUSAO,
+                    descricao=f"Conclusão: {codigo} (Turma {turma})",
+                    status_prazo="ok",
+                    id_referencia=str(idx)
+                ))
+
+            # Recebimento SIGAD
+            data_sigad = parse_data(row.get('Recebimento do SIGAD com as vagas'))
+            if data_sigad:
+                eventos.append(EventoCalendario(
+                    data=data_sigad,
+                    codigo=codigo,
+                    turma=turma,
+                    tipo=TipoEvento.CURSO_RECEBIMENTO,
+                    descricao=f"Recebimento SIGAD: {codigo} (Turma {turma})",
+                    status_prazo="none",
+                    id_referencia=str(idx)
+                ))
+
+        return eventos
+
+    def render(self, df_cursos: pd.DataFrame) -> None:
+        """Renderiza a visualização do calendário."""
         eventos = self.converter_cursos_para_eventos(df_cursos)
-        
-        # Renderizar controles
+
         self._render_controles()
-        
-        # Renderizar calendário mensal
         self._render_calendario_mensal(eventos)
-        
-        # Renderizar legenda
         self._render_legenda()
-        
-        # Renderizar lista de eventos do mês
         self._render_eventos_mes(eventos)
-    
-    def _render_controles(self):
-        """Renderiza controles de navegação."""
-        col1, col2, col3, col4 = st.columns([1, 2, 2, 1])
-        
+
+    def _render_controles(self) -> None:
+        """Renderiza os controles de navegação com ícones materiais."""
+        col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 1, 2], gap="small")
+
         with col1:
-            if st.button("◀", key="cal_prev"):
+            if st.button("Anterior", key="cal_prev", icon=":material/chevron_left:", use_container_width=True):
                 self._navegar_anterior()
-        
+
         with col2:
-            meses = list(calendar.month_name)[1:]
-            mes_selecionado = st.selectbox(
+            meses_nomes = MESES_PT[1:]
+            mes_atual_idx = st.session_state.cal_mes - 1
+            mes_sel = st.selectbox(
                 "Mês",
-                meses,
-                index=st.session_state.cal_mes - 1,
+                meses_nomes,
+                index=mes_atual_idx,
                 key="cal_select_mes",
                 label_visibility="collapsed"
             )
-            st.session_state.cal_mes = meses.index(mes_selecionado) + 1
-        
+            st.session_state.cal_mes = meses_nomes.index(mes_sel) + 1
+
         with col3:
-            ano_selecionado = st.number_input(
+            ano_sel = st.number_input(
                 "Ano",
                 min_value=2020,
-                max_value=2100,
+                max_value=2050,
                 value=st.session_state.cal_ano,
                 key="cal_select_ano",
                 label_visibility="collapsed"
             )
-            st.session_state.cal_ano = int(ano_selecionado)
-        
+            st.session_state.cal_ano = int(ano_sel)
+
         with col4:
-            if st.button("▶", key="cal_next"):
+            if st.button("Próximo", key="cal_next", icon=":material/chevron_right:", use_container_width=True):
                 self._navegar_proximo()
-        
-        # Botão para ir ao mês atual
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("📅 Ir para Mês Atual", width="stretch", key="cal_hoje"):
-                st.session_state.cal_mes = date.today().month
-                st.session_state.cal_ano = date.today().year
+
+        with col5:
+            if st.button("Mês atual", key="cal_hoje", icon=":material/today:", use_container_width=True):
+                hoje = date.today()
+                st.session_state.cal_mes = hoje.month
+                st.session_state.cal_ano = hoje.year
                 st.rerun()
-    
-    def _navegar_anterior(self):
+
+    def _navegar_anterior(self) -> None:
         """Navega para o mês anterior."""
         if st.session_state.cal_mes == 1:
             st.session_state.cal_mes = 12
@@ -293,8 +213,8 @@ class CalendarView:
         else:
             st.session_state.cal_mes -= 1
         st.rerun()
-    
-    def _navegar_proximo(self):
+
+    def _navegar_proximo(self) -> None:
         """Navega para o próximo mês."""
         if st.session_state.cal_mes == 12:
             st.session_state.cal_mes = 1
@@ -302,195 +222,122 @@ class CalendarView:
         else:
             st.session_state.cal_mes += 1
         st.rerun()
-    
-    def _render_calendario_mensal(self, eventos: List[EventoCalendario]):
-        """
-        Renderiza calendário mensal.
-        
-        Args:
-            eventos: Lista de eventos para exibir
-        """
-        # Criar calendário
-        cal = calendar.Calendar()
+
+    def _render_calendario_mensal(self, eventos: List[EventoCalendario]) -> None:
+        """Renderiza a grade mensal."""
+        cal = calendar.Calendar(firstweekday=6)  # Domingo = 6
         dias_mes = cal.monthdayscalendar(
-            st.session_state.cal_ano, 
+            st.session_state.cal_ano,
             st.session_state.cal_mes
         )
-        
-        # Agrupar eventos por dia
+
         eventos_por_dia: Dict[int, List[EventoCalendario]] = {}
         for ev in eventos:
             if ev.data.month == st.session_state.cal_mes and ev.data.year == st.session_state.cal_ano:
                 dia = ev.data.day
-                if dia not in eventos_por_dia:
-                    eventos_por_dia[dia] = []
-                eventos_por_dia[dia].append(ev)
-        
-        # CSS customizado para o calendário
-        st.markdown("""
-        <style>
-        .cal-header {
-            background: linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%);
-            color: white;
-            padding: 8px;
-            text-align: center;
-            font-weight: bold;
-            border-radius: 4px 4px 0 0;
-        }
-        .cal-day-header {
-            background-color: #e5e7eb;
-            padding: 8px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 0.85em;
-        }
-        .cal-day {
-            background-color: white;
-            border: 1px solid #e5e7eb;
-            padding: 4px;
-            min-height: 80px;
-            vertical-align: top;
-        }
-        .cal-day-out {
-            background-color: #f3f4f6;
-            color: #9ca3af;
-        }
-        .cal-day-today {
-            background-color: #dbeafe;
-            border: 2px solid #3b82f6;
-        }
-        .cal-event {
-            font-size: 0.75em;
-            padding: 2px 4px;
-            margin: 2px 0;
-            border-radius: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            cursor: pointer;
-            color: white;
-            font-weight: 500;
-        }
-        .cal-day-number {
-            font-weight: bold;
-            margin-bottom: 4px;
-            font-size: 0.9em;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        # Cabeçalho do calendário
-        mes_nome = calendar.month_name[st.session_state.cal_mes]
-        st.markdown(f"<h3 style='text-align: center;'>{mes_nome} {st.session_state.cal_ano}</h3>", 
-                   unsafe_allow_html=True)
-        
-        # Criar grid do calendário
-        dias_semana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
-        
-        # Cabeçalhos
-        cols = st.columns(7)
-        for i, dia in enumerate(dias_semana):
-            with cols[i]:
-                st.markdown(f"<div class='cal-day-header'>{dia}</div>", unsafe_allow_html=True)
-        
-        # Dias
+                eventos_por_dia.setdefault(dia, []).append(ev)
+
+        mes_nome = MESES_PT[st.session_state.cal_mes]
+        st.markdown(
+            f'<div style="text-align: center; margin: 1.25rem 0 0.75rem 0;">'
+            f'<span style="font-family: var(--font-condensed); font-size: 24px; font-weight: 600; color: var(--ink);">'
+            f'{mes_nome} {st.session_state.cal_ano}</span></div>',
+            unsafe_allow_html=True
+        )
+
+        # Cabeçalho dos dias da semana
+        header_cols = "".join(f'<div class="cal-weekday">{d}</div>' for d in DIAS_SEMANA_PT)
+        st.markdown(f'<div class="cal-header-row">{header_cols}</div>', unsafe_allow_html=True)
+
         hoje = date.today()
+
+        # Grade de semanas
         for semana in dias_mes:
-            cols = st.columns(7)
-            for i, dia in enumerate(semana):
-                with cols[i]:
-                    if dia == 0:
-                        # Dia fora do mês
-                        st.markdown("<div class='cal-day cal-day-out'>&nbsp;</div>", 
-                                   unsafe_allow_html=True)
-                    else:
-                        # Verificar se é hoje
-                        eh_hoje = (dia == hoje.day and 
-                                  st.session_state.cal_mes == hoje.month and 
-                                  st.session_state.cal_ano == hoje.year)
-                        
-                        classe = "cal-day"
-                        if eh_hoje:
-                            classe += " cal-day-today"
-                        
-                        # Eventos do dia
-                        eventos_dia = eventos_por_dia.get(dia, [])
-                        eventos_html = ""
-                        for ev in eventos_dia[:3]:  # Max 3 eventos visíveis
-                            eventos_html += f"<div class='cal-event' style='background-color: {ev.cor};'>{ev.titulo}</div>"
-                        
-                        if len(eventos_dia) > 3:
-                            eventos_html += f"<div style='font-size: 0.7em; color: #666;'>+{len(eventos_dia)-3} mais</div>"
-                        
-                        html = f"""
-                        <div class='{classe}'>
-                            <div class='cal-day-number'>{dia}</div>
-                            {eventos_html}
-                        </div>
-                        """
-                        st.markdown(html, unsafe_allow_html=True)
-    
-    def _render_legenda(self):
-        """Renderiza legenda de cores e tipos."""
-        st.markdown("---")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**Status dos Prazos:**")
-            for nome, cor in self.CORES_STATUS.items():
-                label = {
-                    'ok': '🟢 No prazo (>5 dias)',
-                    'atencao': '🟡 Atenção (3-5 dias)',
-                    'urgente': '🔴 Urgente (0-2 dias)',
-                    'vencido': '⚪ Vencido'
-                }[nome]
-                st.markdown(f"<span style='color: {cor};'>●</span> {label}", unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("**Tipos de Eventos:**")
-            for tipo, cor in self.CORES_EVENTO.items():
-                label = {
-                    TipoEvento.CURSO_PRAZO_SIAT: '📋 Prazo SIAT',
-                    TipoEvento.CURSO_PRAZO_CHEFIA: '👔 Prazo Chefia',
-                    TipoEvento.CURSO_CONCLUSAO: '✅ Conclusão',
-                    TipoEvento.CURSO_RECEBIMENTO: '📨 Recebimento SIGAD'
-                }[tipo]
-                st.markdown(f"<span style='color: {cor};'>●</span> {label}", unsafe_allow_html=True)
-    
-    def _render_eventos_mes(self, eventos: List[EventoCalendario]):
-        """Renderiza lista detalhada de eventos do mês."""
-        st.markdown("---")
-        st.subheader(f"📋 Eventos de {calendar.month_name[st.session_state.cal_mes]}")
-        
-        # Filtrar eventos do mês
-        eventos_mes = [ev for ev in eventos 
-                      if ev.data.month == st.session_state.cal_mes 
-                      and ev.data.year == st.session_state.cal_ano]
-        
+            cols_html = []
+            for dia in semana:
+                if dia == 0:
+                    cols_html.append('<div class="cal-cell cal-cell-out"></div>')
+                else:
+                    eh_hoje = (
+                        dia == hoje.day and
+                        st.session_state.cal_mes == hoje.month and
+                        st.session_state.cal_ano == hoje.year
+                    )
+                    classe_hoje = " cal-cell-today" if eh_hoje else ""
+
+                    ev_do_dia = eventos_por_dia.get(dia, [])
+                    chips_html = []
+                    for ev in ev_do_dia[:3]:
+                        safe_cod = html.escape(ev.codigo)
+                        chips_html.append(f'<div class="cal-chip {ev.status_prazo}">{safe_cod}</div>')
+
+                    if len(ev_do_dia) > 3:
+                        mais = len(ev_do_dia) - 3
+                        chips_html.append(f'<div style="font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums;">+{mais}</div>')
+
+                    chips_bloco = "".join(chips_html)
+                    cols_html.append(
+                        f'<div class="cal-cell{classe_hoje}">'
+                        f'<div class="cal-day-num">{dia}</div>'
+                        f'{chips_bloco}'
+                        f'</div>'
+                    )
+
+            linha_html = "".join(cols_html)
+            st.markdown(f'<div class="cal-grid">{linha_html}</div>', unsafe_allow_html=True)
+
+    def _render_legenda(self) -> None:
+        """Renderiza a legenda com pills estilizas."""
+        st.markdown("<hr style='margin: 1.5rem 0;'>", unsafe_allow_html=True)
+
+        html_legenda = """
+        <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: center; justify-content: space-between;">
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 13px; font-weight: 600; color: var(--ink);">Status:</span>
+            <span class="pill pill-ok">No prazo (>5 dias)</span>
+            <span class="pill pill-soon">Atenção (0 a 5 dias)</span>
+            <span class="pill pill-late">Vencido</span>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <span style="font-size: 13px; font-weight: 600; color: var(--ink);">Eventos:</span>
+            <span class="pill pill-muted">Prazo SIAT</span>
+            <span class="pill pill-muted">Prazo da chefia</span>
+            <span class="pill pill-ok">Conclusão</span>
+            <span class="pill pill-none">Recebimento SIGAD</span>
+          </div>
+        </div>
+        """
+        st.markdown(html_legenda, unsafe_allow_html=True)
+
+    def _render_eventos_mes(self, eventos: List[EventoCalendario]) -> None:
+        """Renderiza lista detalhada dos eventos do mês."""
+        eventos_mes = [
+            ev for ev in eventos
+            if ev.data.month == st.session_state.cal_mes and ev.data.year == st.session_state.cal_ano
+        ]
+
         if not eventos_mes:
-            st.info("Nenhum evento neste mês")
             return
-        
-        # Ordenar por data
+
+        st.markdown("<div class='section-title' style='margin-top: 1.5rem;'>Eventos do mês</div>", unsafe_allow_html=True)
+
         eventos_mes.sort(key=lambda x: x.data)
-        
-        # Agrupar por data
         eventos_por_data: Dict[date, List[EventoCalendario]] = {}
         for ev in eventos_mes:
-            if ev.data not in eventos_por_data:
-                eventos_por_data[ev.data] = []
-            eventos_por_data[ev.data].append(ev)
-        
-        # Exibir em expanders
-        for data_ev, lista_eventos in sorted(eventos_por_data.items()):
-            dia_semana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'][data_ev.weekday()]
-            with st.expander(f"📅 {dia_semana}, {data_ev.strftime('%d/%m/%Y')} ({len(lista_eventos)} eventos)"):
-                for ev in lista_eventos:
-                    col1, col2 = st.columns([0.1, 0.9])
-                    with col1:
-                        st.markdown(f"<div style='width: 20px; height: 20px; background-color: {ev.cor}; border-radius: 50%;'></div>", 
-                                   unsafe_allow_html=True)
-                    with col2:
-                        st.write(f"**{ev.titulo}**")
-                        st.caption(ev.descricao)
+            eventos_por_data.setdefault(ev.data, []).append(ev)
+
+        dias_semana_curtos = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+
+        for data_ev, lista in sorted(eventos_por_data.items()):
+            ds = dias_semana_curtos[data_ev.weekday()]
+            data_fmt = data_ev.strftime('%d/%m/%Y')
+            qtd = len(lista)
+            termo = plural(qtd, "evento", "eventos")
+
+            with st.expander(f"{ds}, {data_fmt} ({qtd} {termo})"):
+                for ev in lista:
+                    col_code, col_desc = st.columns([2, 8])
+                    with col_code:
+                        st.markdown(f'<span class="pill pill-{ev.status_prazo}">{html.escape(ev.codigo)}</span>', unsafe_allow_html=True)
+                    with col_desc:
+                        st.write(ev.descricao)
