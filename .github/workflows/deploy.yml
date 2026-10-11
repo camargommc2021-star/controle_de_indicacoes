@@ -16,8 +16,10 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
             PROJECT_DIR="/srv/docker/controle-indicacoes"
             REPO_URL="https://github.com/camargommc2021-star/controle_de_indicacoes.git"
+            BACKUP_ROOT="/srv/docker/controle-indicacoes-backups"
 
             # Primeiro deploy: clona o repo
             if [ ! -d "$PROJECT_DIR/.git" ]; then
@@ -26,17 +28,41 @@ jobs:
             fi
 
             cd "$PROJECT_DIR"
-            git pull origin main
+
+            # Backup completo da pasta de dados antes de qualquer alteração
+            STAMP=$(date +%Y%m%d-%H%M%S)
+            mkdir -p "$BACKUP_ROOT"
+            if [ -d data ]; then
+              tar czf "$BACKUP_ROOT/data-$STAMP.tgz" data
+              echo "Backup dos dados: $BACKUP_ROOT/data-$STAMP.tgz"
+            fi
+
+            git fetch origin main
+
+            # Arquivos que o pull vai alterar e que têm mudanças locais no servidor
+            ALTERADOS=$(git diff --name-only HEAD origin/main)
+            for f in $ALTERADOS; do
+              if [ -e "$f" ] && ! git diff --quiet -- "$f"; then
+                if [ "$f" = "data/cursos.xlsx" ]; then
+                  echo "ERRO: data/cursos.xlsx tem alterações locais e também mudou no repositório. Deploy abortado para não sobrescrever os cursos."
+                  exit 1
+                fi
+                mkdir -p "$BACKUP_ROOT/locais-$STAMP/$(dirname "$f")"
+                cp "$f" "$BACKUP_ROOT/locais-$STAMP/$f"
+                git checkout -- "$f"
+                echo "Alteração local guardada e descartada: $f"
+              fi
+            done
+
+            git merge --ff-only origin/main
 
             # Garantir que .streamlit/secrets.toml exista como ARQUIVO
             mkdir -p .streamlit
-            [ -d .streamlit/secrets.toml ] && rm -rf .streamlit/secrets.toml
-            [ ! -f .streamlit/secrets.toml ] && touch .streamlit/secrets.toml
+            if [ -d .streamlit/secrets.toml ]; then rm -rf .streamlit/secrets.toml; fi
+            if [ ! -f .streamlit/secrets.toml ]; then touch .streamlit/secrets.toml; fi
 
-            # Parar e remover container antigo
-            docker compose -f docker-compose.prod.yml down
-
-            # Build e restart
+            # Build antes de derrubar o container: se falhar, a versão atual continua no ar
             docker compose -f docker-compose.prod.yml build --no-cache
             docker compose -f docker-compose.prod.yml up -d --force-recreate
             docker image prune -f
+            echo "Deploy concluído: $(git log --oneline -1)"
