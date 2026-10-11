@@ -37,10 +37,16 @@ def render_sidebar(data_manager, auth_manager) -> str:
     pagina_anterior = st.session_state.get("_sidebar_pagina_anterior")
     if pagina_anterior != pagina_atual:
         limpar_confirmacoes_exclusao()
+        for k in list(st.session_state.keys()):
+            if str(k).startswith("confirm_restore_"):
+                del st.session_state[k]
         st.session_state["_sidebar_pagina_anterior"] = pagina_atual
 
     def navegar_para(destino: str) -> None:
         limpar_confirmacoes_exclusao()
+        for k in list(st.session_state.keys()):
+            if str(k).startswith("confirm_restore_"):
+                del st.session_state[k]
         st.session_state["pagina"] = destino
         st.rerun()
 
@@ -124,8 +130,8 @@ def render_sidebar(data_manager, auth_manager) -> str:
 
         # Grupo: Administração (apenas se o usuário tiver permissão para ao menos uma opção)
         pode_importar = auth_manager.pode('criar_curso')
-        pode_backup = auth_manager.pode('ver_cursos')
-        pode_usuarios = auth_manager.permissoes.gerenciar_usuarios
+        pode_backup = auth_manager.pode('fazer_backup')
+        pode_usuarios = auth_manager.pode('gerenciar_usuarios')
 
         if pode_importar or pode_backup or pode_usuarios:
             st.markdown('<div class="nav-group-label" style="margin-top: 1.25rem;">Administração</div>', unsafe_allow_html=True)
@@ -162,6 +168,27 @@ def render_sidebar(data_manager, auth_manager) -> str:
                     use_container_width=True
                 ):
                     navegar_para("usuarios")
+
+        # Alternador de tema (Claro / Escuro)
+        tema_sessao = st.session_state.get("tema", "Claro")
+        if st.session_state.get("tema_switch") != tema_sessao:
+            st.session_state["tema_switch"] = tema_sessao
+
+        def _on_tema_change():
+            sel = st.session_state.get("tema_switch")
+            if sel in ["Claro", "Escuro"]:
+                st.session_state["tema"] = sel
+                st.query_params["tema"] = sel
+
+        st.markdown('<div class="nav-group-label" style="margin-top: 1.25rem;">Tema</div>', unsafe_allow_html=True)
+        st.segmented_control(
+            "Tema",
+            options=["Claro", "Escuro"],
+            key="tema_switch",
+            format_func=lambda x: f":material/{'light_mode' if x == 'Claro' else 'dark_mode'}: {x}",
+            label_visibility="collapsed",
+            on_change=_on_tema_change
+        )
 
         # Bloco do Usuário no Rodapé
         usuario_atual = auth_manager.usuario_atual or {}

@@ -1,5 +1,6 @@
 import os
 import shutil
+import re
 from datetime import datetime
 import glob
 from utils.logger import get_logger
@@ -39,14 +40,25 @@ class BackupManager:
         except Exception as e:
             return False, f"Erro ao criar backup: {str(e)}"
     
+    @staticmethod
+    def _sort_key(caminho):
+        nome = os.path.basename(caminho)
+        match = re.search(r'\d{8}_\d{6}', nome)
+        if match:
+            return (match.group(0), os.path.getmtime(caminho) if os.path.exists(caminho) else 0)
+        try:
+            return ('', os.path.getmtime(caminho))
+        except Exception:
+            return ('', 0)
+
     def _limpar_backups_antigos(self):
         """Remove backups antigos mantendo apenas os últimos N"""
         try:
             # Listar todos os backups
             backups = glob.glob(os.path.join(self.pasta_backup, "cursos_*.xlsx"))
             
-            # Ordenar por data de modificação (mais recentes primeiro)
-            backups.sort(key=os.path.getmtime, reverse=True)
+            # Ordenar por data (mais recentes primeiro)
+            backups.sort(key=self._sort_key, reverse=True)
             
             # Remover backups excedentes
             for backup in backups[self.max_backups:]:
@@ -55,10 +67,10 @@ class BackupManager:
             print(f"Erro ao limpar backups antigos: {str(e)}")
     
     def listar_backups(self):
-        """Lista todos os backups disponíveis"""
+        """Lista todos os backups disponíveis (mais recentes primeiro)"""
         try:
             backups = glob.glob(os.path.join(self.pasta_backup, "cursos_*.xlsx"))
-            backups.sort(key=os.path.getmtime, reverse=True)
+            backups.sort(key=self._sort_key, reverse=True)
             
             resultado = []
             for backup in backups:
@@ -81,6 +93,13 @@ class BackupManager:
     def restaurar_backup(self, caminho_backup):
         """Restaura um backup específico"""
         try:
+            caminho_dir = os.path.dirname(os.path.abspath(caminho_backup))
+            pasta_backup_abs = os.path.abspath(self.pasta_backup)
+            nome_arquivo = os.path.basename(caminho_backup)
+
+            if caminho_dir != pasta_backup_abs or not re.match(r'^cursos_\d{8}_\d{6}\.xlsx$', nome_arquivo):
+                return False, 'Arquivo de backup inválido.'
+
             if not os.path.exists(caminho_backup):
                 return False, "Backup não encontrado"
             

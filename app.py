@@ -6,6 +6,8 @@ Interface redesenhada no conceito 'fichas de progresso' (flight progress strips)
 sem emojis decorativos, com linguagem direta e padrão visual austero.
 """
 
+import html
+import re
 from pathlib import Path
 from typing import Dict, List, Optional
 import streamlit as st
@@ -62,8 +64,741 @@ from utils.validators import parse_data, limpar_valor, curso_concluido
 # CARREGAMENTO DE RECURSOS E SESSÃO
 # =============================================================================
 
+def init_theme() -> str:
+    """Inicializa e sincroniza a escolha do tema com query params e session_state."""
+    if "tema" not in st.session_state:
+        qp_tema = st.query_params.get("tema")
+        if qp_tema and str(qp_tema).lower() in ["escuro", "dark"]:
+            st.session_state["tema"] = "Escuro"
+        else:
+            st.session_state["tema"] = "Claro"
+        st.query_params["tema"] = st.session_state["tema"]
+    return st.session_state.get("tema", "Claro")
+
+
+def get_theme_css(tema: str = "Claro") -> str:
+    """Gera bloco CSS com os tokens e sobreposições para o tema ativo."""
+    eh_escuro = (tema == "Escuro")
+
+    if eh_escuro:
+        tokens = """
+  --paper: #121A23;
+  --surface: #1A2430;
+  --ink: #E6ECF2;
+  --ink-soft: #9AA8B6;
+  --line: #2C3946;
+  --blue: #5B95E0;
+  --blue-tint: #15253C;
+  --late: #F0705F;
+  --late-tint: #3A1F1E;
+  --soon: #F2B33D;
+  --soon-tint: #3A2E14;
+  --ok: #4FBF8B;
+  --ok-tint: #173326;
+  --none: #6B7A89;
+"""
+        btn_primary_bg = "#2F6BB8"
+        btn_primary_hover = "#3A7AC9"
+        scrollbar_thumb = "#3A4856"
+        scrollbar_thumb_hover = "#4D5E6F"
+    else:
+        tokens = """
+  --paper: #EDF1F5;
+  --surface: #FFFFFF;
+  --ink: #1A2633;
+  --ink-soft: #5A6878;
+  --line: #D5DCE4;
+  --blue: #1F4E8C;
+  --blue-tint: #E3ECF7;
+  --late: #C0392B;
+  --late-tint: #FBE9E7;
+  --soon: #945B00;
+  --soon-tint: #FDF3DC;
+  --ok: #246B4C;
+  --ok-tint: #E4F2EB;
+  --none: #9AA6B2;
+"""
+        btn_primary_bg = "#1F4E8C"
+        btn_primary_hover = "#183F72"
+        scrollbar_thumb = "#B8C3CF"
+        scrollbar_thumb_hover = "#8C99A8"
+
+    return f"""
+:root {{
+{tokens}
+}}
+
+/* Transição do corpo: 120ms para cores, desativada sob prefers-reduced-motion */
+body, .stApp {{
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+  transition: background-color 120ms ease, color 120ms ease;
+}}
+
+@media (prefers-reduced-motion: reduce) {{
+  body, .stApp {{
+    transition: none !important;
+  }}
+}}
+
+/* Superfícies e blocos principais */
+[data-testid="stSidebar"],
+[data-testid="stSidebarContent"],
+[data-testid="stSidebar"] > div {{
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+}}
+
+.main,
+.main .block-container,
+[data-testid="stMainBlockContainer"],
+[data-testid="stAppViewContainer"],
+[data-testid="stMain"] {{
+  background-color: var(--paper) !important;
+  color: var(--ink) !important;
+}}
+
+/* Textos e tipografia geral */
+p, span, label, h1, h2, h3, h4, h5, h6,
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stText"],
+[data-testid="stWidgetLabel"] label,
+[data-testid="stWidgetLabel"] p,
+[data-testid="stWidgetLabel"] {{
+  color: var(--ink) !important;
+}}
+
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p,
+.page-helper,
+.login-helper,
+.sidebar-brand-subtitle,
+.sidebar-user-role,
+.strip-turma,
+.strip-col-om,
+.total-label,
+small {{
+  color: var(--ink-soft) !important;
+}}
+
+/* Botões primários */
+button[kind="primary"],
+[data-testid="baseButton-primary"],
+[data-testid="stBaseButton-primary"],
+[data-testid="stBaseButton-primaryFormSubmit"],
+[data-testid="stFormSubmitButton"] > button,
+[data-testid="stFormSubmitButton"] button,
+[data-testid="stSidebar"] button[kind="primary"],
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"],
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {{
+  background-color: {btn_primary_bg} !important;
+  color: #FFFFFF !important;
+  border: 1px solid {btn_primary_bg} !important;
+}}
+
+button[kind="primary"]:hover,
+[data-testid="baseButton-primary"]:hover,
+[data-testid="stBaseButton-primary"]:hover,
+[data-testid="stBaseButton-primaryFormSubmit"]:hover,
+[data-testid="stFormSubmitButton"] > button:hover,
+[data-testid="stFormSubmitButton"] button:hover,
+[data-testid="stSidebar"] button[kind="primary"]:hover,
+[data-testid="stSidebar"] button[data-testid="baseButton-primary"]:hover,
+[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover {{
+  background-color: {btn_primary_hover} !important;
+  border-color: {btn_primary_hover} !important;
+  color: #FFFFFF !important;
+}}
+
+button[kind="primary"] *,
+[data-testid="baseButton-primary"] *,
+[data-testid="stBaseButton-primary"] *,
+[data-testid="stBaseButton-primaryFormSubmit"] *,
+[data-testid="stFormSubmitButton"] button *,
+[data-testid="stSidebar"] button[kind="primary"] * {{
+  color: #FFFFFF !important;
+  fill: #FFFFFF !important;
+}}
+
+/* Botões secundários */
+button[kind="secondary"],
+[data-testid="baseButton-secondary"],
+[data-testid="stBaseButton-secondary"] {{
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}}
+
+button[kind="secondary"]:hover,
+[data-testid="baseButton-secondary"]:hover,
+[data-testid="stBaseButton-secondary"]:hover {{
+  background-color: var(--paper) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}}
+
+/* Botões terciários */
+button[kind="tertiary"],
+[data-testid="baseButton-tertiary"],
+[data-testid="stBaseButton-tertiary"] {{
+  background-color: transparent !important;
+  color: var(--ink-soft) !important;
+  border: 1px solid transparent !important;
+}}
+
+button[kind="tertiary"]:hover,
+[data-testid="baseButton-tertiary"]:hover,
+[data-testid="stBaseButton-tertiary"]:hover {{
+  background-color: var(--late-tint) !important;
+  color: var(--late) !important;
+}}
+
+/* Botões desabilitados */
+button:disabled,
+button[disabled],
+[data-testid*="stBaseButton"]:disabled {{
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  background-color: var(--surface) !important;
+  color: var(--ink-soft) !important;
+  border-color: var(--line) !important;
+}}
+
+/* Campos de entrada e formulários */
+[data-testid="stTextInputRootElement"],
+[data-testid="stTextAreaRootElement"],
+[data-testid="stNumberInputContainer"],
+[data-testid="stSelectbox"] [data-baseweb="select"] > div,
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div,
+[data-testid="stDateInput"] [data-baseweb="input"],
+[data-baseweb="input"],
+[data-baseweb="textarea"],
+[data-baseweb="select"] > div,
+div[data-baseweb="input"] {{
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}}
+
+[data-testid="stTextInputRootElement"]:focus-within,
+[data-testid="stTextAreaRootElement"]:focus-within,
+[data-testid="stNumberInputContainer"]:focus-within,
+[data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within,
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div:focus-within,
+[data-testid="stDateInput"] [data-baseweb="input"]:focus-within,
+[data-baseweb="input"]:focus-within,
+[data-baseweb="textarea"]:focus-within,
+[data-baseweb="select"] > div:focus-within,
+div[data-baseweb="input"]:focus-within {{
+  border-color: var(--blue) !important;
+  box-shadow: 0 0 0 2px var(--blue-tint) !important;
+}}
+
+[data-testid="stTextInputRootElement"] input,
+[data-testid="stTextAreaRootElement"] textarea,
+[data-testid="stNumberInputContainer"] input,
+[data-testid="stSelectbox"] [data-baseweb="select"] div,
+[data-testid="stSelectbox"] [data-baseweb="select"] span,
+[data-testid="stMultiSelect"] [data-baseweb="select"] div,
+[data-testid="stMultiSelect"] [data-baseweb="select"] span,
+[data-testid="stDateInput"] [data-baseweb="input"] input,
+div[data-baseweb="select"] div,
+div[data-baseweb="select"] span,
+[data-baseweb="input"] input,
+[data-baseweb="textarea"] textarea,
+[data-baseweb="base-input"],
+[data-baseweb="base-input"] input,
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-testid="stTextArea"] textarea {{
+  background-color: transparent !important;
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+}}
+
+::placeholder,
+::-webkit-input-placeholder,
+:-ms-input-placeholder {{
+  color: var(--ink-soft) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: var(--ink-soft) !important;
+}}
+
+/* Botões +/- do number_input e alternador de visibilidade de senha */
+[data-testid="stNumberInputStepDown"],
+[data-testid="stNumberInputStepUp"] {{
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+}}
+
+[data-testid="stNumberInputStepDown"]:hover,
+[data-testid="stNumberInputStepUp"]:hover {{
+  background-color: var(--blue-tint) !important;
+  color: var(--ink) !important;
+}}
+
+[data-testid="stNumberInputStepDown"] svg,
+[data-testid="stNumberInputStepUp"] svg {{
+  fill: currentColor !important;
+}}
+
+[data-testid="stNumberInput"] button,
+[data-baseweb="input"] button,
+[data-testid="stTextInput"] button,
+button[aria-label="Toggle password visibility"] {{
+  background-color: transparent !important;
+  color: var(--ink-soft) !important;
+  border: none !important;
+}}
+
+[data-testid="stNumberInput"] button svg,
+[data-baseweb="input"] button svg,
+[data-testid="stTextInput"] button svg,
+button[aria-label="Toggle password visibility"] svg {{
+  fill: currentColor !important;
+}}
+
+[data-testid="stNumberInput"] button:hover,
+[data-baseweb="input"] button:hover,
+[data-testid="stTextInput"] button:hover,
+button[aria-label="Toggle password visibility"]:hover {{
+  color: var(--ink) !important;
+  background-color: var(--blue-tint) !important;
+}}
+
+/* Dropdowns e Menus Abertos (BaseWeb Select / Popover) */
+[data-baseweb="select"] span,
+[data-baseweb="select"] div {{
+  color: var(--ink) !important;
+}}
+
+[data-baseweb="select"] svg {{
+  fill: var(--ink-soft) !important;
+}}
+
+[data-baseweb="popover"],
+[data-baseweb="popover"] > div,
+[data-baseweb="menu"],
+ul[role="listbox"],
+[role="listbox"] {{
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}}
+
+[role="option"],
+li[role="option"] {{
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+}}
+
+[role="option"]:hover,
+[role="option"][aria-selected="true"],
+[role="option"]:focus,
+li[role="option"]:hover,
+li[role="option"][aria-selected="true"] {{
+  background-color: var(--blue-tint) !important;
+  color: var(--blue) !important;
+}}
+
+[role="option"] *,
+li[role="option"] * {{
+  color: inherit !important;
+}}
+
+/* Segmented Control / Pills */
+[data-testid="stButtonGroup"] > div,
+[data-testid="stSegmentedControl"] > div {{
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+}}
+
+[data-testid="stButtonGroup"] button[aria-checked="false"],
+[data-testid="stSegmentedControl"] button[aria-checked="false"] {{
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}}
+
+[data-testid="stButtonGroup"] button[aria-checked="false"]:hover,
+[data-testid="stSegmentedControl"] button[aria-checked="false"]:hover {{
+  background: var(--blue-tint) !important;
+  background-color: var(--blue-tint) !important;
+}}
+
+[data-testid="stButtonGroup"] button[aria-checked="false"] *,
+[data-testid="stSegmentedControl"] button[aria-checked="false"] * {{
+  color: inherit !important;
+}}
+
+[data-testid="stButtonGroup"] button[aria-checked="true"],
+[data-testid="stSegmentedControl"] button[aria-checked="true"],
+[data-testid="stSegmentedControl"] button[data-checked="true"] {{
+  background: var(--blue-tint) !important;
+  background-color: var(--blue-tint) !important;
+  color: var(--blue) !important;
+  border: 1px solid var(--blue) !important;
+  font-weight: 600 !important;
+}}
+
+[data-testid="stButtonGroup"] button[aria-checked="true"] *,
+[data-testid="stSegmentedControl"] button[aria-checked="true"] *,
+[data-testid="stSegmentedControl"] button[data-checked="true"] * {{
+  color: inherit !important;
+  fill: currentColor !important;
+}}
+
+/* Abas (Tabs) */
+[data-baseweb="tab-list"] {{
+  border-bottom: 1px solid var(--line) !important;
+  background-color: transparent !important;
+}}
+
+[data-baseweb="tab"] {{
+  color: var(--ink-soft) !important;
+  background-color: transparent !important;
+}}
+
+[data-baseweb="tab"]:hover {{
+  color: var(--ink) !important;
+}}
+
+[data-baseweb="tab"][aria-selected="true"] {{
+  color: var(--blue) !important;
+}}
+
+[data-baseweb="tab-highlight"] {{
+  background-color: var(--blue) !important;
+}}
+
+[data-baseweb="tab-border"] {{
+  background-color: var(--line) !important;
+}}
+
+/* Expander */
+[data-testid="stExpander"] {{
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+}}
+
+[data-testid="stExpander"] details {{
+  background-color: var(--surface) !important;
+}}
+
+[data-testid="stExpander"] summary {{
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+}}
+
+[data-testid="stExpander"] summary p,
+[data-testid="stExpander"] summary span {{
+  color: var(--ink) !important;
+}}
+
+[data-testid="stExpander"] summary svg {{
+  fill: var(--ink-soft) !important;
+}}
+
+[data-testid="stExpander"] summary:hover {{
+  color: var(--blue) !important;
+}}
+
+[data-testid="stExpander"] summary:hover p,
+[data-testid="stExpander"] summary:hover span {{
+  color: var(--blue) !important;
+}}
+
+[data-testid="stExpander"] summary:hover svg {{
+  fill: var(--blue) !important;
+}}
+
+[data-testid="stExpanderDetails"] {{
+  background-color: var(--surface) !important;
+  border-top: 1px solid var(--line) !important;
+}}
+
+/* File Uploader Dropzone */
+[data-testid="stFileUploaderDropzone"] {{
+  background-color: var(--surface) !important;
+  border: 1px dashed var(--line) !important;
+  color: var(--ink-soft) !important;
+}}
+
+[data-testid="stFileUploaderDropzone"]:hover {{
+  border-color: var(--blue) !important;
+  background-color: var(--blue-tint) !important;
+}}
+
+[data-testid="stFileUploaderDropzone"] * {{
+  color: var(--ink-soft) !important;
+}}
+
+[data-testid="stFileUploaderDropzone"] button,
+[data-testid="stFileUploaderDropzone"] [data-testid="baseButton-secondary"],
+[data-testid="stFileUploaderDropzone"] [data-testid="stBaseButton-secondary"] {{
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}}
+
+[data-testid="stFileUploaderDropzone"] button *,
+[data-testid="stFileUploaderDropzone"] [data-testid="baseButton-secondary"] *,
+[data-testid="stFileUploaderDropzone"] [data-testid="stBaseButton-secondary"] * {{
+  color: var(--ink) !important;
+}}
+
+[data-testid="stFileUploaderDropzone"] button:hover,
+[data-testid="stFileUploaderDropzone"] [data-testid="baseButton-secondary"]:hover,
+[data-testid="stFileUploaderDropzone"] [data-testid="stBaseButton-secondary"]:hover {{
+  background-color: var(--paper) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}}
+
+[data-testid="stFileUploaderFileData"] {{
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}}
+
+/* Alertas e Notificações (st.info, st.warning, st.error, st.success) */
+[data-testid="stAlertContainer"],
+[data-testid="stAlert"] {{
+  border-radius: 6px !important;
+  font-size: 14px !important;
+}}
+
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentInfo"]),
+[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]),
+[data-test-variant="info"] [data-testid="stAlertContainer"],
+[data-test-variant="info"] {{
+  background-color: var(--blue-tint) !important;
+  color: var(--blue) !important;
+  border: 1px solid var(--blue) !important;
+}}
+
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentWarning"]),
+[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]),
+[data-test-variant="warning"] [data-testid="stAlertContainer"],
+[data-test-variant="warning"] {{
+  background-color: var(--soon-tint) !important;
+  color: var(--soon) !important;
+  border: 1px solid var(--soon) !important;
+}}
+
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentError"]),
+[data-testid="stAlert"]:has([data-testid="stAlertContentError"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentError"]),
+[data-test-variant="error"] [data-testid="stAlertContainer"],
+[data-test-variant="error"] {{
+  background-color: var(--late-tint) !important;
+  color: var(--late) !important;
+  border: 1px solid var(--late) !important;
+}}
+
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentSuccess"]),
+[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]),
+[data-test-variant="success"] [data-testid="stAlertContainer"],
+[data-test-variant="success"] {{
+  background-color: var(--ok-tint) !important;
+  color: var(--ok) !important;
+  border: 1px solid var(--ok) !important;
+}}
+
+[data-testid="stAlertContainer"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stAlertContainer"] p,
+[data-testid="stAlertContainer"] span,
+[data-testid="stAlert"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stAlert"] p,
+[data-testid="stAlert"] span {{
+  color: inherit !important;
+}}
+
+[data-testid="stAlertContainer"] svg,
+[data-testid="stAlertContainer"] [data-testid="stIconMaterial"],
+[data-testid="stAlert"] svg,
+[data-testid="stAlert"] [data-testid="stIconMaterial"] {{
+  fill: currentColor !important;
+  color: currentColor !important;
+}}
+
+/* Toasts */
+[data-testid="stToast"] {{
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}}
+
+[data-testid="stToast"] p,
+[data-testid="stToast"] span {{
+  color: var(--ink) !important;
+}}
+
+/* Tooltips e ícones de ajuda */
+[data-testid="stTooltipIcon"],
+[data-testid="stTooltipIcon"] svg,
+[data-testid="stTooltipIcon"] button {{
+  color: var(--ink-soft) !important;
+  fill: var(--ink-soft) !important;
+}}
+
+[data-testid="stTooltipContent"],
+[role="tooltip"],
+[data-baseweb="tooltip"] {{
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}}
+
+/* Checkbox */
+[data-testid="stCheckbox"] label span,
+[data-baseweb="checkbox"] label span {{
+  color: var(--ink) !important;
+}}
+
+[data-testid="stCheckbox"] div[role="checkbox"],
+[data-baseweb="checkbox"] span[aria-checked="false"],
+[data-baseweb="checkbox"] > div:first-child {{
+  border: 1px solid var(--line) !important;
+  border-color: var(--line) !important;
+  background-color: var(--surface) !important;
+}}
+
+[data-testid="stCheckbox"] div[role="checkbox"][aria-checked="true"],
+[data-baseweb="checkbox"] span[aria-checked="true"],
+[data-testid="stCheckbox"] input[type="checkbox"]:checked + div {{
+  background-color: var(--blue) !important;
+  border-color: var(--blue) !important;
+}}
+
+/* Calendário */
+.cal-cell {{
+  background-color: var(--surface) !important;
+  border-color: var(--line) !important;
+}}
+
+.cal-cell-out {{
+  background-color: var(--paper) !important;
+  color: var(--none) !important;
+}}
+
+.cal-cell-today {{
+  border: 2px solid var(--blue) !important;
+  box-shadow: inset 0 0 0 1px var(--blue) !important;
+}}
+
+.cal-day-num {{
+  color: var(--ink) !important;
+}}
+
+/* Caixas do painel e faixas de cursos */
+[class*="st-key-fila_card_"],
+.andamento-container,
+[data-testid="stForm"] {{
+  background-color: var(--surface) !important;
+  border-color: var(--line) !important;
+}}
+
+[class*="st-key-faixa_"]:not([class*="st-key-faixa_header"]),
+.strip-compact {{
+  background-color: var(--surface) !important;
+  border-top-color: var(--line) !important;
+  border-right-color: var(--line) !important;
+  border-bottom-color: var(--line) !important;
+}}
+
+.andamento-col {{
+  background-color: var(--paper) !important;
+}}
+
+/* Barras de rolagem */
+html,
+body,
+[data-testid="stMain"],
+[data-testid="stSidebar"],
+[data-testid="stSidebarContent"],
+* {{
+  scrollbar-width: thin;
+  scrollbar-color: {scrollbar_thumb} var(--paper);
+}}
+
+[data-testid="stSidebar"],
+[data-testid="stSidebar"] *,
+[data-testid="stSidebarContent"],
+[data-testid="stSidebarContent"] * {{
+  scrollbar-color: {scrollbar_thumb} var(--surface);
+}}
+
+::-webkit-scrollbar {{
+  width: 10px;
+  height: 10px;
+  background: var(--paper);
+}}
+
+::-webkit-scrollbar-track {{
+  background: var(--paper) !important;
+}}
+
+::-webkit-scrollbar-thumb {{
+  background: {scrollbar_thumb} !important;
+  border-radius: 999px;
+  border: 2px solid var(--paper) !important;
+}}
+
+::-webkit-scrollbar-thumb:hover {{
+  background: {scrollbar_thumb_hover} !important;
+}}
+
+::-webkit-scrollbar-corner {{
+  background: var(--paper) !important;
+}}
+
+[data-testid="stSidebar"] ::-webkit-scrollbar,
+[data-testid="stSidebar"]::-webkit-scrollbar,
+[data-testid="stSidebarContent"] ::-webkit-scrollbar,
+[data-testid="stSidebarContent"]::-webkit-scrollbar {{
+  background: var(--surface) !important;
+}}
+
+[data-testid="stSidebar"] ::-webkit-scrollbar-track,
+[data-testid="stSidebar"]::-webkit-scrollbar-track,
+[data-testid="stSidebarContent"] ::-webkit-scrollbar-track,
+[data-testid="stSidebarContent"]::-webkit-scrollbar-track {{
+  background: var(--surface) !important;
+}}
+
+[data-testid="stSidebar"] ::-webkit-scrollbar-thumb,
+[data-testid="stSidebar"]::-webkit-scrollbar-thumb,
+[data-testid="stSidebarContent"] ::-webkit-scrollbar-thumb,
+[data-testid="stSidebarContent"]::-webkit-scrollbar-thumb {{
+  background: {scrollbar_thumb} !important;
+  border-color: var(--surface) !important;
+}}
+
+[data-testid="stSidebar"] ::-webkit-scrollbar-corner,
+[data-testid="stSidebar"]::-webkit-scrollbar-corner,
+[data-testid="stSidebarContent"] ::-webkit-scrollbar-corner,
+[data-testid="stSidebarContent"]::-webkit-scrollbar-corner {{
+  background: var(--surface) !important;
+}}
+
+/* Links */
+a, [data-testid="stMarkdownContainer"] a {{
+  color: var(--blue) !important;
+}}
+"""
+
+
 def load_css() -> None:
-    """Carrega fontes do Google Fonts e o arquivo de estilos customizado."""
+    """Carrega fontes do Google Fonts, arquivo de estilos customizado e tokens do tema ativo."""
+    tema = init_theme()
+
     fonts_link = (
         '<link rel="preconnect" href="https://fonts.googleapis.com">\n'
         '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
@@ -79,6 +814,10 @@ def load_css() -> None:
             st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
     except Exception as e:
         logger.error(f"Erro ao carregar CSS: {e}")
+
+    # Injeta tokens e estilos do tema selecionado (emitted every run after the main stylesheet)
+    theme_css = get_theme_css(tema)
+    st.markdown(f"<style>{theme_css}</style>", unsafe_allow_html=True)
 
 
 def init_session_state() -> None:
@@ -156,12 +895,24 @@ def render_login_page() -> bool:
 
     with col_center:
         with st.container(key="login_wrapper"):
-            st.markdown("""
-            <div class="login-header">
-              <h1 class="login-title">Controle de Cursos</h1>
-              <p class="login-helper">Entre com seu usuário para acessar as indicações.</p>
-            </div>
-            """, unsafe_allow_html=True)
+            col_hdr, col_theme_login = st.columns([5, 1])
+            with col_hdr:
+                st.markdown("""
+                <div class="login-header">
+                  <h1 class="login-title">Controle de Cursos</h1>
+                  <p class="login-helper">Entre com seu usuário para acessar as indicações.</p>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_theme_login:
+                tema_login = st.session_state.get("tema", "Claro")
+                icon_login = ":material/dark_mode:" if tema_login == "Claro" else ":material/light_mode:"
+                help_txt = "Alternar para tema escuro" if tema_login == "Claro" else "Alternar para tema claro"
+                if st.button(icon_login, key="btn_login_tema", help=help_txt, type="tertiary", use_container_width=True):
+                    novo_tema = "Escuro" if tema_login == "Claro" else "Claro"
+                    st.session_state["tema"] = novo_tema
+                    st.session_state["tema_switch"] = novo_tema
+                    st.query_params["tema"] = novo_tema
+                    st.rerun()
 
             with st.form("login_form", clear_on_submit=False):
                 username = st.text_input(
@@ -251,6 +1002,11 @@ def handle_importar_json(cursos_validos: List[Dict]) -> None:
 
 def handle_restaurar_backup(caminho_backup: str) -> None:
     """Handler para restauração de cópia de segurança (backup)."""
+    # Limpa chaves de confirmação
+    for k in list(st.session_state.keys()):
+        if str(k).startswith("confirm_restore_"):
+            del st.session_state[k]
+
     if not verificar_permissao('fazer_backup'):
         show_error("Sem permissão para restaurar backups.")
         return
@@ -598,8 +1354,10 @@ def render_pagina_editar_curso() -> None:
 
         sucesso, msg = resultado
         if sucesso:
-            st.toast(msg or "Alterações salvas.", icon=":material/check_circle:")
+            st.toast("Alterações salvas.", icon=":material/check_circle:")
             clear_cache()
+            st.session_state.pagina = "cursos"
+            st.session_state.curso_editando = None
             st.rerun()
         elif msg:
             show_error(msg)
@@ -689,7 +1447,7 @@ def render_pagina_backup() -> None:
     """Renderiza a página de gerenciamento de backups."""
     page_title("Backup", "Cópias internas da base de cursos.")
 
-    if not verificar_permissao('ver_cursos'):
+    if not verificar_permissao('fazer_backup'):
         st.error("Sem permissão para acessar backups.")
         return
 
@@ -714,6 +1472,10 @@ def render_pagina_backup() -> None:
             show_info("Nenhum backup criado até o momento.")
         else:
             for backup in backups:
+                btn_slug = re.sub(r'[^a-zA-Z0-9_]', '_', backup['nome'])
+                confirm_key = f"confirm_restore_{btn_slug}"
+                em_confirmacao = st.session_state.get(confirm_key, False)
+
                 col1, col2, col3 = st.columns([4, 2, 2], gap="small")
 
                 with col1:
@@ -726,11 +1488,27 @@ def render_pagina_backup() -> None:
 
                 with col3:
                     if verificar_permissao('fazer_backup'):
-                        btn_key = f"restore_{backup['nome'].replace('.', '_')}"
-                        if st.button("Restaurar", key=btn_key, icon=":material/restore:", type="secondary", use_container_width=True):
-                            handle_restaurar_backup(backup['caminho'])
+                        if not em_confirmacao:
+                            btn_key = f"restore_{btn_slug}"
+                            if st.button("Restaurar", key=btn_key, icon=":material/restore:", type="secondary", use_container_width=True):
+                                st.session_state[confirm_key] = True
+                                st.rerun()
+                        else:
+                            st.caption("Aguardando confirmação")
                     else:
                         st.caption("Apenas visualização")
+
+                if em_confirmacao:
+                    st.warning(f"Restaurar {backup['nome']}? A base atual será substituída (um backup de segurança é criado antes).")
+                    c_conf1, c_conf2, _ = st.columns([2, 1, 3], gap="small")
+                    with c_conf1:
+                        if st.button("Confirmar restauração", key=f"btn_confirm_{btn_slug}", type="primary", icon=":material/check:", use_container_width=True):
+                            st.session_state[confirm_key] = False
+                            handle_restaurar_backup(backup['caminho'])
+                    with c_conf2:
+                        if st.button("Cancelar", key=f"btn_cancel_{btn_slug}", type="secondary", use_container_width=True):
+                            st.session_state[confirm_key] = False
+                            st.rerun()
 
     except Exception as e:
         logger.error(f"Erro na página de backup: {e}")
@@ -760,7 +1538,61 @@ def render_pagina_usuarios() -> None:
             if df_usuarios.empty:
                 show_info("Nenhum usuário cadastrado.")
             else:
-                st.dataframe(df_usuarios, use_container_width=True, hide_index=True)
+                nivel_map = {
+                    "admin": "Administrador",
+                    "editor": "Editor",
+                    "viewer": "Visualizador"
+                }
+                linhas_html = []
+                for _, row in df_usuarios.iterrows():
+                    user_val = html.escape(str(row.get('username') or ''))
+                    nome_val = html.escape(str(row.get('nome') or ''))
+                    email_val = html.escape(str(row.get('email') or ''))
+                    raw_nivel = str(row.get('nivel_acesso') or '')
+                    nivel_val = html.escape(nivel_map.get(raw_nivel, raw_nivel.capitalize()))
+                    ativo_val = bool(row.get('ativo', True))
+                    status_html = '<span class="pill pill-ok">Ativo</span>' if ativo_val else '<span class="pill pill-late">Inativo</span>'
+                    ult = row.get('ultimo_login')
+                    if pd.notna(ult) and ult:
+                        try:
+                            ult_str = pd.to_datetime(ult).strftime('%d/%m/%Y %H:%M')
+                        except Exception:
+                            ult_str = str(ult)
+                    else:
+                        ult_str = "-"
+                    ult_val = html.escape(ult_str)
+
+                    linhas_html.append(
+                        f'<tr style="border-bottom: 1px solid var(--line); color: var(--ink);">'
+                        f'<td style="padding: 10px 12px; font-weight: 500;">{user_val}</td>'
+                        f'<td style="padding: 10px 12px;">{nome_val}</td>'
+                        f'<td style="padding: 10px 12px;">{email_val}</td>'
+                        f'<td style="padding: 10px 12px;">{nivel_val}</td>'
+                        f'<td style="padding: 10px 12px;">{status_html}</td>'
+                        f'<td style="padding: 10px 12px; font-variant-numeric: tabular-nums;">{ult_val}</td>'
+                        f'</tr>'
+                    )
+
+                tabela_html = (
+                    '<div style="overflow-x: auto; width: 100%; margin-bottom: 1.5rem;">'
+                    '<table style="width: 100%; border-collapse: collapse; text-align: left; font-family: var(--font-body); font-size: 14px;">'
+                    '<thead>'
+                    '<tr style="border-bottom: 2px solid var(--line);">'
+                    '<th style="padding: 8px 12px; color: var(--ink-soft); font-size: 13px; font-weight: 600;">Usuário</th>'
+                    '<th style="padding: 8px 12px; color: var(--ink-soft); font-size: 13px; font-weight: 600;">Nome</th>'
+                    '<th style="padding: 8px 12px; color: var(--ink-soft); font-size: 13px; font-weight: 600;">E-mail</th>'
+                    '<th style="padding: 8px 12px; color: var(--ink-soft); font-size: 13px; font-weight: 600;">Nível</th>'
+                    '<th style="padding: 8px 12px; color: var(--ink-soft); font-size: 13px; font-weight: 600;">Status</th>'
+                    '<th style="padding: 8px 12px; color: var(--ink-soft); font-size: 13px; font-weight: 600;">Último acesso</th>'
+                    '</tr>'
+                    '</thead>'
+                    '<tbody>'
+                    f'{"".join(linhas_html)}'
+                    '</tbody>'
+                    '</table>'
+                    '</div>'
+                )
+                st.markdown(tabela_html, unsafe_allow_html=True)
 
                 st.markdown('<div class="section-title">Ações</div>', unsafe_allow_html=True)
                 col1, col2 = st.columns(2)
@@ -812,6 +1644,7 @@ def render_pagina_usuarios() -> None:
                 novo_nivel = st.selectbox(
                     "Nível de acesso *",
                     ["admin", "editor", "viewer"],
+                    index=2,
                     format_func=lambda x: {
                         "admin": "Administrador (acesso total)",
                         "editor": "Editor (criação e edição de cursos)",

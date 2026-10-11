@@ -14,9 +14,9 @@
   --blue-tint: #E3ECF7;
   --late: #C0392B;
   --late-tint: #FBE9E7;
-  --soon: #D99A0B;
+  --soon: #945B00;
   --soon-tint: #FDF3DC;
-  --ok: #2E7D5B;
+  --ok: #246B4C;
   --ok-tint: #E4F2EB;
   --none: #9AA6B2;
 
@@ -500,31 +500,72 @@ button[kind="tertiary"]:hover *,
    INPUTS & FORMS
    ========================================================================== */
 
-/* Every input wrapper */
+/* 1. Every input wrapper, selectbox, multiselect, date input */
+[data-testid="stTextInputRootElement"],
+[data-testid="stTextAreaRootElement"],
+[data-testid="stNumberInputContainer"],
+[data-testid="stSelectbox"] [role="group"],
+[data-testid="stMultiSelect"] [role="group"],
+[data-testid="stSelectbox"] [data-baseweb="select"] > div,
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div,
+[data-testid="stDateInput"] [data-baseweb="input"],
 [data-baseweb="input"],
 [data-baseweb="textarea"],
 [data-baseweb="select"] > div,
-[data-testid="stNumberInputContainer"],
 div[data-baseweb="input"] {
+  background-color: var(--surface) !important;
   border: 1px solid var(--line) !important;
   border-radius: 6px !important;
-  background-color: var(--surface) !important;
+  color: var(--ink) !important;
   box-shadow: none !important;
   transition: border-color 120ms ease, box-shadow 120ms ease !important;
 }
 
-/* focus-within: border-color var(--blue) + 2px ring rgba(31,78,140,.25) */
+/* focus-within: border-color var(--blue) + ring */
+[data-testid="stTextInputRootElement"]:focus-within,
+[data-testid="stTextAreaRootElement"]:focus-within,
+[data-testid="stNumberInputContainer"]:focus-within,
+[data-testid="stDateInput"] [data-baseweb="input"]:focus-within,
 [data-baseweb="input"]:focus-within,
 [data-baseweb="textarea"]:focus-within,
 [data-baseweb="select"] > div:focus-within,
-[data-testid="stNumberInputContainer"]:focus-within,
 div[data-baseweb="input"]:focus-within {
   border-color: var(--blue) !important;
-  box-shadow: 0 0 0 2px rgba(31, 78, 140, 0.25) !important;
+  box-shadow: 0 0 0 2px var(--blue-tint) !important;
   outline: none !important;
 }
 
-/* Don't double borders on inner elements */
+[data-testid="stSelectbox"] [role="group"]:focus-within,
+[data-testid="stMultiSelect"] [role="group"]:focus-within,
+[data-testid="stSelectbox"] [data-baseweb="select"] > div:focus-within,
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div:focus-within {
+  border-color: var(--blue) !important;
+  box-shadow: 0 0 0 2px rgba(31, 78, 140, .25) !important;
+  outline: none !important;
+}
+
+/* 2. Inner input/textarea and select value text */
+[data-testid="stSelectbox"] [role="group"] input {
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+  background: transparent !important;
+}
+
+[data-testid="stSelectbox"] [role="group"] button[aria-haspopup="listbox"] svg {
+  fill: var(--ink-soft) !important;
+  color: var(--ink-soft) !important;
+}
+
+[data-testid="stTextInputRootElement"] input,
+[data-testid="stTextAreaRootElement"] textarea,
+[data-testid="stNumberInputContainer"] input,
+[data-testid="stSelectbox"] [data-baseweb="select"] div,
+[data-testid="stSelectbox"] [data-baseweb="select"] span,
+[data-testid="stMultiSelect"] [data-baseweb="select"] div,
+[data-testid="stMultiSelect"] [data-baseweb="select"] span,
+[data-testid="stDateInput"] [data-baseweb="input"] input,
+div[data-baseweb="select"] div,
+div[data-baseweb="select"] span,
 [data-baseweb="input"] input,
 [data-baseweb="textarea"] textarea,
 [data-baseweb="base-input"],
@@ -532,15 +573,17 @@ div[data-baseweb="input"]:focus-within {
 [data-testid="stTextInput"] input,
 [data-testid="stNumberInput"] input,
 [data-testid="stTextArea"] textarea {
+  color: var(--ink) !important;
+  -webkit-text-fill-color: var(--ink) !important;
+  background: transparent !important;
   border: none !important;
   outline: none !important;
   box-shadow: none !important;
-  background-color: transparent !important;
-  border-radius: 6px !important;
   font-size: 15px !important;
-  color: var(--ink) !important;
 }
 
+[data-testid="stTextInputRootElement"] input:focus,
+[data-testid="stTextAreaRootElement"] textarea:focus,
 [data-testid="stTextInput"] input:focus,
 [data-testid="stNumberInput"] input:focus,
 [data-testid="stTextArea"] textarea:focus {
@@ -549,12 +592,243 @@ div[data-baseweb="input"]:focus-within {
   box-shadow: none !important;
 }
 
+/* 3. Placeholders */
+input::placeholder,
+textarea::placeholder,
+[data-testid="stTextInputRootElement"] input::placeholder,
+[data-testid="stTextAreaRootElement"] textarea::placeholder,
+[data-baseweb="input"] input::placeholder,
+[data-baseweb="textarea"] textarea::placeholder {
+  color: var(--ink-soft) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: var(--ink-soft) !important;
+}
+
+/* 4. Select dropdown menu */
+[data-baseweb="popover"] ul,
+[data-baseweb="popover"] [role="listbox"],
+[data-baseweb="menu"],
+[data-baseweb="popover"] > div,
+ul[role="listbox"],
+[role="listbox"],
+[role="listbox"][data-rac],
+[data-rac][data-trigger="ComboBox"],
+.react-aria-Popover,
+[data-testid="stSelectboxVirtualDropdown"] {
+  background-color: var(--surface) !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+[role="listbox"] [role="option"],
+[role="option"],
+li[role="option"] {
+  color: var(--ink) !important;
+  background: transparent !important;
+}
+
+[role="option"] *,
+li[role="option"] * {
+  color: inherit !important;
+}
+
+[role="listbox"] [role="option"][data-focused],
+[role="listbox"] [role="option"][data-hovered],
+[role="listbox"] [role="option"]:hover,
+[role="listbox"] [role="option"][aria-selected="true"],
+[role="option"]:hover,
+[role="option"][aria-selected="true"],
+li[role="option"]:hover,
+li[role="option"][aria-selected="true"] {
+  background: var(--blue-tint) !important;
+  color: var(--blue) !important;
+}
+
+/* 5. Segmented control / pills buttons */
+[data-testid="stButtonGroup"] button[aria-checked="false"] {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+
+[data-testid="stButtonGroup"] button[aria-checked="false"]:hover {
+  background: var(--blue-tint) !important;
+}
+
+[data-testid="stButtonGroup"] button[aria-checked="false"] * {
+  color: inherit !important;
+}
+
+[data-testid="stButtonGroup"] button[aria-checked="true"] {
+  background: var(--blue-tint) !important;
+  color: var(--blue) !important;
+  border: 1px solid var(--blue) !important;
+  font-weight: 600 !important;
+}
+
+[data-testid="stButtonGroup"] button[aria-checked="true"] * {
+  color: inherit !important;
+  fill: currentColor !important;
+}
+
+/* 6. Number input +/- buttons */
+[data-testid="stNumberInputStepDown"],
+[data-testid="stNumberInputStepUp"] {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+}
+
+[data-testid="stNumberInputStepDown"]:hover,
+[data-testid="stNumberInputStepUp"]:hover {
+  background: var(--blue-tint) !important;
+  background-color: var(--blue-tint) !important;
+  color: var(--ink) !important;
+}
+
+[data-testid="stNumberInputStepDown"] svg,
+[data-testid="stNumberInputStepUp"] svg {
+  fill: currentColor !important;
+}
+
+/* 7. Checkbox */
+[data-testid="stCheckbox"] label span,
+[data-baseweb="checkbox"] label span {
+  color: var(--ink) !important;
+}
+
+[data-testid="stCheckbox"] div[role="checkbox"],
+[data-baseweb="checkbox"] span[aria-checked="false"],
+[data-baseweb="checkbox"] > div:first-child {
+  border: 1px solid var(--line) !important;
+  border-color: var(--line) !important;
+  background-color: var(--surface) !important;
+}
+
+[data-testid="stCheckbox"] div[role="checkbox"][aria-checked="true"],
+[data-baseweb="checkbox"] span[aria-checked="true"],
+[data-testid="stCheckbox"] input[type="checkbox"]:checked + div {
+  background-color: var(--blue) !important;
+  border-color: var(--blue) !important;
+}
+
+/* 8. File uploader dropzone */
+[data-testid="stFileUploaderDropzone"] {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  border: 1px dashed var(--line) !important;
+  color: var(--ink-soft) !important;
+}
+
+[data-testid="stFileUploaderDropzone"]:hover {
+  border-color: var(--blue) !important;
+  background-color: var(--blue-tint) !important;
+}
+
+[data-testid="stFileUploaderDropzone"] * {
+  color: var(--ink-soft) !important;
+}
+
+[data-testid="stFileUploaderDropzone"] button,
+[data-testid="stFileUploaderDropzone"] [data-testid="baseButton-secondary"],
+[data-testid="stFileUploaderDropzone"] [data-testid="stBaseButton-secondary"] {
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+
+[data-testid="stFileUploaderDropzone"] button *,
+[data-testid="stFileUploaderDropzone"] [data-testid="baseButton-secondary"] *,
+[data-testid="stFileUploaderDropzone"] [data-testid="stBaseButton-secondary"] * {
+  color: var(--ink) !important;
+}
+
+[data-testid="stFileUploaderDropzone"] button:hover,
+[data-testid="stFileUploaderDropzone"] [data-testid="baseButton-secondary"]:hover,
+[data-testid="stFileUploaderDropzone"] [data-testid="stBaseButton-secondary"]:hover {
+  background-color: var(--paper) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+[data-testid="stFileUploaderFileData"] {
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+
+/* 9. Help "?" icons & tooltips */
+[data-testid="stTooltipIcon"],
+[data-testid="stTooltipIcon"] svg,
+[data-testid="stTooltipIcon"] button {
+  color: var(--ink-soft) !important;
+  fill: var(--ink-soft) !important;
+}
+
+[data-testid="stTooltipContent"],
+[role="tooltip"],
+[data-baseweb="tooltip"] {
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}
+
+/* 10. st.tabs */
+[data-baseweb="tab-list"] {
+  border-bottom: 1px solid var(--line) !important;
+  background-color: transparent !important;
+}
+
+[data-baseweb="tab-list"] button,
+[data-baseweb="tab-list"] [role="tab"],
+[data-baseweb="tab"] {
+  color: var(--ink-soft) !important;
+  background-color: transparent !important;
+}
+
+[data-baseweb="tab-list"] button:hover,
+[data-baseweb="tab"]:hover {
+  color: var(--ink) !important;
+}
+
+[data-baseweb="tab-list"] button[aria-selected="true"],
+[data-baseweb="tab-list"] [role="tab"][aria-selected="true"],
+[data-baseweb="tab"][aria-selected="true"] {
+  color: var(--blue) !important;
+}
+
+[data-baseweb="tab-highlight"] {
+  background-color: var(--blue) !important;
+}
+
+[data-baseweb="tab-border"] {
+  background-color: var(--line) !important;
+}
+
+/* 11. Toasts */
+[data-testid="stToast"] {
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-testid="stToast"] p,
+[data-testid="stToast"] span {
+  color: var(--ink) !important;
+}
+
+/* 12. Form container */
 [data-testid="stForm"] {
   border: 1px solid var(--line) !important;
   border-radius: 6px !important;
   background-color: var(--surface) !important;
   padding: 1.5rem !important;
 }
+
 
 /* ==========================================================================
    STATUS PILLS (999px radius)
@@ -1059,23 +1333,25 @@ div[data-baseweb="input"]:focus-within {
 .big-number.soon { color: var(--soon); }
 .big-number.ok   { color: var(--ok); }
 
-/* Fixed height on list area across all 3 columns for baseline alignment (fits 5 compact strips + gaps) */
-[class*="st-key-fila_lista_"] {
-  height: 332px !important;
-  min-height: 332px !important;
-  max-height: 332px !important;
-  flex: 0 0 332px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: visible !important;
-}
+/* Fixed height on list area across all 3 columns for baseline alignment (fits 5 compact strips + gaps) only at >=768px */
+@media (min-width: 768px) {
+  [class*="st-key-fila_lista_"] {
+    height: 332px !important;
+    min-height: 332px !important;
+    max-height: 332px !important;
+    flex: 0 0 332px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
+  }
 
-[class*="st-key-fila_lista_"] > [data-testid="stVerticalBlock"] {
-  height: 100% !important;
-  min-height: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0 !important;
+  [class*="st-key-fila_lista_"] > [data-testid="stVerticalBlock"] {
+    height: 100% !important;
+    min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
 }
 
 /* Ver todos button wrapper baseline aligned at the bottom on the same line */
@@ -1123,7 +1399,7 @@ div[data-baseweb="input"]:focus-within {
   min-width: 0;
   padding: 8px 10px;
   border-radius: 6px;
-  background-color: rgba(237, 241, 245, 0.45);
+  background-color: var(--paper);
 }
 
 .andamento-col-sem-estado {
@@ -1356,6 +1632,25 @@ div[data-baseweb="input"]:focus-within {
     flex: 1 1 100% !important;
   }
 
+  /* Mobile Painel (<768px): fila list containers must have height: auto */
+  [class*="st-key-fila_lista_"] {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: visible !important;
+  }
+
+  [class*="st-key-fila_lista_"] > [data-testid="stVerticalBlock"] {
+    height: auto !important;
+    min-height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+  }
+
   /* Mobile Painel: Andamento steps become a 2-column grid */
   .andamento-grid {
     grid-template-columns: repeat(2, 1fr) !important;
@@ -1366,7 +1661,7 @@ div[data-baseweb="input"]:focus-within {
     grid-column: 1 / -1 !important;
     border-left: none !important;
     padding-left: 10px !important;
-    background-color: rgba(237, 241, 245, 0.45) !important;
+    background-color: var(--paper) !important;
   }
 
   .andamento-footer {
@@ -1502,10 +1797,71 @@ hr {
   margin: 1.5rem 0 !important;
 }
 
+[data-testid="stAlertContainer"],
 [data-testid="stAlert"] {
   border-radius: 6px !important;
-  border: 1px solid var(--line) !important;
   font-size: 14px !important;
+}
+
+/* Info */
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentInfo"]),
+[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]),
+[data-test-variant="info"] [data-testid="stAlertContainer"],
+[data-test-variant="info"] {
+  background-color: var(--blue-tint) !important;
+  color: var(--blue) !important;
+  border: 1px solid var(--blue) !important;
+}
+
+/* Success */
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentSuccess"]),
+[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]),
+[data-test-variant="success"] [data-testid="stAlertContainer"],
+[data-test-variant="success"] {
+  background-color: var(--ok-tint) !important;
+  color: var(--ok) !important;
+  border: 1px solid var(--ok) !important;
+}
+
+/* Warning */
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentWarning"]),
+[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]),
+[data-test-variant="warning"] [data-testid="stAlertContainer"],
+[data-test-variant="warning"] {
+  background-color: var(--soon-tint) !important;
+  color: var(--soon) !important;
+  border: 1px solid var(--soon) !important;
+}
+
+/* Error */
+[data-testid="stAlertContainer"]:has([data-testid="stAlertContentError"]),
+[data-testid="stAlert"]:has([data-testid="stAlertContentError"]) [data-testid="stAlertContainer"],
+[data-testid="stAlert"]:has([data-testid="stAlertContentError"]),
+[data-test-variant="error"] [data-testid="stAlertContainer"],
+[data-test-variant="error"] {
+  background-color: var(--late-tint) !important;
+  color: var(--late) !important;
+  border: 1px solid var(--late) !important;
+}
+
+[data-testid="stAlertContainer"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stAlertContainer"] p,
+[data-testid="stAlertContainer"] span,
+[data-testid="stAlert"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stAlert"] p,
+[data-testid="stAlert"] span {
+  color: inherit !important;
+}
+
+[data-testid="stAlertContainer"] svg,
+[data-testid="stAlertContainer"] [data-testid="stIconMaterial"],
+[data-testid="stAlert"] svg,
+[data-testid="stAlert"] [data-testid="stIconMaterial"] {
+  fill: currentColor !important;
+  color: currentColor !important;
 }
 
 /* ==========================================================================
@@ -1531,7 +1887,7 @@ body,
 [data-testid="stSidebar"] *,
 [data-testid="stSidebarContent"],
 [data-testid="stSidebarContent"] * {
-  scrollbar-color: #B8C3CF #FFFFFF;
+  scrollbar-color: #B8C3CF var(--surface);
 }
 
 /* (2) WebKit / Chromium fallback */
@@ -1564,27 +1920,27 @@ body,
 [data-testid="stSidebar"]::-webkit-scrollbar,
 [data-testid="stSidebarContent"] ::-webkit-scrollbar,
 [data-testid="stSidebarContent"]::-webkit-scrollbar {
-  background: #FFFFFF;
+  background: var(--surface);
 }
 
 [data-testid="stSidebar"] ::-webkit-scrollbar-track,
 [data-testid="stSidebar"]::-webkit-scrollbar-track,
 [data-testid="stSidebarContent"] ::-webkit-scrollbar-track,
 [data-testid="stSidebarContent"]::-webkit-scrollbar-track {
-  background: #FFFFFF;
+  background: var(--surface);
 }
 
 [data-testid="stSidebar"] ::-webkit-scrollbar-thumb,
 [data-testid="stSidebar"]::-webkit-scrollbar-thumb,
 [data-testid="stSidebarContent"] ::-webkit-scrollbar-thumb,
 [data-testid="stSidebarContent"]::-webkit-scrollbar-thumb {
-  border-color: #FFFFFF;
+  border-color: var(--surface);
 }
 
 [data-testid="stSidebar"] ::-webkit-scrollbar-corner,
 [data-testid="stSidebar"]::-webkit-scrollbar-corner,
 [data-testid="stSidebarContent"] ::-webkit-scrollbar-corner,
 [data-testid="stSidebarContent"]::-webkit-scrollbar-corner {
-  background: #FFFFFF;
+  background: var(--surface);
 }
 

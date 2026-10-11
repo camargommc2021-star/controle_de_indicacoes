@@ -59,7 +59,11 @@ class CalendarView:
         if 'cal_mes' not in st.session_state:
             st.session_state.cal_mes = self.data_atual.month
         if 'cal_ano' not in st.session_state:
-            st.session_state.cal_ano = self.data_atual.year
+            st.session_state.cal_ano = max(2000, min(2100, self.data_atual.year))
+        if 'cal_mes_select' not in st.session_state:
+            st.session_state.cal_mes_select = MESES_PT[st.session_state.cal_mes]
+        if 'cal_ano_input' not in st.session_state:
+            st.session_state.cal_ano_input = st.session_state.cal_ano
 
         self.mes_atual = st.session_state.cal_mes
         self.ano_atual = st.session_state.cal_ano
@@ -163,65 +167,128 @@ class CalendarView:
         self._render_legenda()
         self._render_eventos_mes(eventos)
 
+    @staticmethod
+    def _navegar_anterior() -> None:
+        """Navega para o mês anterior."""
+        mes = st.session_state.get("cal_mes", date.today().month)
+        ano = st.session_state.get("cal_ano", date.today().year)
+        if mes == 1:
+            if ano > 2000:
+                mes = 12
+                ano -= 1
+        else:
+            mes -= 1
+        st.session_state["cal_mes"] = mes
+        st.session_state["cal_ano"] = ano
+        st.session_state["cal_mes_select"] = MESES_PT[mes]
+        st.session_state["cal_ano_input"] = ano
+
+    @staticmethod
+    def _navegar_proximo() -> None:
+        """Navega para o próximo mês."""
+        mes = st.session_state.get("cal_mes", date.today().month)
+        ano = st.session_state.get("cal_ano", date.today().year)
+        if mes == 12:
+            if ano < 2100:
+                mes = 1
+                ano += 1
+        else:
+            mes += 1
+        st.session_state["cal_mes"] = mes
+        st.session_state["cal_ano"] = ano
+        st.session_state["cal_mes_select"] = MESES_PT[mes]
+        st.session_state["cal_ano_input"] = ano
+
+    @staticmethod
+    def _navegar_hoje() -> None:
+        """Navega para o mês atual."""
+        hoje = date.today()
+        mes = hoje.month
+        ano = max(2000, min(2100, hoje.year))
+        st.session_state["cal_mes"] = mes
+        st.session_state["cal_ano"] = ano
+        st.session_state["cal_mes_select"] = MESES_PT[mes]
+        st.session_state["cal_ano_input"] = ano
+
+    @staticmethod
+    def _on_change_mes() -> None:
+        """Atualiza cal_mes a partir do widget cal_mes_select."""
+        sel = st.session_state.get("cal_mes_select")
+        if sel in MESES_PT and sel:
+            st.session_state["cal_mes"] = MESES_PT.index(sel)
+
+    @staticmethod
+    def _on_change_ano() -> None:
+        """Atualiza cal_ano a partir do widget cal_ano_input."""
+        try:
+            val = int(st.session_state.get("cal_ano_input", 2026))
+            val = max(2000, min(2100, val))
+            st.session_state["cal_ano"] = val
+            st.session_state["cal_ano_input"] = val
+        except Exception:
+            pass
+
     def _render_controles(self) -> None:
         """Renderiza os controles de navegação com ícones materiais."""
+        hoje = date.today()
+        if "cal_mes" not in st.session_state:
+            st.session_state["cal_mes"] = hoje.month
+        if "cal_ano" not in st.session_state:
+            st.session_state["cal_ano"] = max(2000, min(2100, hoje.year))
+        if "cal_mes_select" not in st.session_state:
+            st.session_state["cal_mes_select"] = MESES_PT[st.session_state["cal_mes"]]
+        if "cal_ano_input" not in st.session_state:
+            st.session_state["cal_ano_input"] = st.session_state["cal_ano"]
+
         col1, col2, col3, col4, col5 = st.columns([1, 3, 2, 1, 2], gap="small")
 
         with col1:
-            if st.button("Anterior", key="cal_prev", icon=":material/chevron_left:", use_container_width=True):
-                self._navegar_anterior()
+            st.button(
+                "Anterior",
+                key="cal_prev",
+                icon=":material/chevron_left:",
+                use_container_width=True,
+                on_click=self._navegar_anterior
+            )
 
         with col2:
             meses_nomes = MESES_PT[1:]
-            mes_atual_idx = st.session_state.cal_mes - 1
-            mes_sel = st.selectbox(
+            st.selectbox(
                 "Mês",
                 meses_nomes,
-                index=mes_atual_idx,
-                key="cal_select_mes",
+                key="cal_mes_select",
+                on_change=self._on_change_mes,
                 label_visibility="collapsed"
             )
-            st.session_state.cal_mes = meses_nomes.index(mes_sel) + 1
 
         with col3:
-            ano_sel = st.number_input(
+            st.number_input(
                 "Ano",
-                min_value=2020,
-                max_value=2050,
-                value=st.session_state.cal_ano,
-                key="cal_select_ano",
+                min_value=2000,
+                max_value=2100,
+                step=1,
+                key="cal_ano_input",
+                on_change=self._on_change_ano,
                 label_visibility="collapsed"
             )
-            st.session_state.cal_ano = int(ano_sel)
 
         with col4:
-            if st.button("Próximo", key="cal_next", icon=":material/chevron_right:", use_container_width=True):
-                self._navegar_proximo()
+            st.button(
+                "Próximo",
+                key="cal_next",
+                icon=":material/chevron_right:",
+                use_container_width=True,
+                on_click=self._navegar_proximo
+            )
 
         with col5:
-            if st.button("Mês atual", key="cal_hoje", icon=":material/today:", use_container_width=True):
-                hoje = date.today()
-                st.session_state.cal_mes = hoje.month
-                st.session_state.cal_ano = hoje.year
-                st.rerun()
-
-    def _navegar_anterior(self) -> None:
-        """Navega para o mês anterior."""
-        if st.session_state.cal_mes == 1:
-            st.session_state.cal_mes = 12
-            st.session_state.cal_ano -= 1
-        else:
-            st.session_state.cal_mes -= 1
-        st.rerun()
-
-    def _navegar_proximo(self) -> None:
-        """Navega para o próximo mês."""
-        if st.session_state.cal_mes == 12:
-            st.session_state.cal_mes = 1
-            st.session_state.cal_ano += 1
-        else:
-            st.session_state.cal_mes += 1
-        st.rerun()
+            st.button(
+                "Mês atual",
+                key="cal_hoje",
+                icon=":material/today:",
+                use_container_width=True,
+                on_click=self._navegar_hoje
+            )
 
     def _render_calendario_mensal(self, eventos: List[EventoCalendario]) -> None:
         """Renderiza a grade mensal."""

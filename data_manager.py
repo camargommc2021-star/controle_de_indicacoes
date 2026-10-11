@@ -122,7 +122,7 @@ class DataManager:
                     ]
                     
                     if not duplicado.empty:
-                        return False, f"AVISO: Já existe um curso '{curso_nome} - {turma_nome}' cadastrado. Deseja mesmo adicionar?"
+                        return False, f"AVISO: Já existe o curso {curso_nome} - {turma_nome}. Para cadastrar mesmo assim, marque “Salvar mesmo se já existir curso com o mesmo nome e turma” e salve de novo."
             
             # Verificar se ha campos de OM novos no curso_dict
             for key in curso_dict.keys():
