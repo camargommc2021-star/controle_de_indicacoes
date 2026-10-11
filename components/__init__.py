@@ -19,6 +19,7 @@ from .alerts import (
 )
 
 from .ui import (
+    page_header,
     page_title,
     status_do_curso,
     texto_relativo_prazo,
@@ -34,6 +35,11 @@ from .ui import (
 from .forms import (
     render_form_novo_curso,
     render_form_editar_curso,
+)
+
+from .topbar import (
+    render_topbar,
+    navegar_para,
 )
 
 from .sidebar import (
@@ -56,6 +62,7 @@ __all__ = [
     'show_curso_salvo',
     'show_curso_excluido',
     'show_toast',
+    'page_header',
     'page_title',
     'status_do_curso',
     'texto_relativo_prazo',
@@ -67,7 +74,9 @@ __all__ = [
     'plural',
     'render_form_novo_curso',
     'render_form_editar_curso',
+    'render_topbar',
     'render_sidebar',
+    'navegar_para',
     'CalendarView',
     'limpar_confirmacoes_exclusao',
 ]

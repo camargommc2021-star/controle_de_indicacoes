@@ -26,18 +26,65 @@ def limpar_confirmacoes_exclusao() -> None:
 # CABEÇALHOS DE PÁGINA
 # =============================================================================
 
-def page_title(titulo: str, ajuda: Optional[str] = None) -> None:
-    """Renderiza título de página em Barlow Condensed 32/600 e linha de ajuda opcional."""
+def page_header(
+    titulo: str,
+    ajuda: Optional[str] = None,
+    acao: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Renderiza cabeçalho de página com título em Barlow Condensed 32/700 e ink,
+    texto de ajuda opcional abaixo e botão de ação primária opcional à direita.
+    Alinhado à esquerda na margem do container.
+    """
     safe_titulo = html.escape(titulo)
-    html_parts = [
-        '<div class="page-header">',
-        f'<h1 class="page-title">{safe_titulo}</h1>',
-    ]
-    if ajuda:
-        safe_ajuda = html.escape(ajuda)
-        html_parts.append(f'<p class="page-helper">{safe_ajuda}</p>')
-    html_parts.append('</div>')
-    st.markdown("".join(html_parts), unsafe_allow_html=True)
+    safe_ajuda = html.escape(ajuda) if ajuda else None
+
+    with st.container(key="page_header_container"):
+        if acao:
+            col_titulo, col_acao = st.columns([5, 1.2], vertical_alignment="bottom")
+            with col_titulo:
+                html_parts = [
+                    '<div class="page-header">',
+                    f'<h1 class="page-title">{safe_titulo}</h1>',
+                ]
+                if safe_ajuda:
+                    html_parts.append(f'<p class="page-helper">{safe_ajuda}</p>')
+                html_parts.append('</div>')
+                st.markdown("".join(html_parts), unsafe_allow_html=True)
+            with col_acao:
+                btn_label = acao.get("label", "Novo curso")
+                btn_icon = acao.get("icon", ":material/add:")
+                btn_key = acao.get("key", "btn_page_header_action")
+                if st.button(
+                    btn_label,
+                    key=btn_key,
+                    icon=btn_icon,
+                    type="primary",
+                    use_container_width=True
+                ):
+                    if "on_click" in acao and callable(acao["on_click"]):
+                        acao["on_click"]()
+                    elif "pagina" in acao:
+                        limpar_confirmacoes_exclusao()
+                        for k in list(st.session_state.keys()):
+                            if str(k).startswith("confirm_restore_"):
+                                del st.session_state[k]
+                        st.session_state["pagina"] = acao["pagina"]
+                        st.rerun()
+        else:
+            html_parts = [
+                '<div class="page-header">',
+                f'<h1 class="page-title">{safe_titulo}</h1>',
+            ]
+            if safe_ajuda:
+                html_parts.append(f'<p class="page-helper">{safe_ajuda}</p>')
+            html_parts.append('</div>')
+            st.markdown("".join(html_parts), unsafe_allow_html=True)
+
+
+def page_title(titulo: str, ajuda: Optional[str] = None) -> None:
+    """Wrapper de compatibilidade para page_header."""
+    page_header(titulo, ajuda)
 
 
 # =============================================================================
@@ -401,42 +448,42 @@ def render_andamento_indicacoes(
 
     html_andamento = f"""
     <div class="andamento-container">
-      <div class="section-title" style="margin-top: 0; margin-bottom: 1rem;">Andamento das indicações</div>
+      <div class="andamento-title">Andamento das indicações</div>
       <div class="andamento-grid">
         <div class="andamento-col">
-          <div class="step-badge">1</div>
-          <div class="step-info">
+          <div class="step-header">
+            <span class="step-badge">1</span>
             <span class="step-label">Solicitar voluntários</span>
-            <span class="step-count">{contagens['solicitar']}</span>
           </div>
+          <div class="step-count">{contagens['solicitar']}</div>
         </div>
         <div class="andamento-col">
-          <div class="step-badge">2</div>
-          <div class="step-info">
+          <div class="step-header">
+            <span class="step-badge">2</span>
             <span class="step-label">Fazer indicação</span>
-            <span class="step-count">{contagens['indicacao']}</span>
           </div>
+          <div class="step-count">{contagens['indicacao']}</div>
         </div>
         <div class="andamento-col">
-          <div class="step-badge">3</div>
-          <div class="step-info">
+          <div class="step-header">
+            <span class="step-badge">3</span>
             <span class="step-label">Ver vagas escalantes</span>
-            <span class="step-count">{contagens['escalantes']}</span>
           </div>
+          <div class="step-count">{contagens['escalantes']}</div>
         </div>
         <div class="andamento-col">
-          <div class="step-badge">4</div>
-          <div class="step-info">
+          <div class="step-header">
+            <span class="step-badge">4</span>
             <span class="step-label">Concluído</span>
-            <span class="step-count">{contagens['concluido']}</span>
           </div>
+          <div class="step-count">{contagens['concluido']}</div>
         </div>
         <div class="andamento-col andamento-col-sem-estado">
-          <div class="step-badge step-badge-muted">—</div>
-          <div class="step-info">
+          <div class="step-header">
+            <span class="step-badge step-badge-muted">—</span>
             <span class="step-label">Sem estado</span>
-            <span class="step-count text-muted">{contagens['sem_estado']}</span>
           </div>
+          <div class="step-count text-muted">{contagens['sem_estado']}</div>
         </div>
       </div>
       <div class="andamento-footer">

@@ -60,83 +60,36 @@ class Dashboard:
         proximas_semanas.sort(key=lambda x: x['dias'])
 
         # Seção Superior: Fila de prazos (3 colunas compactas com mesma altura visual)
-        st.markdown('<div class="section-title" style="margin-top: 0; margin-bottom: 0.75rem;">Fila de prazos</div>', unsafe_allow_html=True)
-        col_vencidos, col_urgentes, col_semanas = st.columns(3, gap="medium")
+        st.markdown('<div class="section-title" style="margin-top: 0; margin-bottom: 16px;">Fila de prazos</div>', unsafe_allow_html=True)
+        cards = [
+            ("Vencidos", "late", "Atrasados", vencidos, len(vencidos), "Nenhum prazo nesta janela."),
+            ("Próximos 5 dias", "soon", "Próximos 5 dias", urgentes, len(urgentes), "Nenhum prazo nesta janela."),
+            ("Próximas semanas", "ok", "No prazo", proximas_semanas, len(proximas_semanas), f"Nenhum outro prazo até {data_30_dias}"),
+        ]
+        key_suffixes = ["vencidos", "urgentes", "semanas"]
 
-        # Coluna 1: Vencidos
-        with col_vencidos:
-            count_vencidos = len(vencidos)
-            with st.container(border=True, key="fila_card_vencidos"):
-                st.markdown(f"""
-                <div class="fila-header">
-                  <div class="fila-title">Vencidos</div>
-                  <div class="big-number late">{count_vencidos}</div>
-                </div>
-                """, unsafe_allow_html=True)
+        with st.container(horizontal=True, gap="medium", key="fila_row"):
+            for n, (titulo, cor_classe, filtro, itens, total, vazio) in enumerate(cards):
+                btn_key = key_suffixes[n]
+                with st.container(border=True, key=f"fila_card_{n}", height="stretch", width="stretch"):
+                    with st.container(horizontal=True, horizontal_alignment="distribute", vertical_alignment="center", key=f"fila_head_{n}"):
+                        st.markdown(f'<span class="fila-titulo">{titulo}</span>', unsafe_allow_html=True)
+                        if st.button("Ver todos", key=f"btn_ver_{btn_key}", type="tertiary",
+                                     icon=":material/arrow_forward:", icon_position="right"):
+                            st.session_state["filtro_status"] = filtro
+                            st.session_state["cursos_limite"] = 25
+                            st.session_state["pagina"] = "cursos"
+                            st.rerun()
 
-                with st.container(key="fila_lista_vencidos"):
-                    if not vencidos:
-                        st.markdown('<div class="empty-strip-msg">Nenhum prazo nesta janela.</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="big-number {cor_classe}">{total}</div>', unsafe_allow_html=True)
+
+                    if not itens:
+                        st.markdown(f'<p class="empty-strip-msg">{vazio}</p>', unsafe_allow_html=True)
                     else:
-                        strips_html = "".join(render_faixa_compacta(c['row']) for c in vencidos[:5])
+                        strips_html = "".join(render_faixa_compacta(c['row']) for c in itens[:5])
+                        if btn_key == "semanas" and len(itens) < 5:
+                            strips_html += f'<p class="empty-strip-msg">{vazio}</p>'
                         st.markdown(strips_html, unsafe_allow_html=True)
-
-                if st.button("Ver todos", key="btn_ver_vencidos", icon=":material/arrow_forward:", type="secondary", use_container_width=True):
-                    st.session_state["filtro_status"] = "Atrasados"
-                    st.session_state["cursos_limite"] = 25
-                    st.session_state["pagina"] = "cursos"
-                    st.rerun()
-
-        # Coluna 2: Próximos 5 dias
-        with col_urgentes:
-            count_urgentes = len(urgentes)
-            with st.container(border=True, key="fila_card_urgentes"):
-                st.markdown(f"""
-                <div class="fila-header">
-                  <div class="fila-title">Próximos 5 dias</div>
-                  <div class="big-number soon">{count_urgentes}</div>
-                </div>
-                """, unsafe_allow_html=True)
-
-                with st.container(key="fila_lista_urgentes"):
-                    if not urgentes:
-                        st.markdown('<div class="empty-strip-msg">Nenhum prazo nesta janela.</div>', unsafe_allow_html=True)
-                    else:
-                        strips_html = "".join(render_faixa_compacta(c['row']) for c in urgentes[:5])
-                        st.markdown(strips_html, unsafe_allow_html=True)
-
-                if st.button("Ver todos", key="btn_ver_urgentes", icon=":material/arrow_forward:", type="secondary", use_container_width=True):
-                    st.session_state["filtro_status"] = "Próximos 5 dias"
-                    st.session_state["cursos_limite"] = 25
-                    st.session_state["pagina"] = "cursos"
-                    st.rerun()
-
-        # Coluna 3: Próximas semanas (6-30 dias)
-        with col_semanas:
-            count_semanas = len(proximas_semanas)
-            with st.container(border=True, key="fila_card_semanas"):
-                st.markdown(f"""
-                <div class="fila-header">
-                  <div class="fila-title">Próximas semanas</div>
-                  <div class="big-number ok">{count_semanas}</div>
-                </div>
-                """, unsafe_allow_html=True)
-
-                with st.container(key="fila_lista_semanas"):
-                    msg_vazio = f"Nenhum outro prazo até {data_30_dias}"
-                    if not proximas_semanas:
-                        st.markdown(f'<div class="empty-strip-msg">{msg_vazio}</div>', unsafe_allow_html=True)
-                    else:
-                        strips_html = "".join(render_faixa_compacta(c['row']) for c in proximas_semanas[:5])
-                        if len(proximas_semanas) < 5:
-                            strips_html += f'<div class="empty-strip-msg">{msg_vazio}</div>'
-                        st.markdown(strips_html, unsafe_allow_html=True)
-
-                if st.button("Ver todos", key="btn_ver_semanas", icon=":material/arrow_forward:", type="secondary", use_container_width=True):
-                    st.session_state["filtro_status"] = "No prazo"
-                    st.session_state["cursos_limite"] = 25
-                    st.session_state["pagina"] = "cursos"
-                    st.rerun()
 
         # Seção Central: Andamento das indicações com totais no rodapé
         vagas_total = 0

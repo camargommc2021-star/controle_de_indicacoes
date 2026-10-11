@@ -33,6 +33,7 @@ logger = get_logger(__name__)
 # =============================================================================
 
 from components import (
+    page_header,
     page_title,
     show_success,
     show_error,
@@ -42,6 +43,7 @@ from components import (
     render_cabecalho_cursos,
     render_form_novo_curso,
     render_form_editar_curso,
+    render_topbar,
     render_sidebar,
     CalendarView,
     plural,
@@ -73,7 +75,14 @@ def init_theme() -> str:
         else:
             st.session_state["tema"] = "Claro"
         st.query_params["tema"] = st.session_state["tema"]
-    return st.session_state.get("tema", "Claro")
+    else:
+        qp_tema = st.query_params.get("tema")
+        if qp_tema and str(qp_tema).capitalize() in ["Claro", "Escuro"] and st.session_state["tema"] != str(qp_tema).capitalize():
+            st.session_state["tema"] = str(qp_tema).capitalize()
+    tema_atual = st.session_state.get("tema", "Claro")
+    if st.session_state.get("tema_switch") != tema_atual:
+        st.session_state["tema_switch"] = tema_atual
+    return tema_atual
 
 
 def get_theme_css(tema: str = "Claro") -> str:
@@ -142,13 +151,6 @@ body, .stApp {{
 }}
 
 /* Superfícies e blocos principais */
-[data-testid="stSidebar"],
-[data-testid="stSidebarContent"],
-[data-testid="stSidebar"] > div {{
-  background-color: var(--surface) !important;
-  color: var(--ink) !important;
-}}
-
 .main,
 .main .block-container,
 [data-testid="stMainBlockContainer"],
@@ -156,6 +158,154 @@ body, .stApp {{
 [data-testid="stMain"] {{
   background-color: var(--paper) !important;
   color: var(--ink) !important;
+}}
+
+[data-testid="stPopoverBody"] {{
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+}}
+
+[data-testid="stPopoverBody"] * {{
+  color: var(--ink);
+}}
+
+.popover-user-name {{
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  line-height: 1.3 !important;
+  margin-bottom: 2px !important;
+  text-align: left !important;
+}}
+
+[data-testid="stPopoverBody"] [data-testid="stCaptionContainer"],
+[data-testid="stPopoverBody"] [data-testid="stCaptionContainer"] p {{
+  font-size: 13px !important;
+  color: var(--ink-soft) !important;
+  line-height: 1.3 !important;
+  margin-top: 0 !important;
+  margin-bottom: 12px !important;
+  text-align: left !important;
+}}
+
+/* Popover menu items (Administração items and user Sair button) */
+[data-testid="stPopoverBody"] button,
+[data-testid="stPopoverBody"] button[kind="tertiary"],
+[data-testid="stPopoverBody"] [data-testid*="stBaseButton-tertiary"] {{
+  justify-content: flex-start !important;
+  text-align: left !important;
+  width: 100% !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 12px !important;
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--ink) !important;
+  border-radius: 6px !important;
+  gap: 8px !important;
+}}
+
+[data-testid="stPopoverBody"] button:hover,
+[data-testid="stPopoverBody"] button[kind="tertiary"]:hover,
+[data-testid="stPopoverBody"] [data-testid*="stBaseButton-tertiary"]:hover {{
+  background: var(--blue-tint) !important;
+  background-color: var(--blue-tint) !important;
+  color: var(--ink) !important;
+}}
+
+[data-testid="stPopoverBody"] button [data-testid="stMarkdownContainer"],
+[data-testid="stPopoverBody"] button [data-testid="stMarkdownContainer"] p,
+[data-testid="stPopoverBody"] button > div,
+[data-testid="stPopoverBody"] button div {{
+  justify-content: flex-start !important;
+  text-align: left !important;
+  display: flex !important;
+  align-items: center !important;
+  color: inherit !important;
+}}
+
+[data-testid="stPopoverBody"] button:hover *,
+[data-testid="stPopoverBody"] button:hover p,
+[data-testid="stPopoverBody"] button:hover [data-testid="stIconMaterial"] {{
+  color: var(--ink) !important;
+  fill: currentColor !important;
+}}
+
+[data-testid="stPopoverBody"] button [data-testid="stIconMaterial"] {{
+  color: inherit !important;
+  fill: currentColor !important;
+}}
+
+/* Popover segmented control override */
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] {{
+  width: 100% !important;
+  margin: 4px 0 !important;
+}}
+
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] > div {{
+  width: 100% !important;
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  display: flex !important;
+}}
+
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button {{
+  justify-content: center !important;
+  text-align: center !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+  width: auto !important;
+  flex: 1 1 0 !important;
+  border: 1px solid var(--line) !important;
+}}
+
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button [data-testid="stMarkdownContainer"],
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button [data-testid="stMarkdownContainer"] p,
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button > div {{
+  justify-content: center !important;
+  text-align: center !important;
+}}
+
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[aria-checked="false"] {{
+  background: var(--surface) !important;
+  background-color: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+}}
+
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[aria-checked="false"]:hover {{
+  background: var(--blue-tint) !important;
+  background-color: var(--blue-tint) !important;
+  color: var(--ink) !important;
+}}
+
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[aria-checked="true"],
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[data-selected="true"] {{
+  background: var(--blue-tint) !important;
+  background-color: var(--blue-tint) !important;
+  color: var(--blue) !important;
+  border: 1px solid var(--blue) !important;
+  font-weight: 600 !important;
+}}
+
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[aria-checked="true"] *,
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[aria-checked="true"] p,
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[aria-checked="true"] span,
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[aria-checked="true"] [data-testid="stIconMaterial"],
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[data-selected="true"] *,
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[data-selected="true"] p,
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[data-selected="true"] span,
+[data-testid="stPopoverBody"] [data-testid="stButtonGroup"] button[data-selected="true"] [data-testid="stIconMaterial"] {{
+  color: var(--blue) !important;
+  fill: var(--blue) !important;
 }}
 
 /* Textos e tipografia geral */
@@ -172,8 +322,6 @@ p, span, label, h1, h2, h3, h4, h5, h6,
 [data-testid="stCaptionContainer"] p,
 .page-helper,
 .login-helper,
-.sidebar-brand-subtitle,
-.sidebar-user-role,
 .strip-turma,
 .strip-col-om,
 .total-label,
@@ -187,10 +335,7 @@ button[kind="primary"],
 [data-testid="stBaseButton-primary"],
 [data-testid="stBaseButton-primaryFormSubmit"],
 [data-testid="stFormSubmitButton"] > button,
-[data-testid="stFormSubmitButton"] button,
-[data-testid="stSidebar"] button[kind="primary"],
-[data-testid="stSidebar"] button[data-testid="baseButton-primary"],
-[data-testid="stSidebar"] [data-testid="stBaseButton-primary"] {{
+[data-testid="stFormSubmitButton"] button {{
   background-color: {btn_primary_bg} !important;
   color: #FFFFFF !important;
   border: 1px solid {btn_primary_bg} !important;
@@ -201,10 +346,7 @@ button[kind="primary"]:hover,
 [data-testid="stBaseButton-primary"]:hover,
 [data-testid="stBaseButton-primaryFormSubmit"]:hover,
 [data-testid="stFormSubmitButton"] > button:hover,
-[data-testid="stFormSubmitButton"] button:hover,
-[data-testid="stSidebar"] button[kind="primary"]:hover,
-[data-testid="stSidebar"] button[data-testid="baseButton-primary"]:hover,
-[data-testid="stSidebar"] [data-testid="stBaseButton-primary"]:hover {{
+[data-testid="stFormSubmitButton"] button:hover {{
   background-color: {btn_primary_hover} !important;
   border-color: {btn_primary_hover} !important;
   color: #FFFFFF !important;
@@ -214,8 +356,7 @@ button[kind="primary"] *,
 [data-testid="baseButton-primary"] *,
 [data-testid="stBaseButton-primary"] *,
 [data-testid="stBaseButton-primaryFormSubmit"] *,
-[data-testid="stFormSubmitButton"] button *,
-[data-testid="stSidebar"] button[kind="primary"] * {{
+[data-testid="stFormSubmitButton"] button * {{
   color: #FFFFFF !important;
   fill: #FFFFFF !important;
 }}
@@ -252,6 +393,7 @@ button[kind="tertiary"]:hover,
   background-color: var(--late-tint) !important;
   color: var(--late) !important;
 }}
+
 
 /* Botões desabilitados */
 button:disabled,
@@ -642,10 +784,73 @@ li[role="option"] * {{
 
 /* Tooltips e ícones de ajuda */
 [data-testid="stTooltipIcon"],
-[data-testid="stTooltipIcon"] svg,
-[data-testid="stTooltipIcon"] button {{
+[data-testid="stTooltipHoverTarget"],
+.stTooltipIcon,
+.stTooltipHoverTarget {{
+  background: none !important;
+  background-color: transparent !important;
   color: var(--ink-soft) !important;
-  fill: var(--ink-soft) !important;
+}}
+
+[data-testid="stTooltipIcon"] button,
+[data-testid="stTooltipHoverTarget"] button,
+.stTooltipIcon button,
+.stTooltipHoverTarget button {{
+  background: none !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: auto !important;
+  height: auto !important;
+  width: auto !important;
+  color: var(--ink-soft) !important;
+}}
+
+[data-testid="stTooltipIcon"] button:hover,
+[data-testid="stTooltipHoverTarget"] button:hover,
+.stTooltipIcon button:hover,
+.stTooltipHoverTarget button:hover {{
+  background: none !important;
+  background-color: transparent !important;
+  color: var(--ink) !important;
+}}
+
+[data-testid="stTooltipIcon"] svg,
+[data-testid="stTooltipHoverTarget"] svg,
+.stTooltipIcon svg,
+.stTooltipHoverTarget svg {{
+  background: none !important;
+  background-color: transparent !important;
+  fill: none !important;
+  stroke: var(--ink-soft) !important;
+  color: var(--ink-soft) !important;
+}}
+
+[data-testid="stTooltipIcon"] svg *,
+[data-testid="stTooltipHoverTarget"] svg *,
+.stTooltipIcon svg *,
+.stTooltipHoverTarget svg *,
+[data-testid="stTooltipIcon"] svg circle,
+[data-testid="stTooltipHoverTarget"] svg circle,
+[data-testid="stTooltipIcon"] svg path,
+[data-testid="stTooltipHoverTarget"] svg path,
+[data-testid="stTooltipIcon"] svg line,
+[data-testid="stTooltipHoverTarget"] svg line {{
+  fill: none !important;
+  stroke: inherit !important;
+}}
+
+[data-testid="stTooltipIcon"]:hover svg,
+[data-testid="stTooltipIcon"] button:hover svg,
+[data-testid="stTooltipHoverTarget"]:hover svg,
+[data-testid="stTooltipHoverTarget"] button:hover svg,
+.stTooltipIcon:hover svg,
+.stTooltipIcon button:hover svg,
+.stTooltipHoverTarget:hover svg,
+.stTooltipHoverTarget button:hover svg {{
+  stroke: var(--ink) !important;
+  color: var(--ink) !important;
 }}
 
 [data-testid="stTooltipContent"],
@@ -698,7 +903,6 @@ li[role="option"] * {{
 }}
 
 /* Caixas do painel e faixas de cursos */
-[class*="st-key-fila_card_"],
 .andamento-container,
 [data-testid="stForm"] {{
   background-color: var(--surface) !important;
@@ -721,18 +925,9 @@ li[role="option"] * {{
 html,
 body,
 [data-testid="stMain"],
-[data-testid="stSidebar"],
-[data-testid="stSidebarContent"],
 * {{
   scrollbar-width: thin;
   scrollbar-color: {scrollbar_thumb} var(--paper);
-}}
-
-[data-testid="stSidebar"],
-[data-testid="stSidebar"] *,
-[data-testid="stSidebarContent"],
-[data-testid="stSidebarContent"] * {{
-  scrollbar-color: {scrollbar_thumb} var(--surface);
 }}
 
 ::-webkit-scrollbar {{
@@ -757,35 +952,6 @@ body,
 
 ::-webkit-scrollbar-corner {{
   background: var(--paper) !important;
-}}
-
-[data-testid="stSidebar"] ::-webkit-scrollbar,
-[data-testid="stSidebar"]::-webkit-scrollbar,
-[data-testid="stSidebarContent"] ::-webkit-scrollbar,
-[data-testid="stSidebarContent"]::-webkit-scrollbar {{
-  background: var(--surface) !important;
-}}
-
-[data-testid="stSidebar"] ::-webkit-scrollbar-track,
-[data-testid="stSidebar"]::-webkit-scrollbar-track,
-[data-testid="stSidebarContent"] ::-webkit-scrollbar-track,
-[data-testid="stSidebarContent"]::-webkit-scrollbar-track {{
-  background: var(--surface) !important;
-}}
-
-[data-testid="stSidebar"] ::-webkit-scrollbar-thumb,
-[data-testid="stSidebar"]::-webkit-scrollbar-thumb,
-[data-testid="stSidebarContent"] ::-webkit-scrollbar-thumb,
-[data-testid="stSidebarContent"]::-webkit-scrollbar-thumb {{
-  background: {scrollbar_thumb} !important;
-  border-color: var(--surface) !important;
-}}
-
-[data-testid="stSidebar"] ::-webkit-scrollbar-corner,
-[data-testid="stSidebar"]::-webkit-scrollbar-corner,
-[data-testid="stSidebarContent"] ::-webkit-scrollbar-corner,
-[data-testid="stSidebarContent"]::-webkit-scrollbar-corner {{
-  background: var(--surface) !important;
 }}
 
 /* Links */
@@ -881,10 +1047,6 @@ def render_login_page() -> bool:
     """
     st.markdown("""
     <style>
-    [data-testid="stSidebar"],
-    [data-testid="stSidebarCollapsedControl"] {
-        display: none !important;
-    }
     .main > div {
         padding-top: 5vh !important;
     }
@@ -1030,7 +1192,15 @@ def handle_restaurar_backup(caminho_backup: str) -> None:
 
 def render_pagina_painel() -> None:
     """Renderiza a página Painel (Dashboard)."""
-    page_title("Painel", "Visão geral dos prazos e andamento das indicações.")
+    pode_criar = verificar_permissao('criar_curso')
+    acao_novo = {
+        "label": "Novo curso",
+        "icon": ":material/add:",
+        "pagina": "novo_curso",
+        "key": "btn_hdr_novo_curso_painel"
+    } if pode_criar else None
+
+    page_header("Painel", "Visão geral dos prazos e andamento das indicações.", acao=acao_novo)
 
     if not verificar_permissao('ver_dashboard'):
         st.error("Sem permissão para visualizar o painel.")
@@ -1049,7 +1219,15 @@ def render_pagina_cursos() -> None:
     Renderiza a lista de cursos em fichas de progresso com filtros segmentados,
     ordenação por vencimento e paginação em blocos de 25.
     """
-    page_title("Cursos", "Fichas de progresso com prazos e etapas das indicações.")
+    pode_criar = verificar_permissao('criar_curso')
+    acao_novo = {
+        "label": "Novo curso",
+        "icon": ":material/add:",
+        "pagina": "novo_curso",
+        "key": "btn_hdr_novo_curso_cursos"
+    } if pode_criar else None
+
+    page_header("Cursos", "Fichas de progresso com prazos e etapas das indicações.", acao=acao_novo)
 
     if not verificar_permissao('ver_cursos'):
         st.error("Sem permissão para visualizar cursos.")
@@ -1097,7 +1275,7 @@ def render_pagina_cursos() -> None:
         }
 
         # Barra de ferramentas
-        col_busca, col_estado = st.columns([7, 3], gap="small")
+        col_busca, col_estado = st.columns([2, 1], gap="small")
         with col_busca:
             termo_busca = st.text_input(
                 "Buscar cursos",
@@ -1280,7 +1458,7 @@ def render_pagina_cursos() -> None:
 
 def render_pagina_novo_curso() -> None:
     """Renderiza a página de cadastro de novo curso."""
-    page_title("Novo curso", "Preencha as informações da indicação e do curso.")
+    page_header("Novo curso", "Preencha as informações da indicação e do curso.")
 
     if not verificar_permissao('criar_curso'):
         st.error("Sem permissão para criar cursos.")
@@ -1311,7 +1489,7 @@ def render_pagina_editar_curso() -> None:
     """
     Renderiza a edição do curso selecionado (ou fallback por lista se acessado diretamente).
     """
-    page_title("Editar curso", "Atualize as informações do curso e prazos.")
+    page_header("Editar curso", "Atualize as informações do curso e prazos.")
 
     if not verificar_permissao('editar_curso'):
         st.error("Sem permissão para editar cursos.")
@@ -1369,7 +1547,7 @@ def render_pagina_editar_curso() -> None:
 
 def render_pagina_calendario() -> None:
     """Renderiza a página Calendário de Prazos."""
-    page_title("Calendário", "Visualização mensal dos prazos da SIAT, chefia e conclusões.")
+    page_header("Calendário", "Visualização mensal dos prazos da SIAT, chefia e conclusões.")
 
     if not verificar_permissao('ver_cursos'):
         st.error("Sem permissão para visualizar o calendário.")
@@ -1391,7 +1569,7 @@ def render_pagina_calendario() -> None:
 
 def render_pagina_importar_json() -> None:
     """Renderiza a página de importação de arquivo JSON."""
-    page_title("Importar cursos", "Envie o arquivo JSON com os cursos e datas.")
+    page_header("Importar cursos", "Envie o arquivo JSON com os cursos e datas.")
 
     if not verificar_permissao('criar_curso'):
         st.error("Sem permissão para importar cursos.")
@@ -1445,7 +1623,7 @@ def render_pagina_importar_json() -> None:
 
 def render_pagina_backup() -> None:
     """Renderiza a página de gerenciamento de backups."""
-    page_title("Backup", "Cópias internas da base de cursos.")
+    page_header("Backup", "Cópias internas da base de cursos.")
 
     if not verificar_permissao('fazer_backup'):
         st.error("Sem permissão para acessar backups.")
@@ -1517,7 +1695,7 @@ def render_pagina_backup() -> None:
 
 def render_pagina_usuarios() -> None:
     """Renderiza a página de gerenciamento de usuários (administração)."""
-    page_title("Usuários", "Gerenciamento de acessos e permissões do sistema.")
+    page_header("Usuários", "Gerenciamento de acessos e permissões do sistema.")
 
     auth = st.session_state.auth_manager
     if not auth.permissoes.gerenciar_usuarios:
@@ -1777,7 +1955,7 @@ def main():
         page_title=Settings.PAGE_TITLE,
         page_icon=Settings.PAGE_ICON,
         layout=Settings.PAGE_LAYOUT,
-        initial_sidebar_state="expanded"
+        initial_sidebar_state="collapsed"
     )
 
     load_css()
@@ -1790,8 +1968,8 @@ def main():
         render_login_page()
         return
 
-    # Renderiza a barra lateral persistente
-    pagina_selecionada = render_sidebar(st.session_state.data_manager, auth)
+    # Renderiza a barra de navegação superior persistente
+    pagina_selecionada = render_topbar(auth, st.session_state.data_manager)
 
     # Roteamento de páginas
     if pagina_selecionada == "painel":
