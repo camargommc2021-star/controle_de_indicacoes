@@ -1,21 +1,21 @@
-# 📚 Controle de Indicações 2026
+# 📚 Controle de Cursos
 
-Sistema web para gestão de cursos e indicações, com persistência via Excel e deploy no Streamlit Cloud.
+Sistema web para gestão de cursos, com persistência via Excel e deploy no Streamlit Cloud.
 
 ## 🚀 Funcionalidades
 
 - ✅ **CRUD Completo**: Cadastrar, editar e excluir cursos
 - ✅ **Dashboard Interativo**: Visualização de prazos e estatísticas
 - ✅ **Alertas Visuais**: Cores automáticas nos prazos (verde/amarelo/vermelho)
-- ✅ **Persistência**: Dados salvos em Excel no GitHub
+- ✅ **Persistência**: Dados salvos em Excel com sincronização GitHub opcional
 - ✅ **Acesso Web**: Funciona em qualquer lugar via Streamlit Cloud
-- 🔐 **Sistema de Login** (v2.0): Autenticação com níveis de acesso
-- 📅 **Calendário de Prazos** (v2.0): Visualização mensal/semanal dos prazos
-- 👥 **Gestão de Usuários** (v2.0): Administração de usuários e permissões
+- 🔐 **Sistema de Login**: Autenticação com níveis de acesso (Admin/Editor/Viewer)
+- 📅 **Calendário de Prazos**: Visualização mensal/semanal dos prazos dos cursos
+- 👥 **Gestão de Usuários**: Administração de usuários e permissões
 
 ## 📋 Campos do Sistema
 
-### Campos Base (14 campos):
+### Campos Base:
 1. Curso
 2. Turma
 3. Vagas
@@ -29,8 +29,7 @@ Sistema web para gestão de cursos e indicações, com persistência via Excel e
 11. Prazo dado pela chefia
 12. Fim da indicação da SIAT
 13. Notas
-14. **OM_Executora** (NOVO - para TCA 37-1)
-
+14. OM_Executora
 
 ## 🎨 Sistema de Cores nos Prazos
 
@@ -38,14 +37,14 @@ Sistema web para gestão de cursos e indicações, com persistência via Excel e
 - 🟡 **Amarelo**: 5 dias ou menos (alerta)
 - 🔴 **Vermelho**: Prazo vencido
 
-## 🔐 Sistema de Login (v2.0)
+## 🔐 Sistema de Login
 
 O sistema possui autenticação com 3 níveis de acesso:
 
 | Nível | Permissões |
 |-------|-----------|
 | 🔴 **Admin** | Acesso total: CRUD completo + gestão de usuários + backups |
-| 🟡 **Editor** | CRUD cursos e pessoas, sem gerenciar usuários |
+| 🟡 **Editor** | CRUD cursos, sem gerenciar usuários |
 | 🟢 **Viewer** | Apenas visualização, sem edição |
 
 ### Credenciais Padrão
@@ -59,14 +58,14 @@ Senha:   admin123
 
 ### Recursos de Segurança
 
-- Senhas criptografadas com PBKDF2 + Salt
+- Senhas com hash PBKDF2 + Salt
 - Bloqueio automático após 5 tentativas falhas
 - Logs de auditoria de acessos
 - Controle de sessão
 
-## 📅 Calendário de Prazos (v2.0)
+## 📅 Calendário de Prazos
 
-Visualização em calendário dos prazos:
+Visualização em calendário dos prazos dos cursos:
 
 - **Modo Mensal**: Visão geral do mês com indicadores de eventos
 - **Modo Semanal**: Detalhamento da semana atual
@@ -75,29 +74,11 @@ Visualização em calendário dos prazos:
   - 📋 Prazo SIAT (Laranja)
   - 👔 Prazo Chefia (Azul)
   - ✅ Conclusão (Verde)
-  - 📄 FIC (Roxo)
   - 📨 Recebimento SIGAD (Cinza)
 
 ## 🚀 Como Usar
 
-### Opção 1: Deploy no Streamlit Cloud (Recomendado)
-
-1. **Faça upload do código para o GitHub:**
-   ```bash
-   git add .
-   git commit -m "Sistema Controle de Cursos v1.0 - Campos opcionais"
-   git push origin main
-   ```
-
-2. **Configure o GitHub Token:**
-   - Veja o guia completo em: [GITHUB_SETUP.md](GITHUB_SETUP.md)
-   - Crie um token em: https://github.com/settings/tokens
-   - Adicione no Streamlit Cloud: Settings → Secrets → GITHUB_TOKEN
-
-3. **Acesse seu app:**
-   - URL: https://share.streamlit.io/camargommc2021-star/controledeindica-es
-
-### Opção 2: Instalação Local (Testes)
+### Instalação Local
 
 ```bash
 # Clone o repositório
@@ -113,7 +94,7 @@ streamlit run app.py
 
 Acesse: http://localhost:8501
 
-## 🔧 Configuração do GitHub (Persistência)
+## 🔧 Configuração do GitHub (Persistência Opcional)
 
 Para salvar dados automaticamente no GitHub:
 
@@ -121,37 +102,33 @@ Para salvar dados automaticamente no GitHub:
 2. No Streamlit Cloud, adicione como secret: `GITHUB_TOKEN`
 3. Dados serão commitados automaticamente a cada alteração
 
-**📖 Veja o guia completo em:** [GITHUB_SETUP.md](GITHUB_SETUP.md)
+Veja o guia em: [GITHUB_SETUP.md](GITHUB_SETUP.md)
 
 ## 📦 Dependências
 
 - streamlit >= 1.28.0
-- pandas >= 2.0.0
+- pandas >= 2.0.0, < 3.0
 - openpyxl >= 3.1.0
 - plotly >= 5.15.0
 - python-dateutil >= 2.8.0
 - PyGithub >= 2.1.0
 - requests >= 2.31.0
-- cryptography >= 41.0.0  # Criptografia de senhas e dados sensíveis
-- gspread >= 5.10.0       # Integração Google Sheets
-- google-auth >= 2.22.0   # Autenticação Google
 
 ## 📝 Estrutura de Arquivos
 
 ```
 controledeindica-es/
 ├── app.py                    # Aplicativo principal
-├── app_v2.py                 # Versão 2.0 com login e calendário
-├── data_manager.py           # Gerenciamento de dados
+├── data_manager.py           # Gerenciamento de dados dos cursos
 ├── github_manager.py         # Persistência no GitHub
 ├── dashboard.py              # Visualizações
+├── backup_manager.py         # Gerenciamento de backups
+├── json_import.py            # Importação JSON
 ├── managers/
-│   ├── auth_manager.py       # Sistema de autenticação (v2.0)
-│   ├── base_manager.py       # Classe base para managers
-│   ├── pessoas_manager.py    # Gestão de pessoas
-│   └── pessoas_manager_secure.py  # Gestão segura com criptografia
+│   ├── auth_manager.py       # Sistema de autenticação
+│   └── base_manager.py       # Classe base para managers
 ├── components/
-│   ├── calendar_view.py      # Componente de calendário (v2.0)
+│   ├── calendar_view.py      # Componente de calendário
 │   ├── cards.py              # Cards de UI
 │   ├── forms.py              # Formulários
 │   ├── tables.py             # Tabelas
@@ -159,34 +136,13 @@ controledeindica-es/
 │   └── sidebar.py            # Sidebar navigation
 ├── data/
 │   ├── cursos.xlsx           # Dados dos cursos
-│   ├── pessoas.xlsx          # Dados das pessoas (v2.0)
-│   ├── fics.xlsx             # Dados dos FICs
-│   ├── usuarios.xlsx         # Usuários do sistema (v2.0)
-│   └── sessoes.xlsx          # Logs de acesso (v2.0)
+│   ├── usuarios.xlsx         # Usuários do sistema
+│   └── sessoes.xlsx          # Logs de acesso
 ├── requirements.txt          # Dependências
 ├── README.md                 # Este arquivo
-├── GITHUB_SETUP.md           # Guia de configuração do GitHub
-└── atualizar_v2.bat          # Script de atualização para v2.0
+└── GITHUB_SETUP.md           # Guia de configuração do GitHub
 ```
-
-## 🆘 Suporte
-
-Em caso de problemas:
-1. Verifique se o arquivo `data/cursos.xlsx` existe
-2. Confira as permissões de escrita na pasta `data/`
-3. Verifique os logs do Streamlit Cloud
-
-## 📅 Atualizações
-
-- **v1.0**: Sistema inicial com todas as funcionalidades básicas
-- **v1.1**: Persistência automática no GitHub via API
-- **v2.0** (Atual): 
-  - 🔐 Sistema de Login com níveis de acesso (Admin/Editor/Viewer)
-  - 📅 Visualização em Calendário dos prazos
-  - 👥 Gestão de Usuários para administradores
-  - 🔒 Criptografia de senhas com PBKDF2
-  - 📝 Logs de auditoria de acessos
 
 ---
 
-Desenvolvido com ❤️ usando Python e Streamlit
+Desenvolvido com Python e Streamlit

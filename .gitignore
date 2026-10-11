@@ -39,10 +39,6 @@ venv/
 # Streamlit
 .streamlit/
 
-# Data files (opcional - descomente se quiser ignorar dados no git)
-# data/
-# *.xlsx
-
 # OS
 .DS_Store
 Thumbs.db
@@ -53,15 +49,6 @@ logs/
 
 # Encryption key
 .key
-
-# Google credentials
-credentials/
-credentials/google-sheets-credentials.json
-
-# Arquivos FIC gerados automaticamente
-FIC_MAURICIO_*.docx
-FIC_*_teste.docx
-ficplanilha.xlsx
 
 # Testes
 tests/
@@ -85,21 +72,12 @@ controle-cursos-deploy/
 controle-cursos-deploy.zip
 controle_de_indicacoes/
 
-# Arquivos de migração/uso único
-init_pessoas.py
-criar_json_chefia.py
-
 # Arquivos não utilizados
-pdf_extractor.py
-fic_pdf_generator.py
-fic_word_filler_v2.py
 nul
 
-# Dados sensíveis (gerados automaticamente)
-data/pessoas.xlsx
+# Dados do sistema
 data/usuarios.xlsx
 data/sessoes.xlsx
-data/fics.xlsx
 
 # Backups
 backups/

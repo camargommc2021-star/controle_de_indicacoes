@@ -1,5 +1,5 @@
 """
-Módulo de tabelas de dados para cursos e FICs.
+Módulo de tabelas de dados para cursos.
 
 Fornece funções para renderizar tabelas interativas com filtros,
 paginação e ações.
@@ -327,103 +327,6 @@ def render_cursos_concluidos(
 
 
 # ============================================
-# TABELAS DE FIC
-# ============================================
-
-def render_tabela_fics(
-    df: pd.DataFrame,
-    fic_manager,
-    fic_word_filler,
-    show_download: bool = True
-) -> None:
-    """
-    Renderiza tabela de FICs com ações.
-    
-    Args:
-        df: DataFrame com dados dos FICs
-        fic_manager: Instância do FICManager
-        fic_word_filler: Instância do FICWordFiller
-        show_download: Se deve mostrar botão de download
-    """
-    if df.empty:
-        st.info("📋 Nenhum FIC cadastrado.")
-        return
-    
-    st.markdown(f"**Total: {len(df)} FIC(s)**")
-    
-    for idx, row in df.iterrows():
-        with st.expander(f"{row['ID']} - {row['Curso']} - {row['Nome_Completo']}"):
-            render_fic_card(row, fic_manager, fic_word_filler, show_download)
-
-
-def render_fic_card(
-    row: pd.Series,
-    fic_manager,
-    fic_word_filler,
-    show_download: bool = True
-) -> None:
-    """
-    Renderiza card individual de FIC.
-    
-    Args:
-        row: Série com dados do FIC
-        fic_manager: Instância do FICManager
-        fic_word_filler: Instância do FICWordFiller
-        show_download: Se deve mostrar botão de download
-    """
-    col1, col2, col3 = st.columns([3, 2, 1])
-    
-    with col1:
-        st.write(f"**Curso:** {row['Curso']}")
-        st.write(f"**Turma:** {row['Turma']}")
-        st.write(f"**Criado em:** {row['Data_Criacao']}")
-    
-    with col2:
-        st.write(f"**Indicado:** {row['Posto_Graduacao']} {row['Nome_Completo']}")
-        st.write(f"**OM:** {row['OM_Indicado']}")
-    
-    with col3:
-        if show_download:
-            fic_data = fic_manager.buscar_fic(row['ID'])
-            if fic_data:
-                word_buffer = fic_word_filler.preencher_fic(fic_data)
-                st.download_button(
-                    label="📄 Word",
-                    data=word_buffer.getvalue(),
-                    file_name=f"FIC_{row['ID']}.docx",
-                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    key=f"download_fic_{row['ID']}"
-                )
-
-
-def render_tabela_fics_filtrada(
-    fic_manager,
-    filtro_curso: str = "",
-    filtro_nome: str = ""
-) -> pd.DataFrame:
-    """
-    Renderiza tabela de FICs com filtros aplicados.
-    
-    Args:
-        fic_manager: Instância do FICManager
-        filtro_curso: Filtro por código do curso
-        filtro_nome: Filtro por nome do indicado
-        
-    Returns:
-        DataFrame filtrado
-    """
-    df = fic_manager.carregar_fics()
-    
-    if not df.empty:
-        if filtro_curso:
-            df = df[df['Curso'].str.contains(filtro_curso, case=False, na=False)]
-        if filtro_nome:
-            df = df[df['Nome_Completo'].str.contains(filtro_nome, case=False, na=False)]
-    
-    return df
-
-
-# ============================================
 # COMPONENTES DE FILTRO
 # ============================================
 
@@ -456,19 +359,3 @@ def render_filtros_cursos(
     
     return termo_busca, filtro_estado
 
-
-def render_filtros_fic() -> tuple:
-    """
-    Renderiza componentes de filtro para FICs.
-    
-    Returns:
-        Tupla (filtro_curso, filtro_nome)
-    """
-    col_filtro1, col_filtro2 = st.columns(2)
-    
-    with col_filtro1:
-        filtro_curso = st.text_input("Filtrar por Curso", key="filtro_fic_curso")
-    with col_filtro2:
-        filtro_nome = st.text_input("Filtrar por Nome", key="filtro_fic_nome")
-    
-    return filtro_curso, filtro_nome

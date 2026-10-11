@@ -2,7 +2,7 @@
 Componente de Visualização em Calendário.
 
 Este módulo fornece uma visualização de calendário para os prazos
-de cursos e FICs, com navegação mensal/semanal e indicadores visuais.
+de cursos, com navegação mensal/semanal e indicadores visuais.
 
 Usage:
     from components.calendar_view import CalendarView
@@ -35,7 +35,6 @@ class TipoEvento(Enum):
     CURSO_PRAZO_SIAT = "prazo_siat"
     CURSO_PRAZO_CHEFIA = "prazo_chefia"
     CURSO_CONCLUSAO = "conclusao"
-    FIC_DATA = "fic_data"
     CURSO_RECEBIMENTO = "recebimento"
 
 
@@ -83,7 +82,6 @@ class CalendarView:
         TipoEvento.CURSO_PRAZO_SIAT: "#FF9800",      # Laranja
         TipoEvento.CURSO_PRAZO_CHEFIA: "#2196F3",    # Azul
         TipoEvento.CURSO_CONCLUSAO: "#4CAF50",       # Verde
-        TipoEvento.FIC_DATA: "#9C27B0",              # Roxo
         TipoEvento.CURSO_RECEBIMENTO: "#607D8B",     # Cinza azulado
     }
     
@@ -208,42 +206,7 @@ class CalendarView:
         
         return eventos
     
-    def converter_fics_para_eventos(self, df_fics: pd.DataFrame) -> List[EventoCalendario]:
-        """
-        Converte DataFrame de FICs em lista de eventos.
-        
-        Args:
-            df_fics: DataFrame com dados dos FICs
-            
-        Returns:
-            Lista de EventoCalendario
-        """
-        eventos = []
-        
-        if df_fics.empty:
-            return eventos
-        
-        for idx, row in df_fics.iterrows():
-            pessoa = row.get('nome', f'Pessoa {idx}')
-            
-            # Data de emissão/cadastro do FIC
-            if pd.notna(row.get('data_criacao')):
-                try:
-                    data = self._parse_data(row['data_criacao'])
-                    if data:
-                        eventos.append(EventoCalendario(
-                            data=data,
-                            titulo=f"📄 FIC: {pessoa}",
-                            tipo=TipoEvento.FIC_DATA,
-                            descricao=f"FIC cadastrado: {pessoa}",
-                            cor=self.CORES_EVENTO[TipoEvento.FIC_DATA],
-                            id_referencia=f"fic_{idx}"
-                        ))
-                except:
-                    pass
-        
-        return eventos
-    
+
     def _parse_data(self, valor: Any) -> Optional[date]:
         """
         Tenta converter qualquer valor em date.
@@ -310,19 +273,15 @@ class CalendarView:
     # RENDERIZAÇÃO
     # ====================================================================
     
-    def render(self, df_cursos: pd.DataFrame, df_fics: Optional[pd.DataFrame] = None):
+    def render(self, df_cursos: pd.DataFrame):
         """
         Renderiza o calendário completo.
         
         Args:
             df_cursos: DataFrame com cursos
-            df_fics: DataFrame opcional com FICs
         """
         # Converter dados em eventos
         eventos = self.converter_cursos_para_eventos(df_cursos)
-        
-        if df_fics is not None:
-            eventos.extend(self.converter_fics_para_eventos(df_fics))
         
         # Renderizar controles
         self._render_controles()
@@ -626,7 +585,6 @@ class CalendarView:
                     TipoEvento.CURSO_PRAZO_SIAT: '📋 Prazo SIAT',
                     TipoEvento.CURSO_PRAZO_CHEFIA: '👔 Prazo Chefia',
                     TipoEvento.CURSO_CONCLUSAO: '✅ Conclusão',
-                    TipoEvento.FIC_DATA: '📄 FIC',
                     TipoEvento.CURSO_RECEBIMENTO: '📨 Recebimento SIGAD'
                 }[tipo]
                 st.markdown(f"<span style='color: {cor};'>●</span> {label}", unsafe_allow_html=True)

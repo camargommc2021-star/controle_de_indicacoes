@@ -267,18 +267,6 @@ def show_curso_excluido(curso_nome: str) -> None:
     show_success(f"Curso '{curso_nome}' excluído com sucesso!")
 
 
-def show_fic_salvo(fic_id: str, is_new: bool = True) -> None:
-    """
-    Exibe mensagem de FIC salvo.
-    
-    Args:
-        fic_id: ID do FIC
-        is_new: Se é um FIC novo ou atualização
-    """
-    acao = "criado" if is_new else "atualizado"
-    show_success(f"FIC {acao} com sucesso! ID: {fic_id}")
-
-
 # ============================================
 # TOAST NOTIFICATIONS
 # ============================================

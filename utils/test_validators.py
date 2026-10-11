@@ -7,12 +7,8 @@ Execute com: python utils/test_validators.py
 from utils.validators import (
     # Validação de datas
     is_valid_date, parse_date, is_future_date, date_range_valid,
-    # Validação de documentos
-    is_valid_cpf, is_valid_saram, format_cpf, format_saram,
     # Validação de campos do curso
     validate_turma, validate_vagas, validate_sigad, validate_curso,
-    # Validação de FIC
-    validate_email, validate_phone, validate_fic,
     # Utilitários
     sanitize_string, normalize_text, slugify
 )
@@ -47,35 +43,6 @@ def test_dates():
     print("[OK] date_range_valid funcionando")
     
     print("[PASS] Todos os testes de datas passaram!\n")
-
-
-def test_documents():
-    """Testa funções de validação de documentos."""
-    print("=" * 50)
-    print("TESTES DE VALIDAÇÃO DE DOCUMENTOS")
-    print("=" * 50)
-    
-    # Testes CPF válido
-    cpf_valido = "52998224725"
-    assert is_valid_cpf(cpf_valido) == True
-    assert is_valid_cpf("529.982.247-25") == True
-    assert format_cpf(cpf_valido) == "529.982.247-25"
-    print("[OK] is_valid_cpf e format_cpf funcionando")
-    
-    # Testes CPF inválido
-    assert is_valid_cpf("11111111111") == False  # Todos iguais
-    assert is_valid_cpf("12345678901") == False  # Dígito errado
-    assert is_valid_cpf("123") == False  # Curto
-    print("[OK] CPFs inválidos rejeitados corretamente")
-    
-    # Testes SARAM
-    assert is_valid_saram("123456") == True
-    assert is_valid_saram("12345") == True
-    assert is_valid_saram("ABC123") == False
-    assert is_valid_saram("123") == False  # Muito curto
-    print("[OK] is_valid_saram funcionando")
-    
-    print("[PASS] Todos os testes de documentos passaram!\n")
 
 
 def test_curso():
@@ -130,49 +97,6 @@ def test_curso():
     print("[PASS] Todos os testes de curso passaram!\n")
 
 
-def test_fic():
-    """Testa funções de validação de FIC."""
-    print("=" * 50)
-    print("TESTES DE VALIDAÇÃO DE FIC")
-    print("=" * 50)
-    
-    # Testes email
-    assert validate_email("usuario@exemplo.com") == True
-    assert validate_email("usuario@exemplo.com.br") == True
-    assert validate_email("usuario@exemplo") == False
-    assert validate_email("invalido") == False
-    assert validate_email("usuario@@exemplo.com") == False
-    print("[OK] validate_email funcionando")
-    
-    # Testes telefone
-    assert validate_phone("(11) 98765-4321") == "(11) 98765-4321"
-    assert validate_phone("11987654321") == "(11) 98765-4321"
-    assert validate_phone("(11) 8765-4321") == "(11) 8765-4321"  # Fixo
-    assert validate_phone("123") is None  # Muito curto
-    assert validate_phone("(00) 98765-4321") is None  # DDD inválido
-    print("[OK] validate_phone funcionando")
-    
-    # Teste validação completa de FIC
-    fic_valida = {
-        'nome': 'João Silva',
-        'cpf': '529.982.247-25',
-        'saram': '123456',
-        'email': 'joao@exemplo.com',
-        'telefone': '(11) 98765-4321',
-        'curso': 'Curso de Teste',
-        'turma': 'T-001',
-        'data_inicio': '01/01/2024',
-        'data_fim': '31/01/2024',
-        'nota_teorica': 85.5,
-        'nota_pratica': 90.0
-    }
-    valid, errors = validate_fic(fic_valida)
-    assert valid == True and len(errors) == 0
-    print("[OK] validate_fic funcionando")
-    
-    print("[PASS] Todos os testes de FIC passaram!\n")
-
-
 def test_utilities():
     """Testa funções utilitárias."""
     print("=" * 50)
@@ -205,9 +129,7 @@ def main():
     
     try:
         test_dates()
-        test_documents()
         test_curso()
-        test_fic()
         test_utilities()
         
         print("=" * 50)

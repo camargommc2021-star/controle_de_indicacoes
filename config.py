@@ -5,7 +5,7 @@ Este módulo contém todas as constantes, configurações e parâmetros do siste
 organizados em classes para facilitar a manutenção e reuso.
 
 Usage:
-    from config import Settings, Colors, Columns, FICFields, Messages
+    from config import Settings, Colors, Columns, Choices, Messages
     
     # Acessar configurações
     print(Settings.APP_NAME)
@@ -30,7 +30,7 @@ class Settings:
     # Informações do aplicativo
     APP_NAME: str = "Sistema de Controle de Cursos"
     APP_VERSION: str = "1.0.0"
-    APP_DESCRIPTION: str = "Sistema para gerenciamento de cursos e indicações"
+    APP_DESCRIPTION: str = "Sistema para gerenciamento de cursos"
     
     # Configurações de página Streamlit
     PAGE_TITLE: str = "Controle de Cursos"
@@ -71,10 +71,6 @@ class Paths:
     # Arquivos de dados
     CURSOS_FILE: Path = field(default_factory=lambda: Path(__file__).parent / "data" / "cursos.csv")
     HISTORICO_FILE: Path = field(default_factory=lambda: Path(__file__).parent / "data" / "historico.csv")
-    FIC_FILE: Path = field(default_factory=lambda: Path(__file__).parent / "data" / "fic.csv")
-    
-    # Templates
-    FIC_TEMPLATE_DOCX: Path = field(default_factory=lambda: Path(__file__).parent / "assets" / "FIC_layout.docx")
     
     def ensure_dirs(self) -> None:
         """Cria os diretórios necessários se não existirem."""
@@ -204,142 +200,6 @@ class Columns:
 
 
 # =============================================================================
-# CAMPOS DO FIC (FICHA DE INDICAÇÃO DE CANDIDATO)
-# =============================================================================
-
-@dataclass(frozen=True)
-class FICFields:
-    """Campos do FIC (Ficha de Indicação de Candidato)."""
-    
-    # Campos de controle
-    CONTROL: List[str] = field(default_factory=lambda: [
-        "ID",
-        "Data_Criacao",
-        "Data_Atualizacao",
-        "Status",
-    ])
-    
-    # Campos do curso
-    COURSE: List[str] = field(default_factory=lambda: [
-        "Curso",
-        "Turma",
-        "Local_GT",
-        "Comando",
-    ])
-    
-    # Campos de datas
-    DATES: List[str] = field(default_factory=lambda: [
-        "Data_Inicio_Presencial",
-        "Data_Termino_Presencial",
-        "Data_Inicio_Distancia",
-        "Data_Termino_Distancia",
-    ])
-    
-    # Campos do indicado
-    CANDIDATE: List[str] = field(default_factory=lambda: [
-        "Posto_Graduacao",
-        "Nome_Completo",
-        "OM_Indicado",
-        "CPF",
-        "SARAM",
-        "Email",
-        "Telefone",
-    ])
-    
-    # Campos profissionais
-    PROFESSIONAL: List[str] = field(default_factory=lambda: [
-        "Funcao_Atual",
-        "Data_Ultima_Promocao",
-        "Funcao_Apos_Curso",
-        "Tempo_Servico",
-        "Pre_Requisitos",
-    ])
-    
-    # Campos de cursos anteriores
-    PREVIOUS_COURSES: List[str] = field(default_factory=lambda: [
-        "Curso_Mapeado",
-        "Progressao_Carreira",
-        "Comunicado_Indicado",
-        "Outro_Impedimento",
-        "Curso_Anterior",
-        "Ano_Curso_Anterior",
-    ])
-    
-    # Campos de declarações
-    DECLARATIONS: List[str] = field(default_factory=lambda: [
-        "Ciencia_Dedicacao_EAD",
-    ])
-    
-    # Campos de chefia
-    SUPERVISOR: List[str] = field(default_factory=lambda: [
-        "Justificativa_Chefe",
-        "Nome_Chefe_COP",
-        "Posto_Chefe_COP",
-    ])
-    
-    # Campos DACTA
-    DACTA: List[str] = field(default_factory=lambda: [
-        "Nome_Responsavel_DACTA",
-        "Posto_Responsavel_DACTA",
-    ])
-    
-    # Campo especial
-    PPD_CIVIL: str = "PPD_Civil"
-    
-    # Todas as colunas do FIC
-    ALL: List[str] = field(default_factory=lambda: [
-        "ID",
-        "Data_Criacao",
-        "Data_Atualizacao",
-        "Status",
-        "Curso",
-        "Turma",
-        "Local_GT",
-        "Comando",
-        "Data_Inicio_Presencial",
-        "Data_Termino_Presencial",
-        "Data_Inicio_Distancia",
-        "Data_Termino_Distancia",
-        "PPD_Civil",
-        "Posto_Graduacao",
-        "Nome_Completo",
-        "OM_Indicado",
-        "CPF",
-        "SARAM",
-        "Email",
-        "Telefone",
-        "Funcao_Atual",
-        "Data_Ultima_Promocao",
-        "Funcao_Apos_Curso",
-        "Tempo_Servico",
-        "Pre_Requisitos",
-        "Curso_Mapeado",
-        "Progressao_Carreira",
-        "Comunicado_Indicado",
-        "Outro_Impedimento",
-        "Curso_Anterior",
-        "Ano_Curso_Anterior",
-        "Ciencia_Dedicacao_EAD",
-        "Justificativa_Chefe",
-        "Nome_Chefe_COP",
-        "Posto_Chefe_COP",
-        "Nome_Responsavel_DACTA",
-        "Posto_Responsavel_DACTA",
-    ])
-    
-    # Campos obrigatórios do FIC
-    REQUIRED: List[str] = field(default_factory=lambda: [
-        "Curso",
-        "Turma",
-        "Nome_Completo",
-        "Posto_Graduacao",
-        "OM_Indicado",
-        "CPF",
-        "SARAM",
-    ])
-
-
-# =============================================================================
 # OPÇÕES DE ENUMERAÇÃO
 # =============================================================================
 
@@ -362,35 +222,7 @@ class Choices:
         "ver vagas escalantes",
     ])
     
-    # Status do FIC
-    FIC_STATUS: List[str] = field(default_factory=lambda: [
-        "Rascunho",
-        "Pendente",
-        "Aprovado",
-        "Reprovado",
-        "Concluído",
-        "Cancelado",
-    ])
-    
-    # Postos e Graduações
-    RANKS: List[str] = field(default_factory=lambda: [
-        "CEL",
-        "TC",
-        "MAJ",
-        "CAP",
-        "1º TEN",
-        "2º TEN",
-        "ASP",
-        "ST",
-        "1º SGT",
-        "2º SGT",
-        "3º SGT",
-        "CB",
-        "SD",
-        "CIVIL",
-    ])
-    
-    # OMs (Organizações Militares) - exemplo, pode ser expandido
+    # OMs (Organizações Militares)
     OMS: List[str] = field(default_factory=lambda: [
         "Cmdo",
         "C Op",
@@ -446,7 +278,6 @@ class Messages:
     SUCCESS_EXPORT: str = "✅ Arquivo exportado com sucesso!"
     SUCCESS_IMPORT: str = "✅ Dados importados com sucesso!"
     SUCCESS_BACKUP: str = "✅ Backup realizado com sucesso!"
-    SUCCESS_FIC_GENERATED: str = "✅ FIC gerado com sucesso!"
     
     # Mensagens de erro
     ERROR_GENERIC: str = "❌ Ocorreu um erro. Tente novamente."
@@ -467,11 +298,6 @@ class Messages:
     INFO_LOADING: str = "⏳ Carregando..."
     INFO_PROCESSING: str = "⏳ Processando..."
     INFO_NO_RECORDS: str = "ℹ️ Nenhum registro encontrado."
-    
-    # Mensagens específicas de FIC
-    FIC_INVALID_CPF: str = "❌ CPF inválido."
-    FIC_INVALID_EMAIL: str = "❌ E-mail inválido."
-    FIC_COURSE_NOT_FOUND: str = "❌ Curso não encontrado."
 
 
 # =============================================================================
@@ -498,10 +324,6 @@ class ExportConfig:
     PDF_MARGIN_BOTTOM: float = 2.0
     PDF_MARGIN_LEFT: float = 2.0
     PDF_MARGIN_RIGHT: float = 2.0
-    
-    # Configurações Word (FIC)
-    DOCX_FONT_NAME: str = "Arial"
-    DOCX_FONT_SIZE: int = 11
 
 
 # =============================================================================
@@ -513,7 +335,6 @@ settings = Settings()
 paths = Paths()
 colors = Colors()
 columns = Columns()
-fic_fields = FICFields()
 choices = Choices()
 logging_config = LoggingConfig()
 messages = Messages()
@@ -533,12 +354,6 @@ def get_column_types() -> Dict[str, str]:
         "DATA_DA_CONCLUSAO": "date",
         "Prazo dado pela chefia": "date",
         "Fim da indicação da SIAT": "date",
-        "Data_Inicio_Presencial": "date",
-        "Data_Termino_Presencial": "date",
-        "Data_Inicio_Distancia": "date",
-        "Data_Termino_Distancia": "date",
-        "Data_Criacao": "datetime",
-        "Data_Atualizacao": "datetime",
     }
 
 
@@ -565,10 +380,6 @@ def validate_config() -> Tuple[bool, List[str]]:
     # Verifica se todas as colunas base são únicas
     if len(columns.BASE) != len(set(columns.BASE)):
         errors.append("Colunas BASE contêm duplicatas")
-    
-    # Verifica se todas as colunas FIC são únicas
-    if len(fic_fields.ALL) != len(set(fic_fields.ALL)):
-        errors.append("Colunas FIC contêm duplicatas")
     
     # Verifica se as opções de prioridade estão definidas
     if not choices.PRIORITY:

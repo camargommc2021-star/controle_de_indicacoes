@@ -1,8 +1,8 @@
 """
-Controle de Indicações - Aplicativo Principal v2.0
+Controle de Indicações - Aplicativo Principal
 
-Sistema para gerenciamento de cursos e indicações militares.
-Oferece funcionalidades para cadastro de cursos, gestão de FICs,
+Sistema para gerenciamento de cursos.
+Oferece funcionalidades para cadastro de cursos,
 importação de dados, backup, LOGIN e CALENDÁRIO.
 
 NOVIDADES v2.0:
@@ -11,7 +11,7 @@ NOVIDADES v2.0:
 - Controle de permissões por funcionalidade
 
 Usage:
-    streamlit run app_v2.py
+    streamlit run app.py
 """
 
 import streamlit as st
@@ -51,13 +51,10 @@ from components import (
     render_tabela_cursos,
     render_lista_cursos_por_estado,
     render_cursos_concluidos,
-    render_fic_card,
-    render_tabela_fics,
-    render_tabela_fics_filtrada,
     render_metric_card,
 )
 
-from components.cards import get_cor_prazo, get_status_prazo, get_cor_prazo_chefia
+from components.cards import get_cor_prazo, get_status_prazo
 from components.calendar_view import CalendarView
 
 # =============================================================================
@@ -65,11 +62,9 @@ from components.calendar_view import CalendarView
 # =============================================================================
 
 from data_manager import DataManager
-from fic_manager import FICManager
 from dashboard import Dashboard
 from backup_manager import BackupManager
 from json_import import JSONImporter
-from fic_word_filler import FICWordFiller
 from managers.auth_manager import AuthManager, NivelAcesso
 
 # =============================================================================
@@ -79,7 +74,6 @@ from managers.auth_manager import AuthManager, NivelAcesso
 from utils.validators import (
     is_valid_date,
     validate_curso,
-    validate_fic,
     sanitize_string,
 )
 
@@ -95,7 +89,6 @@ ICONS = {
     'editar': '✏️',
     'importar': '📥',
     'backup': '💾',
-    'fic': '📄',
     'calendario': '📅',
     'usuarios': '👥',
     'login': '🔐',
@@ -136,24 +129,12 @@ def init_session_state() -> None:
         if 'backup_manager' not in st.session_state:
             st.session_state.backup_manager = BackupManager()
             
-        if 'fic_manager' not in st.session_state:
-            st.session_state.fic_manager = FICManager()
-            
-        if 'fic_word_filler' not in st.session_state:
-            st.session_state.fic_word_filler = FICWordFiller()
-        
-        # NOVO: Pessoas Manager (para FIC autocomplete)
-        if 'pessoas_manager' not in st.session_state:
-            from managers.pessoas_manager_secure import PessoasManagerSecure
-            st.session_state.pessoas_manager = PessoasManagerSecure()
-            logger.info("PessoasManager inicializado")
-        
-        # NOVO: Auth Manager
+        # Auth Manager
         if 'auth_manager' not in st.session_state:
             st.session_state.auth_manager = AuthManager()
             logger.info("AuthManager inicializado")
         
-        # NOVO: Calendar View
+        # Calendar View
         if 'calendar_view' not in st.session_state:
             st.session_state.calendar_view = CalendarView()
             
@@ -290,17 +271,6 @@ def carregar_dados_cursos() -> pd.DataFrame:
         return dm.carregar_dados()
     except Exception as e:
         logger.error(f"Erro ao carregar cursos: {e}")
-        return pd.DataFrame()
-
-
-@st.cache_data(ttl=60, show_spinner=False)
-def carregar_dados_fics() -> pd.DataFrame:
-    """Carrega dados dos FICs com cache."""
-    try:
-        fm = FICManager()
-        return fm.carregar_fics()
-    except Exception as e:
-        logger.error(f"Erro ao carregar FICs: {e}")
         return pd.DataFrame()
 
 
@@ -528,6 +498,30 @@ def render_tab_editar_curso() -> None:
         show_error("Erro ao editar curso", details=str(e))
 
 
+def render_tab_calendario() -> None:
+    """Renderiza a aba de Calendário."""
+    st.header(f"{ICONS['calendario']} Calendário de Prazos")
+    
+    if not verificar_permissao('ver_cursos'):
+        st.error("Sem permissão para visualizar calendário")
+        return
+    
+    try:
+        df_cursos = st.session_state.data_manager.carregar_dados()
+        
+        if df_cursos.empty:
+            show_info("Nenhum dado para exibir no calendário.")
+            return
+        
+        # Usar o componente de calendário apenas com cursos
+        cal = CalendarView(modo="mensal")
+        cal.render(df_cursos)
+        
+    except Exception as e:
+        logger.error(f"Erro no calendário: {e}")
+        show_error("Erro ao carregar calendário", details=str(e))
+
+
 def render_tab_importar_json() -> None:
     """Renderiza a aba de Importar JSON."""
     st.header(f"{ICONS['importar']} Importar JSON")
@@ -649,85 +643,6 @@ def render_tab_backup() -> None:
         show_error("Erro ao carregar backups", details=str(e))
 
 
-def render_tab_fic() -> None:
-    """Renderiza a aba de FIC usando Google Sheets (VERSÃO SEGURA)."""
-    from components.fic_sheets_tab import render_fic_sheets_tab
-    
-    if not verificar_permissao('ver_fics'):
-        st.error("Sem permissão para visualizar FICs")
-        return
-    
-    try:
-        # Inicializar FIC Word Filler se não existir
-        if 'fic_word_filler' not in st.session_state:
-            from fic_word_filler import FICWordFiller
-            st.session_state.fic_word_filler = FICWordFiller()
-        
-        render_fic_sheets_tab(st.session_state.fic_word_filler)
-    except Exception as e:
-        logger.error(f"Erro na aba FIC: {e}")
-        show_error("Erro ao carregar FIC")  # Não expor detalhes por segurança
-
-
-def render_tab_indicacao_massa() -> None:
-    """Renderiza a aba de Indicação em Massa."""
-    from components.indicacao_massa_tab import render_indicacao_massa_tab
-    
-    if not verificar_permissao('criar_curso'):
-        st.error("Sem permissão para indicação em massa")
-        return
-    
-    try:
-        render_indicacao_massa_tab()
-    except Exception as e:
-        logger.error(f"Erro na aba Indicação em Massa: {e}")
-        show_error("Erro ao carregar Indicação em Massa")
-
-
-def render_tab_chefes() -> None:
-    """Renderiza a aba de Cadastro de Chefes."""
-    from components.chefes_tab import render_chefes_tab
-    
-    if not verificar_permissao('criar_curso'):  # Apenas admins e editors
-        st.error("Sem permissão para cadastrar chefes")
-        return
-    
-    try:
-        render_chefes_tab()
-    except Exception as e:
-        logger.error(f"Erro na aba Chefes: {e}")
-        show_error("Erro ao carregar cadastro de chefes")
-
-
-# =============================================================================
-# NOVAS ABAS - LOGIN E CALENDÁRIO
-# =============================================================================
-
-def render_tab_calendario() -> None:
-    """Renderiza a aba de Calendário."""
-    st.header(f"{ICONS['calendario']} Calendário de Prazos")
-    
-    if not verificar_permissao('ver_cursos'):
-        st.error("Sem permissão para visualizar calendário")
-        return
-    
-    try:
-        df_cursos = st.session_state.data_manager.carregar_dados()
-        df_fics = st.session_state.fic_manager.carregar_fics()
-        
-        if df_cursos.empty and df_fics.empty:
-            show_info("Nenhum dado para exibir no calendário.")
-            return
-        
-        # Usar o componente de calendário
-        cal = CalendarView(modo="mensal")
-        cal.render(df_cursos, df_fics)
-        
-    except Exception as e:
-        logger.error(f"Erro no calendário: {e}")
-        show_error("Erro ao carregar calendário", details=str(e))
-
-
 def render_tab_usuarios() -> None:
     """Renderiza a aba de Gerenciamento de Usuários (Admin apenas)."""
     st.header(f"{ICONS['usuarios']} Gerenciamento de Usuários")
@@ -810,7 +725,7 @@ def render_tab_usuarios() -> None:
                     ["admin", "editor", "viewer"],
                     format_func=lambda x: {
                         "admin": "🔴 Administrador (Acesso total)",
-                        "editor": "🟡 Editor (CRUD cursos/pessoas)",
+                        "editor": "🟡 Editor (CRUD cursos)",
                         "viewer": "🟢 Visualizador (Apenas leitura)"
                     }[x]
                 )
@@ -986,17 +901,6 @@ def main():
         abas_disponiveis.append(("📥 Importar JSON", render_tab_importar_json))
     
     abas_disponiveis.append(("💾 Backup", render_tab_backup))
-    
-    if auth.pode('ver_fics'):
-        abas_disponiveis.append(("📄 Confecção de FIC", render_tab_fic))
-    
-    # Indicação em Massa disponível para quem pode criar cursos
-    if auth.pode('criar_curso'):
-        abas_disponiveis.append(("📊 Indicação em Massa", render_tab_indicacao_massa))
-    
-    # Aba de cadastro de chefes (admin e editor)
-    if auth.pode('criar_curso'):
-        abas_disponiveis.append(("👔 Chefes", render_tab_chefes))
     
     # Aba de usuários apenas para admins
     if auth.permissoes.gerenciar_usuarios:

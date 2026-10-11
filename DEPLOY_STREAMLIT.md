@@ -1,10 +1,10 @@
 # 🚀 Guia Rápido - Deploy no Streamlit Cloud
 
-## ⚡ MÉTODO ULTRA RÁPIDO (2 minutos)
+## ⚡ Passos para Deploy
 
-### Passo 1: Acessar
+### Passo 1: Acessar o Streamlit Cloud
 - Abra: https://share.streamlit.io/
-- Clique em **"Sign in with GitHub"**
+- Faça login com sua conta do GitHub
 
 ### Passo 2: Criar App
 - Clique em **"New app"**
@@ -12,50 +12,24 @@
   - **Repository:** `camargommc2021-star/controle_de_indicacoes`
   - **Branch:** `main`
   - **Main file:** `app.py`
-  - **URL:** `controle-cursos-crcea` (ou escolha outro)
-- Clique **"Deploy!"**
+  - **URL:** escolha o subdomínio desejado
+- Clique em **"Deploy!"**
 
-### Passo 3: Configurar Secrets (IMPORTANTE!)
-1. Espere o app abrir (vai dar erro inicial, normal!)
-2. Clique nos **3 pontinhos ⋮** (canto superior direito)
-3. Clique em **"Settings"**
-4. No menu lateral, clique em **"Secrets"**
-5. Cole TODO o conteúdo do arquivo `.streamlit/secrets.toml`
-6. **IMPORTANTE:** Troque `COLE_AQUI_O_ID_DA_PLANILHA` pelo ID real da sua planilha
-7. Clique **"Save"**
-
-### Passo 4: Reiniciar
-- Volte para o app
-- Clique nos **3 pontinhos ⋮** > **"Reboot"**
-
-✅ Pronto! Seu app estará online!
+### Passo 3: Configurar Secrets (Opcional - Sincronização GitHub)
+1. Nos **Settings** do app, acesse a aba **"Secrets"**
+2. Se desejar sincronização com o GitHub, configure:
+   ```toml
+   GITHUB_TOKEN = "seu_token_aqui"
+   GITHUB_REPO = "camargommc2021-star/controle_de_indicacoes"
+   ```
+3. Clique em **"Save"**
 
 ---
 
-## 🔧 Como encontrar o ID da planilha Google Sheets
-
-1. Abra sua planilha no Google Sheets
-2. Olhe a URL: `https://docs.google.com/spreadsheets/d/1ABC123xyz/edit`
-3. O ID é a parte entre `/d/` e `/edit`
-4. Copie e cole no secrets
-
----
-
-## 🆘 Se der erro
+## 🆘 Solução de Problemas
 
 ### Erro "Module not found"
-- Verifique se `requirements.txt` está no repositório ✅ (já está!)
-
-### Erro de conexão com Google Sheets
-- Verifique se as credenciais estão corretas no Secrets
-- Verifique se o ID da planilha está correto
+- Verifique se as dependências necessárias estão listadas em `requirements.txt`.
 
 ### Erro 404
-- Verifique se o repositório é público ou se deu acesso ao Streamlit
-
----
-
-## 📱 URL Final
-Seu app será acessível em:
-`https://controle-cursos-crcea.streamlit.app`
-(Ou o nome que você escolheu no passo 2)
+- Verifique se o repositório é público ou se concedeu permissão ao Streamlit Cloud.

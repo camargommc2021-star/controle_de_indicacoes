@@ -19,8 +19,6 @@ from .cards import (
 from .forms import (
     render_form_novo_curso,
     render_form_editar_curso,
-    render_form_editar_fic,
-    render_form_fic_com_autocomplete,
 )
 
 # Tables
@@ -29,9 +27,7 @@ from .tables import (
     render_tabela_cursos_filtrada,
     render_lista_cursos_por_estado,
     render_cursos_concluidos,
-    render_tabela_fics,
-    render_tabela_fics_filtrada,
-    render_fic_card,
+    render_filtros_cursos,
 )
 
 # Alerts
@@ -66,16 +62,12 @@ __all__ = [
     # Forms
     'render_form_novo_curso',
     'render_form_editar_curso',
-    'render_form_editar_fic',
-    'render_form_fic_com_autocomplete',
     # Tables
     'render_tabela_cursos',
     'render_tabela_cursos_filtrada',
     'render_lista_cursos_por_estado',
     'render_cursos_concluidos',
-    'render_tabela_fics',
-    'render_tabela_fics_filtrada',
-    'render_fic_card',
+    'render_filtros_cursos',
     # Alerts
     'show_success',
     'show_error',

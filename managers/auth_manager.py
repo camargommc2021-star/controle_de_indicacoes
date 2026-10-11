@@ -48,7 +48,7 @@ ITERATIONS = 100000
 class NivelAcesso(Enum):
     """Níveis de acesso disponíveis no sistema."""
     ADMIN = "admin"           # Acesso total (CRUD + configurações + usuários)
-    EDITOR = "editor"         # CRUD cursos e pessoas, sem gerenciar usuários
+    EDITOR = "editor"         # CRUD cursos, sem gerenciar usuários
     VIEWER = "viewer"         # Apenas visualização, sem edição
 
 
@@ -60,13 +60,6 @@ class Permissoes:
     criar_curso: bool = False
     editar_curso: bool = False
     excluir_curso: bool = False
-    ver_pessoas: bool = True
-    criar_pessoa: bool = False
-    editar_pessoa: bool = False
-    excluir_pessoa: bool = False
-    ver_fics: bool = True
-    criar_fic: bool = False
-    editar_fic: bool = False
     gerenciar_usuarios: bool = False
     fazer_backup: bool = False
     ver_logs: bool = False
@@ -77,23 +70,17 @@ class Permissoes:
         permissoes = {
             NivelAcesso.ADMIN: cls(
                 ver_dashboard=True, ver_cursos=True, criar_curso=True,
-                editar_curso=True, excluir_curso=True, ver_pessoas=True,
-                criar_pessoa=True, editar_pessoa=True, excluir_pessoa=True,
-                ver_fics=True, criar_fic=True, editar_fic=True,
+                editar_curso=True, excluir_curso=True,
                 gerenciar_usuarios=True, fazer_backup=True, ver_logs=True
             ),
             NivelAcesso.EDITOR: cls(
                 ver_dashboard=True, ver_cursos=True, criar_curso=True,
-                editar_curso=True, excluir_curso=False, ver_pessoas=True,
-                criar_pessoa=True, editar_pessoa=True, excluir_pessoa=False,
-                ver_fics=True, criar_fic=True, editar_fic=True,
+                editar_curso=True, excluir_curso=False,
                 gerenciar_usuarios=False, fazer_backup=False, ver_logs=False
             ),
             NivelAcesso.VIEWER: cls(
                 ver_dashboard=True, ver_cursos=True, criar_curso=False,
-                editar_curso=False, excluir_curso=False, ver_pessoas=True,
-                criar_pessoa=False, editar_pessoa=False, excluir_pessoa=False,
-                ver_fics=True, criar_fic=False, editar_fic=False,
+                editar_curso=False, excluir_curso=False,
                 gerenciar_usuarios=False, fazer_backup=False, ver_logs=False
             )
         }
