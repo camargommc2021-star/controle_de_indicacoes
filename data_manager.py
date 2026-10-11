@@ -5,8 +5,8 @@ import os
 pd.set_option('compute.use_numba', False)
 
 class DataManager:
-    def __init__(self):
-        self.arquivo_local = "data/cursos.xlsx"
+    def __init__(self, arquivo_local=None):
+        self.arquivo_local = arquivo_local or "data/cursos.xlsx"
         
         # Campos base fixos
         self.colunas_base = [
@@ -40,7 +40,9 @@ class DataManager:
     
     def _criar_arquivo_se_nao_existir(self):
         if not os.path.exists(self.arquivo_local):
-            os.makedirs("data", exist_ok=True)
+            pasta = os.path.dirname(self.arquivo_local)
+            if pasta:
+                os.makedirs(pasta, exist_ok=True)
             df = pd.DataFrame(columns=self.colunas)
             df.to_excel(self.arquivo_local, index=False, engine='openpyxl')
     
@@ -86,7 +88,9 @@ class DataManager:
     
     def _salvar_dados(self, df):
         try:
-            os.makedirs("data", exist_ok=True)
+            pasta = os.path.dirname(self.arquivo_local)
+            if pasta:
+                os.makedirs(pasta, exist_ok=True)
             
             # Garantir que todas as colunas existam no DataFrame
             for col in self.colunas:
@@ -103,12 +107,12 @@ class DataManager:
             print(f"Erro ao salvar: {str(e)}")
             return False
     
-    def adicionar_curso(self, curso_dict):
+    def adicionar_curso(self, curso_dict, permitir_duplicado=False):
         try:
             df = self.carregar_dados()
             
             # Verificar duplicados (mesmo curso e turma)
-            if 'Curso' in curso_dict and 'Turma' in curso_dict:
+            if not permitir_duplicado and 'Curso' in curso_dict and 'Turma' in curso_dict:
                 curso_nome = str(curso_dict.get('Curso', '')).strip()
                 turma_nome = str(curso_dict.get('Turma', '')).strip()
                 
@@ -232,7 +236,7 @@ class DataManager:
             df = self.carregar_dados()
             if termo:
                 # Buscar em todas as colunas
-                mask = df.astype(str).apply(lambda x: x.str.contains(termo, case=False, na=False))
+                mask = df.astype(str).apply(lambda x: x.str.contains(termo, regex=False, case=False, na=False))
                 return df[mask.any(axis=1)]
             return df
         except Exception as e:

@@ -53,6 +53,24 @@ LOG_LEVELS = {
 # ============================================================================
 
 _loggers: dict[str, logging.Logger] = {}
+_shared_file_handler: Optional[logging.handlers.RotatingFileHandler] = None
+_shared_console_handler: Optional[logging.StreamHandler] = None
+
+
+def _get_shared_file_handler(log_dir: str, log_file: str) -> logging.handlers.RotatingFileHandler:
+    """Retorna handler único de arquivo com rotação compartilhado por todos os loggers."""
+    global _shared_file_handler
+    if _shared_file_handler is None:
+        _shared_file_handler = _create_file_handler(log_dir, log_file)
+    return _shared_file_handler
+
+
+def _get_shared_console_handler() -> logging.StreamHandler:
+    """Retorna handler único de console compartilhado por todos os loggers."""
+    global _shared_console_handler
+    if _shared_console_handler is None:
+        _shared_console_handler = _create_console_handler()
+    return _shared_console_handler
 
 
 def _get_env_or_default(var_name: str, default_value: str) -> str:
@@ -151,7 +169,7 @@ def _create_console_handler() -> logging.StreamHandler:
 
 def _configure_logger(logger: logging.Logger) -> None:
     """
-    Configura um logger com handlers de arquivo e console.
+    Configura um logger com handlers compartilhados de arquivo e console.
     
     Args:
         logger: Instância do logger a ser configurado
@@ -166,14 +184,16 @@ def _configure_logger(logger: logging.Logger) -> None:
     # Configura nível do logger
     logger.setLevel(_get_log_level())
     
-    # Adiciona handler de arquivo
-    file_handler = _create_file_handler(log_dir, log_file)
-    logger.addHandler(file_handler)
+    # Adiciona handler de arquivo único compartilhado
+    file_handler = _get_shared_file_handler(log_dir, log_file)
+    if file_handler not in logger.handlers:
+        logger.addHandler(file_handler)
     
-    # Adiciona handler de console (exceto se desabilitado)
+    # Adiciona handler de console compartilhado (exceto se desabilitado)
     if _get_env_or_default("LOG_CONSOLE", "true").lower() != "false":
-        console_handler = _create_console_handler()
-        logger.addHandler(console_handler)
+        console_handler = _get_shared_console_handler()
+        if console_handler not in logger.handlers:
+            logger.addHandler(console_handler)
     
     # Evita propagação para o logger raiz (evita duplicação de mensagens)
     logger.propagate = False
@@ -298,9 +318,16 @@ def get_log_file_path() -> Optional[Path]:
 
 def clear_loggers() -> None:
     """
-    Limpa o cache de loggers configurados.
+    Limpa o cache de loggers configurados e fecha handlers compartilhados.
     
     Útil para testes ou quando é necessário reconfigurar todos os loggers.
     """
-    global _loggers
+    global _loggers, _shared_file_handler, _shared_console_handler
     _loggers.clear()
+    if _shared_file_handler:
+        try:
+            _shared_file_handler.close()
+        except Exception:
+            pass
+        _shared_file_handler = None
+    _shared_console_handler = None

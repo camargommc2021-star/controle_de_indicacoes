@@ -2,6 +2,9 @@ import os
 import shutil
 from datetime import datetime
 import glob
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class BackupManager:
@@ -104,7 +107,8 @@ class BackupManager:
             hoje = datetime.now().date()
             
             return data_ultimo < hoje
-        except:
+        except Exception as e:
+            logger.warning(f"Erro ao verificar necessidade de backup automático: {e}")
             return True
 
 

@@ -136,7 +136,7 @@ class JSONImporter:
                     if vaga > 0:
                         tem_om_com_vaga = True
                         break
-                except:
+                except (ValueError, TypeError):
                     pass
         
         if not tem_om_com_vaga:
@@ -175,7 +175,14 @@ class JSONImporter:
         # Preencher campos base
         for campo in campos_base:
             if campo in curso:
-                curso_preparado[campo] = str(curso[campo])
+                val = curso[campo]
+                if campo == 'Vagas':
+                    try:
+                        curso_preparado[campo] = int(val)
+                    except (ValueError, TypeError):
+                        curso_preparado[campo] = str(val)
+                else:
+                    curso_preparado[campo] = str(val)
             else:
                 curso_preparado[campo] = ""
         

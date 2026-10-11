@@ -6,13 +6,185 @@ e utilitários de sanitização de texto.
 """
 
 import re
+import unicodedata
 from datetime import datetime, date
 from typing import Optional, Tuple, List, Any
+import pandas as pd
 
 
 # ============================================================================
-# VALIDAÇÃO DE DATAS
+# PARSER E VALIDAÇÃO DE DATAS
 # ============================================================================
+
+def parse_data(valor: Any) -> Optional[date]:
+    """
+    Converte diversos formatos de data para datetime.date.
+    Retorna None se o valor for inválido, nulo ou vazio.
+    Suporta: None, NaN, '', 'nan', str 'DD/MM/AAAA', 'AAAA-MM-DD',
+    'AAAA-MM-DD HH:MM:SS', datetime, date, pd.Timestamp.
+    """
+    if valor is None:
+        return None
+    
+    if isinstance(valor, str):
+        val_str = valor.strip()
+        if not val_str or val_str.lower() in ('nan', 'none', 'nat', 'null'):
+            return None
+        for fmt in ('%d/%m/%Y', '%Y-%m-%d', '%Y-%m-%d %H:%M:%S', '%d/%m/%Y %H:%M:%S', '%Y-%m-%dT%H:%M:%S'):
+            try:
+                return datetime.strptime(val_str, fmt).date()
+            except ValueError:
+                pass
+        try:
+            ts = pd.to_datetime(val_str, errors='coerce')
+            if pd.notna(ts):
+                return ts.date()
+        except Exception:
+            pass
+        return None
+
+    try:
+        if pd.isna(valor):
+            return None
+    except Exception:
+        pass
+
+    if isinstance(valor, pd.Timestamp):
+        return valor.date()
+    if isinstance(valor, datetime):
+        return valor.date()
+    if isinstance(valor, date):
+        return valor
+
+    try:
+        ts = pd.to_datetime(valor, errors='coerce')
+        if pd.notna(ts):
+            return ts.date()
+    except Exception:
+        pass
+
+    return None
+
+
+def curso_concluido(row: Any) -> bool:
+    """
+    Verifica se um curso está concluído.
+
+    Critérios de conclusão:
+    - Estado normalizado (strip, lowercase, sem acentos via unicodedata) inicia com 'conclu', OU
+    - DATA_DA_CONCLUSAO é uma data válida reconhecida por parse_data.
+
+    Args:
+        row: Linha do curso (pd.Series, dict ou mapeamento com dados do curso).
+
+    Returns:
+        bool: True se o curso estiver concluído, False caso contrário.
+    """
+    if row is None:
+        return False
+
+    estado = None
+    data_conclusao = None
+
+    if hasattr(row, 'get'):
+        estado = row.get('Estado')
+        data_conclusao = row.get('DATA_DA_CONCLUSAO')
+    elif hasattr(row, '__getitem__'):
+        try:
+            estado = row['Estado']
+        except Exception:
+            pass
+        try:
+            data_conclusao = row['DATA_DA_CONCLUSAO']
+        except Exception:
+            pass
+
+    if estado is not None:
+        try:
+            if not pd.isna(estado):
+                norm = unicodedata.normalize('NFKD', str(estado)).encode('ASCII', 'ignore').decode('utf-8').strip().lower()
+                if norm.startswith('conclu'):
+                    return True
+        except Exception:
+            pass
+
+    if parse_data(data_conclusao) is not None:
+        return True
+
+    return False
+
+
+def calcular_metricas_prazos(df: pd.DataFrame) -> dict:
+    """
+    Calcula métricas consolidadas de prazos para o Dashboard e a Barra Lateral.
+
+    Cursos concluídos são desconsiderados na contagem de atrasados, urgentes
+    e prazos próximos da chefia.
+
+    Regras de prazos:
+    - Atrasado: data < hoje
+    - Urgente: entre 0 e 5 dias restantes
+    - Chefia próximo: entre 0 e 7 dias restantes
+
+    Args:
+        df: DataFrame contendo os cursos.
+
+    Returns:
+        dict: Dicionário contendo as contagens de 'atrasados', 'urgentes' e 'chefia_proximo'.
+    """
+    hoje = date.today()
+    atrasados = 0
+    urgentes = 0
+    chefia_proximo = 0
+
+    if df is not None and not df.empty:
+        tem_siat = 'Fim da indicação da SIAT' in df.columns
+        tem_chefia = 'Prazo dado pela chefia' in df.columns
+
+        for _, row in df.iterrows():
+            if curso_concluido(row):
+                continue
+
+            if tem_siat:
+                d = parse_data(row.get('Fim da indicação da SIAT'))
+                if d is not None:
+                    dias = (d - hoje).days
+                    if dias < 0:
+                        atrasados += 1
+                    elif 0 <= dias <= 5:
+                        urgentes += 1
+
+            if tem_chefia:
+                d = parse_data(row.get('Prazo dado pela chefia'))
+                if d is not None:
+                    dias = (d - hoje).days
+                    if 0 <= dias <= 7:
+                        chefia_proximo += 1
+
+    return {
+        'atrasados': atrasados,
+        'urgentes': urgentes,
+        'chefia_proximo': chefia_proximo
+    }
+
+
+def limpar_valor(valor: Any) -> str:
+    """
+    Retorna string vazia se o valor for None, NaN, 'nan' ou vazio.
+    Caso contrário, retorna a representação em string (ou formatada) sem espaços extras.
+    """
+    if valor is None:
+        return ""
+    try:
+        if pd.isna(valor):
+            return ""
+    except Exception:
+        pass
+    s = str(valor).strip()
+    if s.lower() in ('nan', 'none', 'nat'):
+        return ""
+    return s
+
 
 def is_valid_date(date_str: str, date_format: str = "%d/%m/%Y") -> bool:
     """

@@ -12,7 +12,7 @@ Usage:
 """
 
 import calendar
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
 from enum import Enum
@@ -22,6 +22,7 @@ import pandas as pd
 
 from config import colors
 from utils.logger import get_logger
+from utils.validators import parse_data
 
 logger = get_logger(__name__)
 
@@ -68,11 +69,10 @@ class CalendarView:
     """
     Componente de visualização em calendário.
     
-    Exibe prazos de cursos em formato de calendário mensal ou semanal,
+    Exibe prazos de cursos em formato de calendário mensal,
     com indicadores visuais de status e navegação intuitiva.
     
     Attributes:
-        modo: 'mensal' ou 'semanal'
         mes_atual: Mês sendo exibido
         ano_atual: Ano sendo exibido
     """
@@ -93,14 +93,8 @@ class CalendarView:
         'vencido': "#9E9E9E",   # Cinza
     }
     
-    def __init__(self, modo: str = "mensal"):
-        """
-        Inicializa o calendário.
-        
-        Args:
-            modo: 'mensal' ou 'semanal'
-        """
-        self.modo = modo.lower()
+    def __init__(self):
+        """Inicializa o calendário."""
         self.data_atual = date.today()
         
         # Inicializar estado da sessão para navegação
@@ -108,13 +102,11 @@ class CalendarView:
             st.session_state.cal_mes = self.data_atual.month
         if 'cal_ano' not in st.session_state:
             st.session_state.cal_ano = self.data_atual.year
-        if 'cal_modo' not in st.session_state:
-            st.session_state.cal_modo = self.modo
         
         self.mes_atual = st.session_state.cal_mes
         self.ano_atual = st.session_state.cal_ano
         
-        logger.debug(f"CalendarView inicializado: {self.modo}")
+        logger.debug("CalendarView inicializado")
     
     # ====================================================================
     # MÉTODOS DE CONVERSÃO DE DADOS
@@ -139,77 +131,61 @@ class CalendarView:
             curso_nome = row.get('Curso', f'Curso {idx}')
             
             # Prazo da SIAT
-            if pd.notna(row.get('Fim da indicação da SIAT')):
-                try:
-                    data = self._parse_data(row['Fim da indicação da SIAT'])
-                    if data:
-                        cor = self._calcular_cor_prazo(data)
-                        eventos.append(EventoCalendario(
-                            data=data,
-                            titulo=f"📋 {curso_nome}",
-                            tipo=TipoEvento.CURSO_PRAZO_SIAT,
-                            descricao=f"Fim da indicação da SIAT: {curso_nome}",
-                            cor=cor,
-                            id_referencia=str(idx)
-                        ))
-                except:
-                    pass
+            data = parse_data(row.get('Fim da indicação da SIAT'))
+            if data:
+                cor = self._calcular_cor_prazo(data)
+                eventos.append(EventoCalendario(
+                    data=data,
+                    titulo=f"📋 {curso_nome}",
+                    tipo=TipoEvento.CURSO_PRAZO_SIAT,
+                    descricao=f"Fim da indicação da SIAT: {curso_nome}",
+                    cor=cor,
+                    id_referencia=str(idx)
+                ))
             
             # Prazo da Chefia
-            if pd.notna(row.get('Prazo dado pela chefia')):
-                try:
-                    data = self._parse_data(row['Prazo dado pela chefia'])
-                    if data:
-                        cor = self._calcular_cor_prazo(data)
-                        eventos.append(EventoCalendario(
-                            data=data,
-                            titulo=f"👔 {curso_nome}",
-                            tipo=TipoEvento.CURSO_PRAZO_CHEFIA,
-                            descricao=f"Prazo da Chefia: {curso_nome}",
-                            cor=cor,
-                            id_referencia=str(idx)
-                        ))
-                except:
-                    pass
+            data = parse_data(row.get('Prazo dado pela chefia'))
+            if data:
+                cor = self._calcular_cor_prazo(data)
+                eventos.append(EventoCalendario(
+                    data=data,
+                    titulo=f"👔 {curso_nome}",
+                    tipo=TipoEvento.CURSO_PRAZO_CHEFIA,
+                    descricao=f"Prazo da Chefia: {curso_nome}",
+                    cor=cor,
+                    id_referencia=str(idx)
+                ))
             
             # Data de conclusão
-            if pd.notna(row.get('DATA DA CONCLUSÃO')):
-                try:
-                    data = self._parse_data(row['DATA DA CONCLUSÃO'])
-                    if data:
-                        eventos.append(EventoCalendario(
-                            data=data,
-                            titulo=f"✅ {curso_nome}",
-                            tipo=TipoEvento.CURSO_CONCLUSAO,
-                            descricao=f"Conclusão: {curso_nome}",
-                            cor=self.CORES_EVENTO[TipoEvento.CURSO_CONCLUSAO],
-                            id_referencia=str(idx)
-                        ))
-                except:
-                    pass
+            data = parse_data(row.get('DATA_DA_CONCLUSAO'))
+            if data:
+                eventos.append(EventoCalendario(
+                    data=data,
+                    titulo=f"✅ {curso_nome}",
+                    tipo=TipoEvento.CURSO_CONCLUSAO,
+                    descricao=f"Conclusão: {curso_nome}",
+                    cor=self.CORES_EVENTO[TipoEvento.CURSO_CONCLUSAO],
+                    id_referencia=str(idx)
+                ))
             
             # Recebimento SIGAD
-            if pd.notna(row.get('Recebimento do SIGAD com as vagas')):
-                try:
-                    data = self._parse_data(row['Recebimento do SIGAD com as vagas'])
-                    if data:
-                        eventos.append(EventoCalendario(
-                            data=data,
-                            titulo=f"📨 {curso_nome}",
-                            tipo=TipoEvento.CURSO_RECEBIMENTO,
-                            descricao=f"Recebimento SIGAD: {curso_nome}",
-                            cor=self.CORES_EVENTO[TipoEvento.CURSO_RECEBIMENTO],
-                            id_referencia=str(idx)
-                        ))
-                except:
-                    pass
+            data = parse_data(row.get('Recebimento do SIGAD com as vagas'))
+            if data:
+                eventos.append(EventoCalendario(
+                    data=data,
+                    titulo=f"📨 {curso_nome}",
+                    tipo=TipoEvento.CURSO_RECEBIMENTO,
+                    descricao=f"Recebimento SIGAD: {curso_nome}",
+                    cor=self.CORES_EVENTO[TipoEvento.CURSO_RECEBIMENTO],
+                    id_referencia=str(idx)
+                ))
         
         return eventos
     
 
     def _parse_data(self, valor: Any) -> Optional[date]:
         """
-        Tenta converter qualquer valor em date.
+        Tenta converter qualquer valor em date usando o helper centralizado parse_data.
         
         Args:
             valor: Valor a ser convertido
@@ -217,35 +193,7 @@ class CalendarView:
         Returns:
             date ou None
         """
-        if pd.isna(valor):
-            return None
-        
-        if isinstance(valor, date):
-            return valor
-        
-        if isinstance(valor, datetime):
-            return valor.date()
-        
-        # Tentar formatos comuns
-        formatos = [
-            "%d/%m/%Y",
-            "%Y-%m-%d",
-            "%d-%m-%Y",
-            "%m/%d/%Y",
-            "%Y/%m/%d",
-        ]
-        
-        for fmt in formatos:
-            try:
-                return datetime.strptime(str(valor), fmt).date()
-            except:
-                continue
-        
-        # Tentar com pandas
-        try:
-            return pd.to_datetime(valor).date()
-        except:
-            return None
+        return parse_data(valor)
     
     def _calcular_cor_prazo(self, data_prazo: date) -> str:
         """
@@ -286,11 +234,8 @@ class CalendarView:
         # Renderizar controles
         self._render_controles()
         
-        # Renderizar calendário baseado no modo
-        if st.session_state.cal_modo == "mensal":
-            self._render_calendario_mensal(eventos)
-        else:
-            self._render_calendario_semanal(eventos)
+        # Renderizar calendário mensal
+        self._render_calendario_mensal(eventos)
         
         # Renderizar legenda
         self._render_legenda()
@@ -321,7 +266,7 @@ class CalendarView:
             ano_selecionado = st.number_input(
                 "Ano",
                 min_value=2020,
-                max_value=2030,
+                max_value=2100,
                 value=st.session_state.cal_ano,
                 key="cal_select_ano",
                 label_visibility="collapsed"
@@ -339,37 +284,23 @@ class CalendarView:
                 st.session_state.cal_mes = date.today().month
                 st.session_state.cal_ano = date.today().year
                 st.rerun()
-        
-        # Seleção de modo
-        modo = st.radio(
-            "Visualização",
-            ["Mensal", "Semanal"],
-            horizontal=True,
-            key="cal_modo_radio"
-        )
-        st.session_state.cal_modo = modo.lower()
     
     def _navegar_anterior(self):
-        """Navega para o período anterior."""
-        if st.session_state.cal_modo == "mensal":
-            if st.session_state.cal_mes == 1:
-                st.session_state.cal_mes = 12
-                st.session_state.cal_ano -= 1
-            else:
-                st.session_state.cal_mes -= 1
+        """Navega para o mês anterior."""
+        if st.session_state.cal_mes == 1:
+            st.session_state.cal_mes = 12
+            st.session_state.cal_ano -= 1
         else:
-            # Modo semanal - subtrair 7 dias (implementação simplificada)
-            pass
+            st.session_state.cal_mes -= 1
         st.rerun()
     
     def _navegar_proximo(self):
-        """Navega para o próximo período."""
-        if st.session_state.cal_modo == "mensal":
-            if st.session_state.cal_mes == 12:
-                st.session_state.cal_mes = 1
-                st.session_state.cal_ano += 1
-            else:
-                st.session_state.cal_mes += 1
+        """Navega para o próximo mês."""
+        if st.session_state.cal_mes == 12:
+            st.session_state.cal_mes = 1
+            st.session_state.cal_ano += 1
+        else:
+            st.session_state.cal_mes += 1
         st.rerun()
     
     def _render_calendario_mensal(self, eventos: List[EventoCalendario]):
@@ -498,68 +429,6 @@ class CalendarView:
                         </div>
                         """
                         st.markdown(html, unsafe_allow_html=True)
-    
-    def _render_calendario_semanal(self, eventos: List[EventoCalendario]):
-        """
-        Renderiza calendário semanal (simplificado).
-        
-        Args:
-            eventos: Lista de eventos
-        """
-        # Calcular semana atual
-        hoje = date.today()
-        inicio_semana = hoje - timedelta(days=hoje.weekday())
-        
-        st.markdown(f"<h3 style='text-align: center;'>Semana de {inicio_semana.strftime('%d/%m/%Y')}</h3>", 
-                   unsafe_allow_html=True)
-        
-        # Agrupar eventos por dia da semana
-        eventos_semana: Dict[int, List[EventoCalendario]] = {i: [] for i in range(7)}
-        
-        for ev in eventos:
-            for i in range(7):
-                dia_semana = inicio_semana + timedelta(days=i)
-                if ev.data == dia_semana:
-                    eventos_semana[i].append(ev)
-        
-        dias_nomes = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
-        
-        for i in range(7):
-            dia_atual = inicio_semana + timedelta(days=i)
-            eh_hoje = dia_atual == hoje
-            
-            with st.container():
-                if eh_hoje:
-                    st.markdown(f"#### 📍 **{dias_nomes[i]}** ({dia_atual.strftime('%d/%m')})")
-                else:
-                    st.markdown(f"#### {dias_nomes[i]} ({dia_atual.strftime('%d/%m')})")
-                
-                eventos_dia = eventos_semana[i]
-                if eventos_dia:
-                    for ev in eventos_dia:
-                        self._render_evento_card(ev)
-                else:
-                    st.caption("Nenhum evento")
-                
-                st.divider()
-    
-    def _render_evento_card(self, evento: EventoCalendario):
-        """Renderiza um card de evento."""
-        cor_hex = evento.cor.lstrip('#')
-        r, g, b = tuple(int(cor_hex[i:i+2], 16) for i in (0, 2, 4))
-        
-        st.markdown(f"""
-        <div style='
-            background-color: {evento.cor}20;
-            border-left: 4px solid {evento.cor};
-            padding: 8px 12px;
-            margin: 4px 0;
-            border-radius: 4px;
-        '>
-            <div style='font-weight: bold; color: {evento.cor};'>{evento.titulo}</div>
-            <div style='font-size: 0.85em; color: #666;'>{evento.descricao}</div>
-        </div>
-        """, unsafe_allow_html=True)
     
     def _render_legenda(self):
         """Renderiza legenda de cores e tipos."""

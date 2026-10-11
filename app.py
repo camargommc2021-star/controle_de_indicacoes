@@ -514,7 +514,7 @@ def render_tab_calendario() -> None:
             return
         
         # Usar o componente de calendário apenas com cursos
-        cal = CalendarView(modo="mensal")
+        cal = CalendarView()
         cal.render(df_cursos)
         
     except Exception as e:
@@ -769,15 +769,22 @@ def render_tab_usuarios() -> None:
                             "Email*",
                             value=usuario_atual['email']
                         )
+                        niveis_acesso = ["admin", "editor", "viewer"]
+                        nivel_salvo = usuario_atual.get('nivel_acesso')
+                        if nivel_salvo in niveis_acesso:
+                            nivel_idx = niveis_acesso.index(nivel_salvo)
+                        else:
+                            st.warning(f"Nível de acesso desconhecido ('{nivel_salvo}'); definido como visualizador. Revise antes de salvar.")
+                            nivel_idx = niveis_acesso.index("viewer")
                         edit_nivel = st.selectbox(
                             "Nível de acesso*",
-                            ["admin", "editor", "viewer"],
-                            index=["admin", "editor", "viewer"].index(usuario_atual['nivel_acesso']),
+                            niveis_acesso,
+                            index=nivel_idx,
                             format_func=lambda x: {
                                 "admin": "🔴 Administrador",
                                 "editor": "🟡 Editor",
                                 "viewer": "🟢 Visualizador"
-                            }[x]
+                            }.get(x, str(x))
                         )
                     
                     st.markdown("---")

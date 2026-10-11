@@ -10,6 +10,8 @@ import pandas as pd
 from datetime import datetime
 from typing import Optional, Dict, Any, Tuple
 
+from utils.validators import parse_data, limpar_valor
+
 
 # ============================================
 # FORMULÁRIOS DE CURSO
@@ -61,6 +63,12 @@ def render_form_novo_curso(
             help="Informe as vagas por organização militar"
         )
         
+        salvar_mesmo_assim = st.checkbox(
+            "Salvar mesmo assim",
+            value=False,
+            help="Permite salvar mesmo se já existir um curso cadastrado com o mesmo nome e turma"
+        )
+        
         submitted = st.form_submit_button("💾 Salvar Curso")
         
         if submitted:
@@ -88,7 +96,7 @@ def render_form_novo_curso(
                     )
                 
                 # Salvar
-                sucesso, msg = data_manager.adicionar_curso(novo_curso)
+                sucesso, msg = data_manager.adicionar_curso(novo_curso, permitir_duplicado=salvar_mesmo_assim)
                 if sucesso:
                     backup_manager.criar_backup()
                     resultado = (True, msg)
@@ -128,12 +136,14 @@ def render_form_editar_curso(
         prioridade_atual = curso_atual.get('Prioridade', 'Média')
         
         with col1:
-            curso = st.text_input("Nome do Curso", value=curso_atual.get('Curso', ''))
-            turma = st.text_input("Turma", value=curso_atual.get('Turma', ''))
+            curso = st.text_input("Nome do Curso", value=limpar_valor(curso_atual.get('Curso')))
+            turma = st.text_input("Turma", value=limpar_valor(curso_atual.get('Turma')))
+            vagas_num = pd.to_numeric(curso_atual.get('Vagas'), errors='coerce')
+            vagas_val = int(0 if pd.isna(vagas_num) else max(0, int(vagas_num)))
             vagas = st.number_input(
                 "Vagas",
                 min_value=0,
-                value=int(curso_atual.get('Vagas', 0)) if pd.notna(curso_atual.get('Vagas', 0)) else 0
+                value=vagas_val
             )
             estado = st.selectbox(
                 "Estado",
@@ -145,38 +155,42 @@ def render_form_editar_curso(
                 prioridade_list,
                 index=prioridade_list.index(prioridade_atual) if prioridade_atual in prioridade_list else 1
             )
+            dt_siat = parse_data(curso_atual.get('Fim da indicação da SIAT'))
+            data_siat_val = dt_siat.strftime('%d/%m/%Y') if dt_siat else limpar_valor(curso_atual.get('Fim da indicação da SIAT'))
             data_siat = st.text_input(
                 "Fim da indicação SIAT (DD/MM/AAAA)",
-                value=str(curso_atual.get('Fim da indicação da SIAT', ''))
+                value=data_siat_val
             )
         
         with col2:
             num_sigad = st.text_input(
                 "Número do SIGAD",
-                value=str(curso_atual.get('Numero do SIGAD', ''))
+                value=limpar_valor(curso_atual.get('Numero do SIGAD'))
             )
             om_executora = st.text_input(
                 "OM Executora",
-                value=str(curso_atual.get('OM_Executora', ''))
+                value=limpar_valor(curso_atual.get('OM_Executora'))
             )
+            dt_chefia = parse_data(curso_atual.get('Prazo dado pela chefia'))
+            prazo_chefia_val = dt_chefia.strftime('%d/%m/%Y') if dt_chefia else limpar_valor(curso_atual.get('Prazo dado pela chefia'))
             prazo_chefia = st.text_input(
                 "Prazo dado pela chefia (DD/MM/AAAA)",
-                value=str(curso_atual.get('Prazo dado pela chefia', ''))
+                value=prazo_chefia_val
             )
             sigad_origem = st.text_input(
                 "SIGAD que originou (opcional)",
-                value=str(curso_atual.get('SIGAD que originou', ''))
+                value=limpar_valor(curso_atual.get('SIGAD que originou'))
             )
             notas = st.text_area(
                 "Notas",
-                value=str(curso_atual.get('Notas', ''))
+                value=limpar_valor(curso_atual.get('Notas'))
             )
             
             # Mostrar data de conclusão (se existir)
-            data_conclusao = curso_atual.get('DATA_DA_CONCLUSAO', '')
-            conclusao_str = str(data_conclusao).strip()
-            if conclusao_str and conclusao_str.lower() != 'nan':
-                st.info(f"📅 Data de Conclusão: {data_conclusao}")
+            dt_conclusao = parse_data(curso_atual.get('DATA_DA_CONCLUSAO'))
+            conclusao_str = dt_conclusao.strftime('%d/%m/%Y') if dt_conclusao else limpar_valor(curso_atual.get('DATA_DA_CONCLUSAO'))
+            if conclusao_str:
+                st.info(f"📅 Data de Conclusão: {conclusao_str}")
         
         submitted = st.form_submit_button("💾 Atualizar Curso")
         
@@ -198,10 +212,10 @@ def render_form_editar_curso(
             
             # Se o estado for "Concluído" e não tiver data de conclusão
             if estado == 'Concluído':
-                if not conclusao_str or conclusao_str.lower() == 'nan':
+                if not conclusao_str:
                     curso_atualizado['DATA_DA_CONCLUSAO'] = datetime.now().strftime('%d/%m/%Y')
                 else:
-                    curso_atualizado['DATA_DA_CONCLUSAO'] = data_conclusao
+                    curso_atualizado['DATA_DA_CONCLUSAO'] = conclusao_str
             
             # Manter valores de OM existentes
             for col in df_columns:

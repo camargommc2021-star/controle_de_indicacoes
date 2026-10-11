@@ -4,6 +4,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime, date
 
+from utils.validators import parse_data, calcular_metricas_prazos
+
 class Dashboard:
     def __init__(self):
         pass
@@ -30,7 +32,7 @@ class Dashboard:
             st.metric("Prazos Urgentes (≤5 dias)", resumo.get('prazos_urgentes', 0))
         
         with col4:
-            total_vagas = df['Vagas'].sum() if 'Vagas' in df.columns else 0
+            total_vagas = pd.to_numeric(df['Vagas'], errors='coerce').fillna(0).sum() if 'Vagas' in df.columns else 0
             st.metric("Total de Vagas", int(total_vagas))
 
     
@@ -86,23 +88,19 @@ class Dashboard:
     
     def _grafico_prazos_proximos(self, df):
         try:
-            if 'Fim indicação da SIAT' in df.columns:
-                df_prazos = df[df['Fim indicação da SIAT'].notna()].copy()
+            if 'Fim da indicação da SIAT' in df.columns:
+                df_prazos = df[df['Fim da indicação da SIAT'].notna()].copy()
                 
                 if not df_prazos.empty:
                     hoje = date.today()
                     
-                    def calcular_dias(data_str):
-                        try:
-                            if isinstance(data_str, str):
-                                data = datetime.strptime(data_str, "%d/%m/%Y").date()
-                            else:
-                                data = data_str
-                            return (data - hoje).days
-                        except:
-                            return None
+                    def calcular_dias(valor):
+                        d = parse_data(valor)
+                        if d is not None:
+                            return (d - hoje).days
+                        return None
                     
-                    df_prazos['dias_restantes'] = df_prazos['Fim indicação da SIAT'].apply(calcular_dias)
+                    df_prazos['dias_restantes'] = df_prazos['Fim da indicação da SIAT'].apply(calcular_dias)
                     df_prazos = df_prazos[df_prazos['dias_restantes'].notna()]
                     
                     if not df_prazos.empty:
@@ -151,7 +149,9 @@ class Dashboard:
     def _grafico_vagas_turma(self, df):
         try:
             if 'Turma' in df.columns and 'Vagas' in df.columns:
-                df_vagas = df.groupby('Turma')['Vagas'].sum().reset_index()
+                df_copy = df.copy()
+                df_copy['Vagas'] = pd.to_numeric(df_copy['Vagas'], errors='coerce').fillna(0)
+                df_vagas = df_copy.groupby('Turma')['Vagas'].sum().reset_index()
                 df_vagas = df_vagas.sort_values('Vagas', ascending=True).tail(10)
                 
                 if not df_vagas.empty:
@@ -184,28 +184,11 @@ class Dashboard:
             if 'Prioridade' in df.columns:
                 resumo['por_prioridade'] = df['Prioridade'].value_counts().to_dict()
             
-            # Calcular prazos apenas para cursos ativos (não concluídos)
-            if 'Fim indicação da SIAT' in df_ativos.columns:
-                hoje = date.today()
-                atrasados = 0
-                urgentes = 0
-                
-                for data_str in df_ativos['Fim indicação da SIAT'].dropna():
-                    try:
-                        if isinstance(data_str, str):
-                            data = datetime.strptime(data_str, "%d/%m/%Y").date()
-                        else:
-                            data = data_str
-                        dias = (data - hoje).days
-                        if dias < 0:
-                            atrasados += 1
-                        elif dias <= 5:
-                            urgentes += 1
-                    except:
-                        pass
-                
-                resumo['prazos_atrasados'] = atrasados
-                resumo['prazos_urgentes'] = urgentes
+            # Calcular prazos compartilhados (mesma lógica de referência da sidebar)
+            metricas_prazos = calcular_metricas_prazos(df)
+            resumo['prazos_atrasados'] = metricas_prazos['atrasados']
+            resumo['prazos_urgentes'] = metricas_prazos['urgentes']
+            resumo['chefia_proximo'] = metricas_prazos['chefia_proximo']
             
             return resumo
         except Exception as e:

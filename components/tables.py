@@ -10,6 +10,8 @@ import pandas as pd
 from typing import Optional, Callable, List, Dict, Any
 from datetime import datetime, date
 
+from utils.validators import parse_data, limpar_valor, curso_concluido
+
 
 # ============================================
 # TABELAS DE CURSOS
@@ -52,62 +54,6 @@ def render_tabela_cursos(
         use_container_width=True,
         hide_index=True
     )
-
-
-def render_lista_cursos_por_estado(
-    df: pd.DataFrame,
-    on_delete: Optional[Callable[[int], None]] = None
-) -> None:
-    """
-    Renderiza lista de cursos agrupados por estado.
-    
-    Args:
-        df: DataFrame com dados dos cursos
-        on_delete: Callback para exclusão (recebe índice)
-    """
-    if df.empty:
-        show_empty_state("cursos")
-        return
-    
-    # Ordem de prioridade dos estados
-    estados_ordenados = [
-        'solicitar voluntários',
-        'fazer indicação',
-        'ver vagas escalantes',
-        'Sem estado'
-    ]
-    
-    # Cores por estado
-    cores_estado = {
-        'solicitar voluntários': '#e74c3c',
-        'fazer indicação': '#f1c40f',
-        'ver vagas escalantes': '#3498db',
-        'Sem estado': '#95a5a6'
-    }
-    
-    # Verificar se existe coluna Estado
-    if 'Estado' not in df.columns:
-        df['Estado'] = 'Sem estado'
-    
-    # Preencher estados vazios/NaN
-    df['Estado'] = df['Estado'].fillna('Sem estado')
-    df['Estado'] = df['Estado'].replace('', 'Sem estado')
-    
-    for estado in estados_ordenados:
-        df_estado = df[df['Estado'] == estado]
-        
-        if not df_estado.empty:
-            cor = cores_estado.get(estado, '#95a5a6')
-            
-            with st.expander(f"{estado.upper()} ({len(df_estado)} cursos)", expanded=True):
-                st.markdown(f"""
-                <div style="border-left: 4px solid {cor}; padding-left: 10px; margin-bottom: 10px;">
-                    <h4 style="color: {cor};">{estado}</h4>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                for idx, row in df_estado.iterrows():
-                    _render_linha_curso(row, idx, on_delete)
 
 
 def render_tabela_cursos_filtrada(
@@ -197,60 +143,52 @@ def _render_linha_curso(
         index: Índice do curso
         on_delete: Callback para exclusão
     """
-    curso_nome = row.get('Curso', 'Sem nome')
-    turma = row.get('Turma', 'N/A')
-    vagas = row.get('Vagas', 0)
-    data_siat = row.get('Fim da indicação da SIAT', '')
-    prazo_chefia = row.get('Prazo dado pela chefia', '')
-    prioridade = row.get('Prioridade', '')
+    curso_nome = limpar_valor(row.get('Curso')) or 'Sem nome'
+    turma = limpar_valor(row.get('Turma')) or 'N/A'
+    vagas_raw = row.get('Vagas', 0)
+    try:
+        vagas = int(vagas_raw) if pd.notna(vagas_raw) and str(vagas_raw).strip() not in ('', 'nan') else 0
+    except (ValueError, TypeError):
+        vagas = 0
+    raw_data_siat = row.get('Fim da indicação da SIAT')
+    raw_prazo_chefia = row.get('Prazo dado pela chefia')
+    prioridade = limpar_valor(row.get('Prioridade'))
     
     # Calcular cores de prazo
     cor_prazo = "#95a5a6"
     dias_texto = ""
-    if data_siat:
-        try:
-            if isinstance(data_siat, str):
-                data = datetime.strptime(data_siat, "%d/%m/%Y").date()
-            else:
-                data = data_siat
-            hoje = date.today()
-            dias_restantes = (data - hoje).days
-            
-            if dias_restantes < 0:
-                cor_prazo = "#e74c3c"
-                dias_texto = f"Atrasado ({abs(dias_restantes)} dias)"
-            elif dias_restantes == 0:
-                cor_prazo = "#f1c40f"
-                dias_texto = "Vence HOJE"
-            elif dias_restantes <= 5:
-                cor_prazo = "#f1c40f"
-                dias_texto = f"{dias_restantes} dias restantes"
-            elif dias_restantes <= 10:
-                cor_prazo = "#3498db"
-                dias_texto = f"{dias_restantes} dias restantes"
-            else:
-                cor_prazo = "#2ecc71"
-                dias_texto = f"{dias_restantes} dias restantes"
-        except:
-            dias_texto = "Data inválida"
+    dt_siat = parse_data(raw_data_siat)
+    if dt_siat is not None:
+        hoje = date.today()
+        dias_restantes = (dt_siat - hoje).days
+        
+        if dias_restantes < 0:
+            cor_prazo = "#e74c3c"
+            dias_texto = f"Atrasado ({abs(dias_restantes)} dias)"
+        elif dias_restantes == 0:
+            cor_prazo = "#f1c40f"
+            dias_texto = "Vence HOJE"
+        elif dias_restantes <= 5:
+            cor_prazo = "#f1c40f"
+            dias_texto = f"{dias_restantes} dias restantes"
+        elif dias_restantes <= 10:
+            cor_prazo = "#3498db"
+            dias_texto = f"{dias_restantes} dias restantes"
+        else:
+            cor_prazo = "#2ecc71"
+            dias_texto = f"{dias_restantes} dias restantes"
     
     # Cor do prazo da chefia
     cor_chefia = "#95a5a6"
-    if prazo_chefia:
-        try:
-            if isinstance(prazo_chefia, str):
-                data_chefia = datetime.strptime(prazo_chefia, "%d/%m/%Y").date()
-            else:
-                data_chefia = prazo_chefia
-            hoje = date.today()
-            dias_chefia = (data_chefia - hoje).days
-            
-            if dias_chefia <= 7 and dias_chefia >= 0:
-                cor_chefia = "#9b59b6"
-            elif dias_chefia < 0:
-                cor_chefia = "#e74c3c"
-        except:
-            pass
+    dt_chefia = parse_data(raw_prazo_chefia)
+    prazo_chefia_str = dt_chefia.strftime('%d/%m/%Y') if dt_chefia else limpar_valor(raw_prazo_chefia)
+    if dt_chefia is not None:
+        hoje = date.today()
+        dias_chefia = (dt_chefia - hoje).days
+        if 0 <= dias_chefia <= 7:
+            cor_chefia = "#9b59b6"
+        elif dias_chefia < 0:
+            cor_chefia = "#e74c3c"
     
     col1, col2, col3, col4 = st.columns([3, 1, 2, 1])
     
@@ -269,13 +207,15 @@ def _render_linha_curso(
         st.write(f"👥 {vagas} vagas")
     
     with col3:
-        if data_siat:
+        if curso_concluido(row):
+            st.markdown("<span style='color: #2ecc71;'>✅ Concluído</span>", unsafe_allow_html=True)
+        elif dt_siat is not None:
             st.markdown(f"<span style='color: {cor_prazo};'>⏰ {dias_texto}</span>", unsafe_allow_html=True)
         
-        if prazo_chefia and cor_chefia == "#9b59b6":
-            st.markdown(f"<span style='color: #9b59b6; font-weight: bold;'>🟣 Prazo Chefia: {prazo_chefia}</span>", unsafe_allow_html=True)
-        elif prazo_chefia:
-            st.caption(f"Chefia: {prazo_chefia}")
+        if prazo_chefia_str and cor_chefia == "#9b59b6":
+            st.markdown(f"<span style='color: #9b59b6; font-weight: bold;'>🟣 Prazo Chefia: {prazo_chefia_str}</span>", unsafe_allow_html=True)
+        elif prazo_chefia_str:
+            st.caption(f"Chefia: {prazo_chefia_str}")
     
     with col4:
         if on_delete:
@@ -301,10 +241,15 @@ def render_cursos_concluidos(
     
     with st.expander(f"VER CURSOS CONCLUÍDOS ({len(df)})", expanded=False):
         for idx, row in df.iterrows():
-            curso_nome = row.get('Curso', 'Sem nome')
-            turma = row.get('Turma', 'N/A')
-            vagas = row.get('Vagas', 0)
-            data_conclusao = row.get('DATA_DA_CONCLUSAO', '')
+            curso_nome = limpar_valor(row.get('Curso')) or 'Sem nome'
+            turma = limpar_valor(row.get('Turma')) or 'N/A'
+            vagas_raw = row.get('Vagas', 0)
+            try:
+                vagas = int(vagas_raw) if pd.notna(vagas_raw) and str(vagas_raw).strip() not in ('', 'nan') else 0
+            except (ValueError, TypeError):
+                vagas = 0
+            dt_conclusao = parse_data(row.get('DATA_DA_CONCLUSAO'))
+            conclusao_str = dt_conclusao.strftime('%d/%m/%Y') if dt_conclusao else limpar_valor(row.get('DATA_DA_CONCLUSAO'))
             
             col1, col2, col3 = st.columns([4, 2, 1])
             
@@ -314,9 +259,8 @@ def render_cursos_concluidos(
             
             with col2:
                 st.write(f"👥 {vagas} vagas")
-                conclusao_str = str(data_conclusao).strip()
-                if conclusao_str and conclusao_str.lower() != 'nan':
-                    st.success(f"✅ Concluído em: {data_conclusao}")
+                if conclusao_str:
+                    st.success(f"✅ Concluído em: {conclusao_str}")
             
             with col3:
                 if on_delete:

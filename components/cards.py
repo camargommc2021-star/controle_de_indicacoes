@@ -10,6 +10,8 @@ import pandas as pd
 from datetime import datetime, date
 from typing import Optional, Dict, Any
 
+from utils.validators import parse_data, limpar_valor, curso_concluido
+
 
 # ============================================
 # CORES E CONFIGURAÇÕES
@@ -62,99 +64,78 @@ def get_cor_prazo(data_str: str | date | None) -> str:
     Retorna a cor baseada nos dias restantes.
     
     Args:
-        data_str: Data no formato DD/MM/AAAA ou objeto date
+        data_str: Data no formato DD/MM/AAAA ou objeto date/Timestamp/datetime
         
     Returns:
         Código hex da cor correspondente ao prazo
     """
-    try:
-        if not data_str:
-            return CORES_STATUS['gray']
-        
-        if isinstance(data_str, str):
-            data = datetime.strptime(data_str, "%d/%m/%Y").date()
-        else:
-            data = data_str
-        
-        hoje = date.today()
-        dias_restantes = (data - hoje).days
-        
-        if dias_restantes < 0:
-            return CORES_STATUS['danger']  # Atrasado
-        elif dias_restantes <= 3:
-            return CORES_STATUS['danger']  # Urgente
-        elif dias_restantes <= 7:
-            return CORES_STATUS['warning']  # Atenção
-        elif dias_restantes <= 14:
-            return CORES_STATUS['info']  # Próximo
-        else:
-            return CORES_STATUS['success']  # Tranquilo
-    except:
+    data = parse_data(data_str)
+    if data is None:
         return CORES_STATUS['gray']
+    
+    hoje = date.today()
+    dias_restantes = (data - hoje).days
+    
+    if dias_restantes < 0:
+        return CORES_STATUS['danger']  # Atrasado
+    elif dias_restantes <= 3:
+        return CORES_STATUS['danger']  # Urgente
+    elif dias_restantes <= 7:
+        return CORES_STATUS['warning']  # Atenção
+    elif dias_restantes <= 14:
+        return CORES_STATUS['info']  # Próximo
+    else:
+        return CORES_STATUS['success']  # Tranquilo
 
 
-def get_status_prazo(data_str: str | date | None) -> str:
+def get_status_prazo(data_str: Any) -> str:
     """
     Retorna o texto de status baseado nos dias restantes.
     
     Args:
-        data_str: Data no formato DD/MM/AAAA ou objeto date
+        data_str: Data no formato DD/MM/AAAA ou objeto date/Timestamp/datetime
         
     Returns:
         Texto descritivo do status do prazo
     """
-    try:
-        if not data_str:
-            return "Sem data"
-        
-        if isinstance(data_str, str):
-            data = datetime.strptime(data_str, "%d/%m/%Y").date()
-        else:
-            data = data_str
-        
-        hoje = date.today()
-        dias_restantes = (data - hoje).days
-        
-        if dias_restantes < 0:
-            return f"Atrasado ({abs(dias_restantes)} dias)"
-        elif dias_restantes == 0:
-            return "Vence HOJE"
-        else:
-            return f"{dias_restantes} dias restantes"
-    except:
-        return "Data inválida"
+    data = parse_data(data_str)
+    if data is None:
+        return "Sem data"
+    
+    hoje = date.today()
+    dias_restantes = (data - hoje).days
+    
+    if dias_restantes < 0:
+        return f"Atrasado ({abs(dias_restantes)} dias)"
+    elif dias_restantes == 0:
+        return "Vence HOJE"
+    else:
+        return f"{dias_restantes} dias restantes"
 
 
-def get_cor_prazo_chefia(data_str: str | date | None) -> str:
+def get_cor_prazo_chefia(data_str: Any) -> str:
     """
     Retorna a cor para prazo da chefia.
     
     Args:
-        data_str: Data no formato DD/MM/AAAA ou objeto date
+        data_str: Data no formato DD/MM/AAAA ou objeto date/Timestamp/datetime
         
     Returns:
         Código hex da cor
     """
-    try:
-        if not data_str:
-            return CORES_STATUS['gray']
-        
-        if isinstance(data_str, str):
-            data = datetime.strptime(data_str, "%d/%m/%Y").date()
-        else:
-            data = data_str
-        
-        hoje = date.today()
-        dias_restantes = (data - hoje).days
-        
-        if dias_restantes <= 5 and dias_restantes >= 0:
-            return CORES_STATUS['warning']  # Prazo chefia próximo
-        elif dias_restantes < 0:
-            return CORES_STATUS['danger']  # Atrasado
-        else:
-            return CORES_STATUS['gray']  # Tranquilo
-    except:
+    data = parse_data(data_str)
+    if data is None:
         return CORES_STATUS['gray']
+    
+    hoje = date.today()
+    dias_restantes = (data - hoje).days
+    
+    if 0 <= dias_restantes <= 5:
+        return CORES_STATUS['warning']  # Prazo chefia próximo
+    elif dias_restantes < 0:
+        return CORES_STATUS['danger']  # Atrasado
+    else:
+        return CORES_STATUS['gray']  # Tranquilo
 
 
 # ============================================
@@ -174,16 +155,22 @@ def render_curso_card(
         index: Índice do curso (para keys únicas)
         on_delete: Callback opcional para exclusão (recebe o index)
     """
-    curso_nome = curso.get('Curso', 'Sem nome')
-    turma = curso.get('Turma', 'N/A')
-    vagas = curso.get('Vagas', 0)
-    estado = curso.get('Estado', 'Sem estado')
-    prioridade = curso.get('Prioridade', '')
-    data_siat = curso.get('Fim da indicação da SIAT', '')
-    prazo_chefia = curso.get('Prazo dado pela chefia', '')
+    curso_nome = limpar_valor(curso.get('Curso')) or 'Sem nome'
+    turma = limpar_valor(curso.get('Turma')) or 'N/A'
+    vagas_raw = curso.get('Vagas', 0)
+    try:
+        vagas = int(vagas_raw) if pd.notna(vagas_raw) and str(vagas_raw).strip() not in ('', 'nan') else 0
+    except (ValueError, TypeError):
+        vagas = 0
+    estado = limpar_valor(curso.get('Estado')) or 'Sem estado'
+    prioridade = limpar_valor(curso.get('Prioridade'))
+    raw_data_siat = curso.get('Fim da indicação da SIAT')
+    raw_prazo_chefia = curso.get('Prazo dado pela chefia')
     
     cor_estado = CORES_ESTADO.get(estado, '#95a5a6')
-    cor_chefia = get_cor_prazo_chefia(prazo_chefia) if prazo_chefia else None
+    dt_chefia = parse_data(raw_prazo_chefia)
+    prazo_chefia_str = dt_chefia.strftime('%d/%m/%Y') if dt_chefia else limpar_valor(raw_prazo_chefia)
+    cor_chefia = get_cor_prazo_chefia(dt_chefia) if dt_chefia else None
     
     col1, col2, col3, col4 = st.columns([3, 1, 2, 1])
     
@@ -197,22 +184,28 @@ def render_curso_card(
     
     with col3:
         # Alerta de prazo SIAT
-        if data_siat:
-            cor_prazo = get_cor_prazo(data_siat)
-            dias_restantes = get_status_prazo(data_siat)
+        dt_siat = parse_data(raw_data_siat)
+        if curso_concluido(curso):
+            st.markdown(
+                "<span style='color: #2ecc71;'>✅ Concluído</span>",
+                unsafe_allow_html=True
+            )
+        elif dt_siat:
+            cor_prazo = get_cor_prazo(dt_siat)
+            dias_restantes = get_status_prazo(dt_siat)
             st.markdown(
                 f"<span style='color: {cor_prazo};'>⏰ {dias_restantes}</span>",
                 unsafe_allow_html=True
             )
         
         # Alerta de prazo Chefia
-        if prazo_chefia and cor_chefia == "#9b59b6":
+        if prazo_chefia_str and cor_chefia == "#9b59b6":
             st.markdown(
-                f"<span style='color: #9b59b6; font-weight: bold;'>🟣 Prazo Chefia: {prazo_chefia}</span>",
+                f"<span style='color: #9b59b6; font-weight: bold;'>🟣 Prazo Chefia: {prazo_chefia_str}</span>",
                 unsafe_allow_html=True
             )
-        elif prazo_chefia:
-            st.caption(f"Chefia: {prazo_chefia}")
+        elif prazo_chefia_str:
+            st.caption(f"Chefia: {prazo_chefia_str}")
     
     with col4:
         if on_delete:
@@ -235,10 +228,15 @@ def render_curso_card_compact(
         index: Índice do curso
         on_delete: Callback opcional para exclusão
     """
-    curso_nome = curso.get('Curso', 'Sem nome')
-    turma = curso.get('Turma', 'N/A')
-    vagas = curso.get('Vagas', 0)
-    data_conclusao = curso.get('DATA_DA_CONCLUSAO', '')
+    curso_nome = limpar_valor(curso.get('Curso')) or 'Sem nome'
+    turma = limpar_valor(curso.get('Turma')) or 'N/A'
+    vagas_raw = curso.get('Vagas', 0)
+    try:
+        vagas = int(vagas_raw) if pd.notna(vagas_raw) and str(vagas_raw).strip() not in ('', 'nan') else 0
+    except (ValueError, TypeError):
+        vagas = 0
+    dt_conclusao = parse_data(curso.get('DATA_DA_CONCLUSAO'))
+    conclusao_str = dt_conclusao.strftime('%d/%m/%Y') if dt_conclusao else limpar_valor(curso.get('DATA_DA_CONCLUSAO'))
     
     col1, col2, col3 = st.columns([4, 2, 1])
     
@@ -248,9 +246,8 @@ def render_curso_card_compact(
     
     with col2:
         st.write(f"👥 {vagas} vagas")
-        conclusao_str = str(data_conclusao).strip()
-        if conclusao_str and conclusao_str.lower() != 'nan':
-            st.success(f"✅ Concluído em: {data_conclusao}")
+        if conclusao_str:
+            st.success(f"✅ Concluído em: {conclusao_str}")
     
     with col3:
         if on_delete:

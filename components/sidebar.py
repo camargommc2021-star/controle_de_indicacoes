@@ -10,6 +10,8 @@ import pandas as pd
 from datetime import datetime, date
 from typing import Optional, List, Dict, Any, Callable
 
+from utils.validators import calcular_metricas_prazos, parse_data
+
 
 # ============================================
 # SIDEBAR PRINCIPAL
@@ -145,53 +147,19 @@ def render_status_resumo(data_manager) -> None:
     # Total de cursos
     st.metric("Total de Cursos", len(df))
     
-    # Alertas de prazo
-    if 'Fim da indicação da SIAT' in df.columns:
-        hoje = date.today()
-        atrasados = 0
-        urgentes = 0
-        chefia_proximo = 0
-        
-        for _, row in df.iterrows():
-            # Verificar prazo SIAT
-            data_str = row.get('Fim da indicação da SIAT')
-            if data_str and pd.notna(data_str):
-                try:
-                    if isinstance(data_str, str):
-                        data = datetime.strptime(data_str, "%d/%m/%Y").date()
-                    else:
-                        data = data_str
-                    
-                    dias = (data - hoje).days
-                    if dias < 0:
-                        atrasados += 1
-                    elif dias <= 5:
-                        urgentes += 1
-                except:
-                    pass
-            
-            # Verificar prazo chefia
-            prazo_chefia = row.get('Prazo dado pela chefia')
-            if prazo_chefia and pd.notna(prazo_chefia):
-                try:
-                    if isinstance(prazo_chefia, str):
-                        data_chefia = datetime.strptime(prazo_chefia, "%d/%m/%Y").date()
-                    else:
-                        data_chefia = prazo_chefia
-                    
-                    dias_chefia = (data_chefia - hoje).days
-                    if 0 <= dias_chefia <= 7:
-                        chefia_proximo += 1
-                except:
-                    pass
-        
-        # Exibir alertas
-        if atrasados > 0:
-            st.error(f"⛔ {atrasados} prazo(s) atrasado(s)")
-        if urgentes > 0:
-            st.warning(f"⚠️ {urgentes} prazo(s) urgente(s)")
-        if chefia_proximo > 0:
-            st.info(f"🟣 {chefia_proximo} prazo(s) chefia próximo")
+    # Alertas de prazo usando helper compartilhado
+    metricas = calcular_metricas_prazos(df)
+    atrasados = metricas['atrasados']
+    urgentes = metricas['urgentes']
+    chefia_proximo = metricas['chefia_proximo']
+    
+    # Exibir alertas
+    if atrasados > 0:
+        st.error(f"⛔ {atrasados} prazo(s) atrasado(s)")
+    if urgentes > 0:
+        st.warning(f"⚠️ {urgentes} prazo(s) urgente(s)")
+    if chefia_proximo > 0:
+        st.info(f"🟣 {chefia_proximo} prazo(s) chefia próximo")
 
 
 def render_resumo_estatisticas(data_manager) -> None:

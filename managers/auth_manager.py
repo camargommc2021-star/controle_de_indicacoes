@@ -108,14 +108,17 @@ class AuthManager:
         permissoes: Objeto Permissoes do usuário atual
     """
     
-    def __init__(self):
+    def __init__(self, arquivo_usuarios: Optional[Union[str, Path]] = None, arquivo_sessoes: Optional[Union[str, Path]] = None):
         """Inicializa o gerenciador de autenticação."""
+        self.arquivo_usuarios = Path(arquivo_usuarios) if arquivo_usuarios else ARQUIVO_USUARIOS
+        self.arquivo_sessoes = Path(arquivo_sessoes) if arquivo_sessoes else ARQUIVO_SESSOES
         self.usuario_atual: Optional[Dict] = None
         self.autenticado: bool = False
         self.permissoes: Permissoes = Permissoes()
         
         # Garantir diretório existe
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        self.arquivo_usuarios.parent.mkdir(parents=True, exist_ok=True)
+        self.arquivo_sessoes.parent.mkdir(parents=True, exist_ok=True)
         
         # Criar usuário admin padrão se não existir
         self._inicializar_usuarios_padrao()
@@ -166,12 +169,37 @@ class AuthManager:
         hash_calc, _ = self._hash_senha(senha, salt)
         return secrets.compare_digest(hash_calc, hash_armazenado)
     
+    def _garantir_dtypes_datas(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Garante que as colunas de data sejam datetime64[ns] ou object compatíveis."""
+        for col in ['data_criacao', 'ultimo_login', 'bloqueado_ate']:
+            if col in df.columns:
+                df[col] = pd.to_datetime(df[col], errors='coerce')
+                try:
+                    df[col] = df[col].astype('datetime64[ns]')
+                except Exception:
+                    try:
+                        df[col] = df[col].astype(object)
+                    except Exception:
+                        pass
+        return df
+
+    @staticmethod
+    def _preparar_para_atribuicao_data(df: pd.DataFrame, col: str) -> None:
+        """Garante que a coluna aceite atribuição de pd.Timestamp / pd.NaT em pandas 2 e 3."""
+        if col in df.columns:
+            dtype_str = str(df[col].dtype)
+            if dtype_str.startswith('datetime64') and df[col].dtype != 'datetime64[ns]':
+                try:
+                    df[col] = df[col].astype('datetime64[ns]')
+                except Exception:
+                    df[col] = df[col].astype(object)
+
     def _inicializar_usuarios_padrao(self) -> None:
-        """Cria usuários padrão se o arquivo não existir."""
-        if ARQUIVO_USUARIOS.exists():
+        """Cria usuário admin padrão se o arquivo não existir."""
+        if self.arquivo_usuarios.exists():
             return
         
-        logger.info("Criando usuários padrão...")
+        logger.info("Criando usuário admin padrão...")
         
         # Criar usuário admin padrão
         admin_senha = "admin123"
@@ -187,65 +215,32 @@ class AuthManager:
                 'hash_senha': hash_senha,
                 'salt': salt,
                 'ativo': True,
-                'data_criacao': datetime.now(),
-                'ultimo_login': None,
+                'data_criacao': pd.Timestamp(datetime.now()),
+                'ultimo_login': pd.NaT,
                 'tentativas_falhas': 0,
-                'bloqueado_ate': None
-            },
-            {
-                'id': 2,
-                'username': 'editor',
-                'nome': 'Usuário Editor',
-                'email': 'editor@crcea-se.fab.mil.br',
-                'nivel_acesso': NivelAcesso.EDITOR.value,
-                'hash_senha': '',  # Senha será definida no primeiro login
-                'salt': '',
-                'ativo': True,
-                'data_criacao': datetime.now(),
-                'ultimo_login': None,
-                'tentativas_falhas': 0,
-                'bloqueado_ate': None
-            },
-            {
-                'id': 3,
-                'username': 'viewer',
-                'nome': 'Usuário Visualizador',
-                'email': 'viewer@crcea-se.fab.mil.br',
-                'nivel_acesso': NivelAcesso.VIEWER.value,
-                'hash_senha': '',
-                'salt': '',
-                'ativo': True,
-                'data_criacao': datetime.now(),
-                'ultimo_login': None,
-                'tentativas_falhas': 0,
-                'bloqueado_ate': None
+                'bloqueado_ate': pd.NaT
             }
         ]
         
         df = pd.DataFrame(usuarios_default)
-        df.to_excel(ARQUIVO_USUARIOS, index=False)
+        df = self._garantir_dtypes_datas(df)
+        df.to_excel(self.arquivo_usuarios, index=False)
         
-        logger.info(f"Usuários padrão criados. Admin senha: {admin_senha}")
+        logger.info("Usuário admin padrão criado.")
         logger.warning("ALTERE A SENHA PADRÃO DO ADMIN IMEDIATAMENTE!")
     
     def _carregar_usuarios(self) -> pd.DataFrame:
         """Carrega DataFrame de usuários."""
-        if not ARQUIVO_USUARIOS.exists():
+        if not self.arquivo_usuarios.exists():
             return pd.DataFrame()
         
-        df = pd.read_excel(ARQUIVO_USUARIOS)
-        
-        # Garantir tipos de dados corretos para colunas de data
-        for col in ['data_criacao', 'ultimo_login', 'bloqueado_ate']:
-            if col in df.columns:
-                df[col] = pd.to_datetime(df[col], errors='coerce')
-        
-        return df
+        df = pd.read_excel(self.arquivo_usuarios)
+        return self._garantir_dtypes_datas(df)
     
     def _salvar_usuarios(self, df: pd.DataFrame) -> bool:
         """Salva DataFrame de usuários."""
         try:
-            df.to_excel(ARQUIVO_USUARIOS, index=False)
+            df.to_excel(self.arquivo_usuarios, index=False)
             return True
         except Exception as e:
             logger.error(f"Erro ao salvar usuários: {e}")
@@ -255,14 +250,14 @@ class AuthManager:
         """Registra tentativa de login no log de sessões."""
         try:
             sessao = {
-                'timestamp': datetime.now(),
+                'timestamp': pd.Timestamp(datetime.now()),
                 'username': username,
                 'sucesso': sucesso,
                 'ip': ip
             }
             
-            if ARQUIVO_SESSOES.exists():
-                df_sessoes = pd.read_excel(ARQUIVO_SESSOES)
+            if self.arquivo_sessoes.exists():
+                df_sessoes = pd.read_excel(self.arquivo_sessoes)
                 df_sessoes = pd.concat([df_sessoes, pd.DataFrame([sessao])], ignore_index=True)
             else:
                 df_sessoes = pd.DataFrame([sessao])
@@ -271,7 +266,7 @@ class AuthManager:
             if len(df_sessoes) > 1000:
                 df_sessoes = df_sessoes.tail(1000)
             
-            df_sessoes.to_excel(ARQUIVO_SESSOES, index=False)
+            df_sessoes.to_excel(self.arquivo_sessoes, index=False)
         except Exception as e:
             logger.error(f"Erro ao registrar sessão: {e}")
     
@@ -309,9 +304,10 @@ class AuthManager:
             return False, "Usuário desativado. Contate o administrador."
         
         # Verificar bloqueio
-        if user.get('bloqueado_ate'):
-            bloqueio = pd.to_datetime(user['bloqueado_ate'])
-            if bloqueio > datetime.now():
+        bloqueado_ate = user.get('bloqueado_ate')
+        if pd.notna(bloqueado_ate):
+            bloqueio = pd.to_datetime(bloqueado_ate)
+            if pd.notna(bloqueio) and bloqueio > pd.Timestamp(datetime.now()):
                 return False, f"Usuário bloqueado até {bloqueio.strftime('%d/%m/%Y %H:%M')}"
         
         # Verificar senha
@@ -329,7 +325,8 @@ class AuthManager:
             
             # Bloquear após 5 tentativas
             if tentativas >= 5:
-                df.at[idx, 'bloqueado_ate'] = datetime.now() + pd.Timedelta(minutes=30)
+                self._preparar_para_atribuicao_data(df, 'bloqueado_ate')
+                df.at[idx, 'bloqueado_ate'] = pd.Timestamp(datetime.now()) + pd.Timedelta(minutes=30)
                 df.at[idx, 'tentativas_falhas'] = 0
                 self._salvar_usuarios(df)
                 self._registrar_sessao(username, False)
@@ -341,9 +338,11 @@ class AuthManager:
         
         # Login bem-sucedido
         idx = usuario.index[0]
-        df.at[idx, 'ultimo_login'] = datetime.now()
+        self._preparar_para_atribuicao_data(df, 'ultimo_login')
+        self._preparar_para_atribuicao_data(df, 'bloqueado_ate')
+        df.at[idx, 'ultimo_login'] = pd.Timestamp(datetime.now())
         df.at[idx, 'tentativas_falhas'] = 0
-        df.at[idx, 'bloqueado_ate'] = None
+        df.at[idx, 'bloqueado_ate'] = pd.NaT
         self._salvar_usuarios(df)
         
         # Definir usuário atual
@@ -421,14 +420,15 @@ class AuthManager:
             'hash_senha': hash_senha,
             'salt': salt,
             'ativo': True,
-            'data_criacao': datetime.now(),
-            'ultimo_login': None,
+            'data_criacao': pd.Timestamp(datetime.now()),
+            'ultimo_login': pd.NaT,
             'tentativas_falhas': 0,
-            'bloqueado_ate': None
+            'bloqueado_ate': pd.NaT
         }
         
         df_novo = pd.DataFrame([novo_usuario])
         df = pd.concat([df, df_novo], ignore_index=True)
+        df = self._garantir_dtypes_datas(df)
         
         if self._salvar_usuarios(df):
             logger.info(f"Usuário criado: {username} ({nivel.value})")
@@ -564,7 +564,8 @@ class AuthManager:
         df.at[idx, 'hash_senha'] = hash_senha
         df.at[idx, 'salt'] = salt
         df.at[idx, 'tentativas_falhas'] = 0
-        df.at[idx, 'bloqueado_ate'] = None
+        self._preparar_para_atribuicao_data(df, 'bloqueado_ate')
+        df.at[idx, 'bloqueado_ate'] = pd.NaT
         
         if self._salvar_usuarios(df):
             logger.info(f"Senha redefinida: {username}")
