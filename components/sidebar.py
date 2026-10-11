@@ -7,10 +7,9 @@ e status do sistema.
 
 import streamlit as st
 import pandas as pd
-from datetime import datetime, date
-from typing import Optional, List, Dict, Any, Callable
+from typing import Optional, List, Dict, Any
 
-from utils.validators import calcular_metricas_prazos, parse_data
+from utils.validators import calcular_metricas_prazos
 
 
 # ============================================
@@ -77,7 +76,7 @@ def render_menu_navigation(
         label = item.get('label', 'Item')
         key = item.get('key', label.lower().replace(' ', '_'))
         
-        if st.button(f"{icon} {label}", key=f"nav_{key}", use_container_width=True):
+        if st.button(f"{icon} {label}", key=f"nav_{key}", width="stretch"):
             selected = key
     
     return selected
@@ -161,149 +160,3 @@ def render_status_resumo(data_manager) -> None:
     if chefia_proximo > 0:
         st.info(f"🟣 {chefia_proximo} prazo(s) chefia próximo")
 
-
-def render_resumo_estatisticas(data_manager) -> None:
-    """
-    Renderiza estatísticas detalhadas na sidebar.
-    
-    Args:
-        data_manager: Instância do DataManager
-    """
-    df = data_manager.carregar_dados()
-    
-    if df.empty or 'Estado' not in df.columns:
-        return
-    
-    st.subheader("📊 Estatísticas")
-    
-    estados = df['Estado'].value_counts().to_dict()
-    
-    # Container com estatísticas
-    with st.container():
-        cols = st.columns(2)
-        
-        with cols[0]:
-            st.caption("Pendentes")
-            solicitando = estados.get('solicitar voluntários', 0)
-            indicacao = estados.get('fazer indicação', 0)
-            st.write(f"📝 Solicitar: {solicitando}")
-            st.write(f"👥 Indicar: {indicacao}")
-        
-        with cols[1]:
-            st.caption("Status")
-            escalantes = estados.get('ver vagas escalantes', 0)
-            concluidos = estados.get('Concluído', 0)
-            st.write(f"👀 Escalantes: {escalantes}")
-            st.write(f"✅ Concluídos: {concluidos}")
-
-
-# ============================================
-# MENU RÁPIDO
-# ============================================
-
-def render_menu_rapido(
-    actions: List[Dict[str, Any]]
-) -> None:
-    """
-    Renderiza menu de ações rápidas na sidebar.
-    
-    Args:
-        actions: Lista de ações com 'label', 'icon', 'callback'
-    """
-    st.subheader("⚡ Ações Rápidas")
-    
-    for action in actions:
-        icon = action.get('icon', '•')
-        label = action.get('label', 'Ação')
-        callback = action.get('callback')
-        key = action.get('key', f"quick_{label.lower().replace(' ', '_')}")
-        
-        if callback and st.button(f"{icon} {label}", key=key, use_container_width=True):
-            callback()
-
-
-def render_atalhos_teclado(atalhos: Dict[str, str]) -> None:
-    """
-    Renderiza seção de atalhos de teclado na sidebar.
-    
-    Args:
-        atalhos: Dicionário de atalho: descrição
-    """
-    with st.expander("⌨️ Atalhos"):
-        for atalho, descricao in atalhos.items():
-            st.caption(f"**{atalho}** - {descricao}")
-
-
-# ============================================
-# STATUS DO SISTEMA
-# ============================================
-
-def render_status_sistema(
-    backup_manager,
-    show_last_backup: bool = True,
-    show_storage: bool = True
-) -> None:
-    """
-    Renderiza status do sistema na sidebar.
-    
-    Args:
-        backup_manager: Instância do BackupManager
-        show_last_backup: Se deve mostrar último backup
-        show_storage: Se deve mostrar uso de armazenamento
-    """
-    st.subheader("🖥️ Sistema")
-    
-    if show_last_backup:
-        backups = backup_manager.listar_backups()
-        if backups:
-            ultimo = backups[0]
-            st.caption(f"Último backup: {ultimo['data'].strftime('%d/%m/%Y %H:%M')}")
-        else:
-            st.caption("⚠️ Nenhum backup criado")
-    
-    if show_storage:
-        backups = backup_manager.listar_backups()
-        total_size = sum(b['tamanho'] for b in backups)
-        st.caption(f"💾 Backups: {len(backups)} arquivos ({total_size / 1024:.1f} KB)")
-
-
-# ============================================
-# COMPONENTES DE USUÁRIO
-# ============================================
-
-def render_user_section(
-    user_name: str = "Usuário",
-    user_role: str = "Administrador"
-) -> None:
-    """
-    Renderiza seção do usuário na sidebar.
-    
-    Args:
-        user_name: Nome do usuário
-        user_role: Função/cargo do usuário
-    """
-    st.markdown("---")
-    
-    col1, col2 = st.columns([1, 3])
-    
-    with col1:
-        st.markdown("👤")
-    
-    with col2:
-        st.write(f"**{user_name}**")
-        st.caption(user_role)
-
-
-def render_footer_links(links: List[Dict[str, str]]) -> None:
-    """
-    Renderiza links no footer da sidebar.
-    
-    Args:
-        links: Lista de dicionários com 'label' e 'url'
-    """
-    st.markdown("---")
-    
-    for link in links:
-        label = link.get('label', 'Link')
-        url = link.get('url', '#')
-        st.markdown(f"[{label}]({url})")

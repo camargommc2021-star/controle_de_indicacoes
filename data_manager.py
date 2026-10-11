@@ -1,8 +1,6 @@
 import pandas as pd
 import os
 
-# Configurar pandas para nao usar PyArrow
-pd.set_option('compute.use_numba', False)
 
 class DataManager:
     def __init__(self, arquivo_local=None):

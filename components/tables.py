@@ -51,7 +51,7 @@ def render_tabela_cursos(
     # Exibir tabela
     st.dataframe(
         df[colunas_disponiveis] if colunas_disponiveis else df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -268,38 +268,4 @@ def render_cursos_concluidos(
                         on_delete(idx)
             
             st.markdown("---")
-
-
-# ============================================
-# COMPONENTES DE FILTRO
-# ============================================
-
-def render_filtros_cursos(
-    col_layout: List[float] = [3, 2, 2]
-) -> tuple:
-    """
-    Renderiza componentes de filtro para cursos.
-    
-    Args:
-        col_layout: Proporção das colunas
-        
-    Returns:
-        Tupla (termo_busca, filtro_estado)
-    """
-    cols = st.columns(col_layout)
-    
-    with cols[0]:
-        termo_busca = st.text_input("🔍 Buscar curso", placeholder="Digite para buscar...")
-    
-    with cols[1]:
-        estados = ['Todos', 'solicitar voluntários', 'fazer indicação', 'ver vagas escalantes', 'Concluído']
-        estado_selecionado = st.selectbox("Filtrar por estado", estados)
-    
-    with cols[2]:
-        prioridades = ['Todas', 'Alta', 'Média', 'Baixa']
-        prioridade_selecionada = st.selectbox("Filtrar por prioridade", prioridades)
-    
-    filtro_estado = None if estado_selecionado == 'Todos' else [estado_selecionado]
-    
-    return termo_busca, filtro_estado
 

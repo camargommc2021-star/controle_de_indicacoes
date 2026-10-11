@@ -93,23 +93,6 @@ class BackupManager:
             return True, "Backup restaurado com sucesso!"
         except Exception as e:
             return False, f"Erro ao restaurar backup: {str(e)}"
-    
-    def backup_automatico_necessario(self):
-        """Verifica se é necessário fazer backup automático (1x por dia)"""
-        try:
-            backups = self.listar_backups()
-            if not backups:
-                return True
-            
-            # Verificar data do último backup
-            ultimo_backup = backups[0]
-            data_ultimo = ultimo_backup['data'].date()
-            hoje = datetime.now().date()
-            
-            return data_ultimo < hoje
-        except Exception as e:
-            logger.warning(f"Erro ao verificar necessidade de backup automático: {e}")
-            return True
 
 
 if __name__ == "__main__":

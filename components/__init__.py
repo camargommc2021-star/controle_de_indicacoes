@@ -27,7 +27,6 @@ from .tables import (
     render_tabela_cursos_filtrada,
     render_lista_cursos_por_estado,
     render_cursos_concluidos,
-    render_filtros_cursos,
 )
 
 # Alerts
@@ -67,7 +66,6 @@ __all__ = [
     'render_tabela_cursos_filtrada',
     'render_lista_cursos_por_estado',
     'render_cursos_concluidos',
-    'render_filtros_cursos',
     # Alerts
     'show_success',
     'show_error',

@@ -16,15 +16,14 @@ Usage:
 
 import streamlit as st
 import pandas as pd
-from datetime import datetime, date
 from pathlib import Path
-from typing import Optional, Tuple, Dict, Any, List
+from typing import Dict, List
 
 # =============================================================================
 # CONFIGURAÇÕES E CONSTANTES
 # =============================================================================
 
-from config import Settings, Columns, Choices, Messages, paths, colors
+from config import Settings, Messages
 
 # =============================================================================
 # LOGGER
@@ -43,18 +42,13 @@ from components import (
     show_error,
     show_warning,
     show_info,
-    show_empty_state,
-    show_validation_errors,
     render_sidebar,
     render_form_novo_curso,
     render_form_editar_curso,
-    render_tabela_cursos,
     render_lista_cursos_por_estado,
     render_cursos_concluidos,
-    render_metric_card,
 )
 
-from components.cards import get_cor_prazo, get_status_prazo
 from components.calendar_view import CalendarView
 
 # =============================================================================
@@ -65,17 +59,7 @@ from data_manager import DataManager
 from dashboard import Dashboard
 from backup_manager import BackupManager
 from json_import import JSONImporter
-from managers.auth_manager import AuthManager, NivelAcesso
-
-# =============================================================================
-# VALIDADORES
-# =============================================================================
-
-from utils.validators import (
-    is_valid_date,
-    validate_curso,
-    sanitize_string,
-)
+from managers.auth_manager import AuthManager
 
 
 # =============================================================================
@@ -189,7 +173,7 @@ def render_login_page() -> bool:
                 key="login_password"
             )
             
-            submitted = st.form_submit_button("Entrar", use_container_width=True, type="primary")
+            submitted = st.form_submit_button("Entrar", width="stretch", type="primary")
             
             if submitted:
                 if username and password:
@@ -236,7 +220,7 @@ def render_header():
         """, unsafe_allow_html=True)
     
     with col3:
-        if st.button("Sair", use_container_width=True):
+        if st.button("Sair", width="stretch"):
             auth.logout()
             st.rerun()
     
@@ -257,21 +241,6 @@ def verificar_permissao(permissao: str) -> bool:
     if not auth.autenticado:
         return False
     return auth.pode(permissao)
-
-
-# =============================================================================
-# FUNÇÕES DE DADOS COM CACHE
-# =============================================================================
-
-@st.cache_data(ttl=60, show_spinner=False)
-def carregar_dados_cursos() -> pd.DataFrame:
-    """Carrega dados dos cursos com cache."""
-    try:
-        dm = DataManager()
-        return dm.carregar_dados()
-    except Exception as e:
-        logger.error(f"Erro ao carregar cursos: {e}")
-        return pd.DataFrame()
 
 
 def clear_cache() -> None:
@@ -654,7 +623,7 @@ def render_tab_usuarios() -> None:
             else:
                 st.dataframe(
                     df_usuarios,
-                    use_container_width=True,
+                    width="stretch",
                     hide_index=True
                 )
                 

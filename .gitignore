@@ -29,6 +29,9 @@ wheels/
 env/
 venv/
 
+# Chave local (não versionar)
+.key
+
 # IDEs
 .vscode/
 .idea/
@@ -46,9 +49,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
-
-# Encryption key
-.key
 
 # Testes
 tests/

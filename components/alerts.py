@@ -130,7 +130,7 @@ def show_empty_state(
         """, unsafe_allow_html=True)
         
         if action_label and action_callback:
-            if st.button(action_label, use_container_width=True):
+            if st.button(action_label, width="stretch"):
                 action_callback()
 
 

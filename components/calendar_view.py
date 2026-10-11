@@ -280,7 +280,7 @@ class CalendarView:
         # Botão para ir ao mês atual
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            if st.button("📅 Ir para Mês Atual", use_container_width=True, key="cal_hoje"):
+            if st.button("📅 Ir para Mês Atual", width="stretch", key="cal_hoje"):
                 st.session_state.cal_mes = date.today().month
                 st.session_state.cal_ano = date.today().year
                 st.rerun()

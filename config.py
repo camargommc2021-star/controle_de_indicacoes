@@ -14,9 +14,7 @@ Usage:
 """
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import List, Dict, Tuple
-import os
 
 
 # =============================================================================
@@ -45,34 +43,6 @@ class Settings:
     # Limites do sistema
     MAX_UPLOAD_SIZE_MB: int = 10
     MAX_ROWS_DISPLAY: int = 1000
-
-
-
-# =============================================================================
-# CONFIGURAÇÕES DE CAMINHOS
-# =============================================================================
-
-@dataclass(frozen=True)
-class Paths:
-    """Caminhos de diretórios e arquivos do sistema."""
-    
-    # Diretório base do projeto
-    BASE_DIR: Path = field(default_factory=lambda: Path(__file__).parent)
-    
-    # Subdiretórios
-    DATA_DIR: Path = field(default_factory=lambda: Path(__file__).parent / "data")
-    ASSETS_DIR: Path = field(default_factory=lambda: Path(__file__).parent / "assets")
-    BACKUPS_DIR: Path = field(default_factory=lambda: Path(__file__).parent / "backups")
-    STREAMLIT_DIR: Path = field(default_factory=lambda: Path(__file__).parent / ".streamlit")
-    
-    # Arquivos de dados
-    CURSOS_FILE: Path = field(default_factory=lambda: Path(__file__).parent / "data" / "cursos.csv")
-    HISTORICO_FILE: Path = field(default_factory=lambda: Path(__file__).parent / "data" / "historico.csv")
-    
-    def ensure_dirs(self) -> None:
-        """Cria os diretórios necessários se não existirem."""
-        for path in [self.DATA_DIR, self.ASSETS_DIR, self.BACKUPS_DIR]:
-            path.mkdir(parents=True, exist_ok=True)
 
 
 # =============================================================================
@@ -232,36 +202,6 @@ class Choices:
 
 
 # =============================================================================
-# CONFIGURAÇÕES DE LOGGING
-# =============================================================================
-
-@dataclass(frozen=True)
-class LoggingConfig:
-    """Configurações de logging do sistema."""
-    
-    # Nível de log padrão
-    LEVEL: str = "INFO"
-    
-    # Formatos de log
-    FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    DATE_FORMAT: str = "%Y-%m-%d %H:%M:%S"
-    
-    # Arquivo de log
-    LOG_FILE: Path = field(default_factory=lambda: Path(__file__).parent / "logs" / "app.log")
-    MAX_BYTES: int = 5_242_880  # 5 MB
-    BACKUP_COUNT: int = 3
-    
-    # Níveis disponíveis
-    LEVELS: Dict[str, int] = field(default_factory=lambda: {
-        "DEBUG": 10,
-        "INFO": 20,
-        "WARNING": 30,
-        "ERROR": 40,
-        "CRITICAL": 50,
-    })
-
-
-# =============================================================================
 # MENSAGENS DO SISTEMA
 # =============================================================================
 
@@ -302,11 +242,9 @@ class Messages:
 
 # Instâncias das configurações para uso direto
 settings = Settings()
-paths = Paths()
 colors = Colors()
 columns = Columns()
 choices = Choices()
-logging_config = LoggingConfig()
 messages = Messages()
 
 
