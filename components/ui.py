@@ -154,6 +154,11 @@ def formatar_etapa_pill(estado_raw: Any, is_concluido: bool) -> str:
 # FICHAS DE PROGRESSO (FLIGHT PROGRESS STRIPS)
 # =============================================================================
 
+# Configuração de colunas das fichas e do cabeçalho da lista de cursos
+COLUNAS_FAIXA_PESOS = [2.2, 2.0, 1.0, 1.6, 2.0, 1.4]
+COLUNAS_FAIXA_GAP = "small"
+
+
 def render_faixa_curso(
     row: pd.Series,
     idx: int,
@@ -226,7 +231,8 @@ def render_faixa_curso(
                     st.rerun()
         else:
             col_curso, col_prazo, col_vagas, col_etapa, col_om, col_actions = st.columns(
-                [2.2, 2.0, 1.0, 1.6, 2.0, 1.4],
+                COLUNAS_FAIXA_PESOS,
+                gap=COLUNAS_FAIXA_GAP,
                 vertical_alignment="center"
             )
             with col_curso:
@@ -261,7 +267,7 @@ def render_faixa_curso(
                 om_display = f'<div class="strip-col-om" title="OM executora">{safe_om}</div>' if safe_om else '<div class="strip-col-om"></div>'
                 st.markdown(om_display, unsafe_allow_html=True)
             with col_actions:
-                col_btn_edit, col_btn_del = st.columns([2.5, 1], gap="small", vertical_alignment="center")
+                col_btn_edit, col_btn_del = st.columns([1, 0.35], gap="small", vertical_alignment="center")
                 with col_btn_edit:
                     if can_edit:
                         if st.button("Editar", key=f"btn_edit_{idx}", icon=":material/edit:", type="secondary", use_container_width=True):
@@ -280,9 +286,10 @@ def render_cabecalho_cursos() -> None:
     Renderiza linha de cabeçalho da tabela de cursos com os mesmos pesos de coluna
     das faixas de curso, em estilo de texto ink-soft 13px sentence case.
     """
-    with st.container(key="cursos_table_header"):
+    with st.container(border=True, key="faixa_header"):
         col_curso, col_prazo, col_vagas, col_etapa, col_om, col_actions = st.columns(
-            [2.2, 2.0, 1.0, 1.6, 2.0, 1.4],
+            COLUNAS_FAIXA_PESOS,
+            gap=COLUNAS_FAIXA_GAP,
             vertical_alignment="center"
         )
         with col_curso:
@@ -325,7 +332,7 @@ def render_faixa_compacta(row: pd.Series) -> str:
       </div>
       <div class="strip-compact-right">
         <div class="strip-prazo-rel {classe_prazo}">{rel_texto}</div>
-        <div style="font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums;">{vagas} {vagas_texto}</div>
+        <div class="strip-compact-vagas">{vagas} {vagas_texto}</div>
       </div>
     </div>
     """
